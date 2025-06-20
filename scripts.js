@@ -360,6 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Event Listener for Save PNG Button
     savePngButton.addEventListener('click', () => {
         saveCanvasAsPng();
+        buttonSound.currentTime = 0; // Rewind to the start
+        buttonSound.play(); // Play the sound
         if (saveSound) { // Only play if saveSound is defined
             saveSound.currentTime = 0;
             saveSound.play();
