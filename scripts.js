@@ -43,6 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
+            
+            { name: 'Coal Ore', texture: 'textures/coal_ore.png' },
+            { name: 'Iron Ore', texture: 'textures/iron_ore.png' },
+            { name: 'Copper Ore', texture: 'textures/copper_ore.png' },
+            { name: 'Gold Ore', texture: 'textures/gold_ore.png' },
+            { name: 'Redstone Ore', texture: 'textures/redstone_ore.png' },
+            { name: 'Emerald Ore', texture: 'textures/emerald_ore.png' },
+            { name: 'Lapis Lazuli Ore', texture: 'textures/lapis_ore.png' },
+            { name: 'Diamond Ore', texture: 'textures/diamond_ore.png' },
+
         ],
         Liquids: [
             { name: 'Water', texture: 'textures/water.png' },
