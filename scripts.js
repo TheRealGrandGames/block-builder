@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Create an Audio object for the click sound
     const clearSound = new Audio('audio/button_click.ogg'); // Path to your sound file
 
-    const blockCategories = {Add commentMore actions
+    const blockCategories = {
         Natural: [
             { name: 'Grass', texture: 'textures/grass.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
