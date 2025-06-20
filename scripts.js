@@ -35,6 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
         Stone: [
             { name: 'Stone', texture: 'textures/stone.png' },
         ],
+        Ores: [
+            { name: 'Coal Ore', texture: 'textures/coal_ore.png' },
+            { name: 'Iron Ore', texture: 'textures/iron_ore.png' },
+            { name: 'Copper Ore', texture: 'textures/copper_ore.png' },
+        ],
         Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
             { name: 'Iron Block', texture: 'textures/iron_block.png' },
@@ -43,6 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
+            Copper: [
+                { name: 'Coal Block', texture: 'textures/coal_block.png' },
+                { name: 'Iron Block', texture: 'textures/iron_block.png' },
+                { name: 'Gold Block', texture: 'textures/gold_block.png' },
+                { name: 'Diamond Block', texture: 'textures/diamond_block.png' },
+                { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
+                { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
+                { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
+            ],
         ],
         Liquids: [
             { name: 'Water', texture: 'textures/water.png' },
