@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // NEW: Create an Audio object for the click sound
     const buttonSound = new Audio('audio/button_click.mp3'); // Path to your sound file
-    const fillSound = new Audio('audio/fill_sound.mp3'); // Path to your fill sound file
+    const fillSound = new Audio('audio/grid_fill.mp3'); // Path to your fill sound file
 
 
     const blockCategories = {
