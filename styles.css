@@ -279,13 +279,13 @@ h1 {
 .clear-button {
     background-image: url('textures/button.png'); /* Path to your button texture */
     background-color: #f0f0f0; /* A neutral background color behind the texture */
-    text-color: #ffffff;
+    color: white;
 }
 
 .fill-button {
     background-image: url('textures/button.png'); /* Path to your fill button texture */
     background-color: #f0f0f0; /* Default background */
-    text-color: #ffffff;
+    color: white;
 }
 
 .action-button:hover {
