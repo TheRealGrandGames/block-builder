@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Create an Audio object for the click sound
     const buttonSound = new Audio('audio/button_click.mp3'); // Path to your sound file
     const fillSound = new Audio('audio/grid_fill.mp3'); // Path to your fill sound file
+    const selectSound = new Audio('audio/inventory_button_click.mp3'); // Path to your fill sound file
+    const categoryOpenSound = new Audio('audio/category_open.mp3'); // Path to your fill sound file
+    const categoryCollapseSound = new Audio('audio/category_collapse.mp3'); // Path to your fill sound file
 
 
     const blockCategories = {
@@ -100,8 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryContent.classList.toggle('collapsed');
                 if (categoryContent.classList.contains('collapsed')) {
                     toggleIcon.textContent = '►';
+                    categoryCollapseSound.currentTime = 0; // Rewind to the start
+                    categoryCollapseSound.play();
                 } else {
                     toggleIcon.textContent = '▼';
+                    categoryOpenSound.currentTime = 0; // Rewind to the start
+                    categoryOpenSound.play();
                 }
             });
 
@@ -160,6 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         element.classList.add('selected');
         currentInventoryBlockElement = element;
+
+        selectSound.currentTime = 0; // Rewind to the start
+        selectSound.play();
     }
 
     function initializeGrid() {
