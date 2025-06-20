@@ -5,24 +5,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const clearGridButton = document.getElementById('clearGridButton');
     const fillGridButton = document.getElementById('fillGridButton');
-    // NEW: Get the Save PNG button
     const savePngButton = document.getElementById('savePngButton');
-    // NEW: Get the hidden canvas
     const hiddenCanvas = document.getElementById('hiddenCanvas');
 
-    //const ctx = hiddenCanvas.getContext('2d'); 
-    
+    // NEW: Define canvas context and dimensions
     const gridSize = 10;
+    const blockSize = 50; // This should match the CSS width/height of your .grid-block
+    const canvasSize = gridSize * blockSize;
+    const ctx = hiddenCanvas.getContext('2d');
+
+    // Set canvas dimensions
+    hiddenCanvas.width = canvasSize;
+    hiddenCanvas.height = canvasSize;
+
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
     // NEW: Create an Audio object for the click sound
-    const buttonSound = new Audio('audio/button_click.mp3'); // Path to your sound file
-    const fillSound = new Audio('audio/grid_fill.mp3'); // Path to your fill sound file
-    const selectSound = new Audio('audio/inventory_button_click.mp3'); // Path to your fill sound file
-    const categoryOpenSound = new Audio('audio/category_open.mp3'); // Path to your fill sound file
-    const categoryCollapseSound = new Audio('audio/category_collapse.mp3'); // Path to your fill sound file
+    const buttonSound = new Audio('audio/button_click.mp3');
+    const fillSound = new Audio('audio/grid_fill.mp3');
+    const selectSound = new Audio('audio/inventory_button_click.mp3');
+    const categoryOpenSound = new Audio('audio/category_open.mp3');
+    const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
 
@@ -72,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
-            
+
             { name: 'Coal Ore', texture: 'textures/coal_ore.png' },
             { name: 'Iron Ore', texture: 'textures/iron_ore.png' },
             { name: 'Copper Ore', texture: 'textures/copper_ore.png' },
@@ -99,8 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Image cache to pre-load textures for canvas drawing
     const blockImages = {};
     let texturesLoadedPromise = null;
-    let imagesLoadedCount = 0;
-    let totalImagesToLoad = 0;
 
     // Function to load all textures into Image objects
     function preloadBlockTextures() {
@@ -160,8 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
             categoryDiv.appendChild(categoryContent);
 
             if (categoryName !== Object.keys(blockCategories)[0]) {
-                 categoryContent.classList.add('collapsed');
-                 toggleIcon.textContent = '►';
+                categoryContent.classList.add('collapsed');
+                toggleIcon.textContent = '►';
             }
 
             categoryHeader.addEventListener('click', () => {
@@ -210,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const initialGrassBlock = document.querySelector('.inventory-block[data-type="Grass Block"]');
         if (initialGrassBlock) {
-            selectBlock('Grass', initialGrassBlock);
+            selectBlock('Grass Block', initialGrassBlock); // Changed to 'Grass Block' for consistency
         }
     }
 
@@ -320,22 +323,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // UPDATED: Event Listener for Clear Grid Button
     clearGridButton.addEventListener('click', () => {
-        clearGrid(); // Call the function to clear the grid
-        buttonSound.currentTime = 0; // Rewind to the start
-        buttonSound.play(); // Play the sound
+        clearGrid();
+        buttonSound.currentTime = 0;
+        buttonSound.play();
     });
 
     fillGridButton.addEventListener('click', () => {
-        fillGrid(); // Call the function to fill the grid
-        buttonSound.currentTime = 0; // Rewind to the start
-        buttonSound.play(); // Play the sound
-        fillSound.currentTime = 0; // Rewind to the start
-        fillSound.play(); // Play the sound
+        fillGrid();
+        buttonSound.currentTime = 0;
+        buttonSound.play();
+        fillSound.currentTime = 0;
+        fillSound.play();
     });
 
-    // NEW: Function to draw the grid onto the canvas
+    // Function to draw the grid onto the canvas
     function drawGridToCanvas() {
         ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear the canvas
 
@@ -357,40 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (img && img.complete) { // Ensure image is loaded before drawing
                     ctx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
-                    // Fallback if image isn't loaded (shouldn't happen with preloading)
                     console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
                     ctx.fillStyle = '#ff00ff'; // Magenta placeholder for missing texture
-                    ctx.fillRect(x, y, blockSize, blockSize);
-                }
-            }
-        });
-    }
-
-    // NEW: Function to save the canvas as a PNG
-    function drawGridToCanvas() {
-        // ... (this function remains the same, but now ctx is defined) ...
-        ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear the canvas
-
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach(blockElement => {
-            const type = blockElement.dataset.type;
-            const index = parseInt(blockElement.dataset.index);
-            const row = Math.floor(index / gridSize);
-            const col = index % gridSize;
-
-            const x = col * blockSize;
-            const y = row * blockSize;
-
-            if (type === 'Air') {
-                ctx.fillStyle = '#e0e0e0'; // Match 'Air' block background color
-                ctx.fillRect(x, y, blockSize, blockSize);
-            } else {
-                const img = blockImages[type];
-                if (img && img.complete) {
-                    ctx.drawImage(img, x, y, blockSize, blockSize);
-                } else {
-                    console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
-                    ctx.fillStyle = '#ff00ff';
                     ctx.fillRect(x, y, blockSize, blockSize);
                 }
             }
@@ -404,8 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Textures are ready. Proceeding to draw and save.");
         } else {
             console.warn("texturesLoadedPromise was not initialized. Drawing may fail.");
-            // As a fallback, you might try to re-initiate loading or just draw.
-            // For now, it will proceed, but textures might be missing if not loaded.
         }
 
         drawGridToCanvas(); // Draw the current grid state to the canvas
@@ -421,9 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     savePngButton.addEventListener('click', async () => {
-        buttonSound.currentTime = 0; // Rewind to the start
-        buttonSound.play(); // Play the sound
-        await saveCanvasAsPng(); // Use await because saveCanvasAsPng is now async
+        buttonSound.currentTime = 0;
+        buttonSound.play();
+        await saveCanvasAsPng();
         if (saveSound) {
             saveSound.currentTime = 0;
             saveSound.play();
@@ -437,7 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGrid();
     }).catch(error => {
         console.error("Error preloading textures:", error);
-        // Initialize UI even if textures fail to load, just without images
         initializeInventory();
         initializeGrid();
     });
