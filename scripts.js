@@ -48,6 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         Stone: [
             { name: 'Stone', texture: 'textures/stone.png' },
+            { name: 'Stone Bricks', texture: 'textures/stone_bricks.png' },
+            { name: 'Cracked Stone Bricks', texture: 'textures/cracked_stone_bricks.png' },
+            { name: 'Mossy Stone Bricks', texture: 'textures/mossy_stone_bricks.png' },
+            { name: 'Chiseled Stone Bricks', texture: 'textures/chiseled_stone_bricks.png' },
+            { name: 'Granite', texture: 'textures/granite.png' },
+            { name: 'Polished Granite', texture: 'textures/polished_granite.png' },
+            { name: 'Granite', texture: 'textures/diorite.png' },
+            { name: 'Polished Granite', texture: 'textures/polished_diorite.png' },
+            { name: 'Granite', texture: 'textures/andesite.png' },
+            { name: 'Polished Granite', texture: 'textures/polished_andesite.png' },
         ],
         Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
