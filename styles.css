@@ -288,6 +288,12 @@ h1 {
     color: white;
 }
 
+.save-button {
+    background-image: url('textures/button.png'); /* Path to your save button texture (optional) */
+    background-color: #f0f0f0; /* Default background if no texture */
+    color: white;
+}
+
 .action-button:hover {
     background-image: url('textures/button_highlighted.png'); /* Path to your button texture */
     background-color: #f0f0f0; /* A neutral background color behind the texture */
