@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Create an Audio object for the click sound
     const clearSound = new Audio('audio/button_click.ogg'); // Path to your sound file
 
-    const blockCategories = {
+    const blockCategories = {Add commentMore actions
         Natural: [
             { name: 'Grass', texture: 'textures/grass.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
@@ -43,8 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
-            { name: 'Redstone Block', texture: 'textures/redstone_block.png' },
-            { name: 'Copper Block', texture: 'textures/copper_block.png' },
         ],
         Liquids: [
             { name: 'Water', texture: 'textures/water.png' },
