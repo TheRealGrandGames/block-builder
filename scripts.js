@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const clearGridButton = document.getElementById('clearGridButton');
 
-    const gridSize = 10;
+    const gridSize = 15;
     let selectedBlockType = 'Grass';
     let currentInventoryBlockElement = null;
     let isPainting = false;
@@ -52,10 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
             { name: 'Redstone Block', texture: 'textures/redstone_block.png' },
+            { name: 'Copper Block', texture: 'textures/copper_block.png' },
         ],
-        Copper: [
-                { name: 'Coal Block', texture: 'textures/copper_block.png' },
-            ],
         Liquids: [
             { name: 'Water', texture: 'textures/water.png' },
             { name: 'Lava', texture: 'textures/lava.png' },
