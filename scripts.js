@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Cracked Stone Bricks', texture: 'textures/cracked_stone_bricks.png' },
             { name: 'Mossy Stone Bricks', texture: 'textures/mossy_stone_bricks.png' },
             { name: 'Chiseled Stone Bricks', texture: 'textures/chiseled_stone_bricks.png' },
+            { name: 'Cobblestone', texture: 'textures/cobblestone.png' },
+            { name: 'Mossy Cobblestone', texture: 'textures/mossy_cobblestone.png' },
             { name: 'Granite', texture: 'textures/granite.png' },
             { name: 'Polished Granite', texture: 'textures/polished_granite.png' },
             { name: 'Diorite', texture: 'textures/diorite.png' },
