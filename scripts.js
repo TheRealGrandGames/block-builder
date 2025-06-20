@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPainting = false;
 
     // NEW: Create an Audio object for the click sound
-    const clearSound = new Audio('audio/button_click.mp3'); // Path to your sound file
+    const buttonSound = new Audio('audio/button_click.mp3'); // Path to your sound file
     const fillSound = new Audio('audio/fill_sound.mp3'); // Path to your fill sound file
 
 
@@ -248,12 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // UPDATED: Event Listener for Clear Grid Button
     clearGridButton.addEventListener('click', () => {
         clearGrid(); // Call the function to clear the grid
-        //clearSound.currentTime = 0; // Rewind to the start
-        //clearSound.play(); // Play the sound
+        buttonSound.currentTime = 0; // Rewind to the start
+        buttonSound.play(); // Play the sound
     });
 
     fillGridButton.addEventListener('click', () => {
         fillGrid(); // Call the function to fill the grid
+        buttonSound.currentTime = 0; // Rewind to the start
+        buttonSound.play(); // Play the sound
         fillSound.currentTime = 0; // Rewind to the start
         fillSound.play(); // Play the sound
     });
