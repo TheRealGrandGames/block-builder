@@ -93,37 +93,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // NEW: Image cache to pre-load textures for canvas drawing
     const blockImages = {};
+    let texturesLoadedPromise = null;
     let imagesLoadedCount = 0;
     let totalImagesToLoad = 0;
 
     // Function to load all textures into Image objects
     function preloadBlockTextures() {
+        let imagesToLoad = [];
         for (const type in blockTypes) {
             const blockData = blockTypes[type];
             if (blockData.texture) {
-                totalImagesToLoad++;
-                const img = new Image();
-                img.src = blockData.texture;
-                // Important for cross-origin images if you ever host textures elsewhere
-                img.crossOrigin = "Anonymous";
-                img.onload = () => {
-                    imagesLoadedCount++;
-                    if (imagesLoadedCount === totalImagesToLoad) {
-                        // All textures are loaded, safe to initialize UI
-                        console.log('All textures loaded!');
-                    }
-                };
-                img.onerror = () => {
-                    console.error(`Failed to load texture: ${blockData.texture}`);
-                    imagesLoadedCount++; // Still increment to prevent blocking
-                };
-                blockImages[type] = img;
+                imagesToLoad.push(new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = blockData.texture;
+                    img.crossOrigin = "Anonymous"; // Important for canvas.toDataURL()
+                    img.onload = () => {
+                        blockImages[type] = img; // Store the loaded Image object
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.error(`Failed to load texture: ${blockData.texture}`);
+                        // Even if it fails, resolve to not block other images
+                        // You might want a fallback image here or handle differently
+                        blockImages[type] = null; // Mark as failed or use a placeholder
+                        resolve();
+                    };
+                }));
             }
         }
-        // If there are no textures or all textures are already loaded (e.g., from cache)
-        if (totalImagesToLoad === 0 || imagesLoadedCount === totalImagesToLoad) {
-             console.log('No textures to load or all already loaded!');
+
+        // If there are no images to load, resolve immediately
+        if (imagesToLoad.length === 0) {
+            texturesLoadedPromise = Promise.resolve();
+        } else {
+            // Wait for all image promises to resolve
+            texturesLoadedPromise = Promise.all(imagesToLoad);
         }
+
+        return texturesLoadedPromise;
     }
 
     function initializeInventory() {
@@ -385,9 +392,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function saveCanvasAsPng() {
-        // ... (this function remains the same) ...
-        drawGridToCanvas();
+    async function saveCanvasAsPng() {
+        // Ensure textures are loaded before drawing
+        if (texturesLoadedPromise) {
+            await texturesLoadedPromise; // Wait for all images to load
+            console.log("Textures are ready. Proceeding to draw and save.");
+        } else {
+            console.warn("texturesLoadedPromise was not initialized. Drawing may fail.");
+            // As a fallback, you might try to re-initiate loading or just draw.
+            // For now, it will proceed, but textures might be missing if not loaded.
+        }
+
+        drawGridToCanvas(); // Draw the current grid state to the canvas
 
         const dataURL = hiddenCanvas.toDataURL('image/png');
 
@@ -399,7 +415,25 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(a);
     }
 
+    savePngButton.addEventListener('click', async () => {
+        buttonSound.currentTime = 0; // Rewind to the start
+        buttonSound.play(); // Play the sound
+        await saveCanvasAsPng(); // Use await because saveCanvasAsPng is now async
+        if (saveSound) {
+            saveSound.currentTime = 0;
+            saveSound.play();
+        }
+    });
+
     // --- Run Initialization ---
-    initializeInventory();
-    initializeGrid();
+    preloadBlockTextures().then(() => {
+        console.log("Initial texture preload complete. Initializing UI.");
+        initializeInventory();
+        initializeGrid();
+    }).catch(error => {
+        console.error("Error preloading textures:", error);
+        // Initialize UI even if textures fail to load, just without images
+        initializeInventory();
+        initializeGrid();
+    });
 });
