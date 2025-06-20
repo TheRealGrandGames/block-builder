@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const clearGridButton = document.getElementById('clearGridButton');
     const fillGridButton = document.getElementById('fillGridButton');
+    // NEW: Get the Save PNG button
+    const savePngButton = document.getElementById('savePngButton');
+    // NEW: Get the hidden canvas
+    const hiddenCanvas = document.getElementById('hiddenCanvas');
 
     const gridSize = 10;
     let selectedBlockType = 'Grass';
@@ -17,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectSound = new Audio('audio/inventory_button_click.mp3'); // Path to your fill sound file
     const categoryOpenSound = new Audio('audio/category_open.mp3'); // Path to your fill sound file
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3'); // Path to your fill sound file
+    const saveSound = new Audio('audio/save_sound.mp3');
 
 
     const blockCategories = {
@@ -71,6 +76,41 @@ document.addEventListener('DOMContentLoaded', () => {
         blockCategories[category].forEach(block => {
             blockTypes[block.name] = block;
         });
+    }
+
+    // NEW: Image cache to pre-load textures for canvas drawing
+    const blockImages = {};
+    let imagesLoadedCount = 0;
+    let totalImagesToLoad = 0;
+
+    // Function to load all textures into Image objects
+    function preloadBlockTextures() {
+        for (const type in blockTypes) {
+            const blockData = blockTypes[type];
+            if (blockData.texture) {
+                totalImagesToLoad++;
+                const img = new Image();
+                img.src = blockData.texture;
+                // Important for cross-origin images if you ever host textures elsewhere
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    imagesLoadedCount++;
+                    if (imagesLoadedCount === totalImagesToLoad) {
+                        // All textures are loaded, safe to initialize UI
+                        console.log('All textures loaded!');
+                    }
+                };
+                img.onerror = () => {
+                    console.error(`Failed to load texture: ${blockData.texture}`);
+                    imagesLoadedCount++; // Still increment to prevent blocking
+                };
+                blockImages[type] = img;
+            }
+        }
+        // If there are no textures or all textures are already loaded (e.g., from cache)
+        if (totalImagesToLoad === 0 || imagesLoadedCount === totalImagesToLoad) {
+             console.log('No textures to load or all already loaded!');
+        }
     }
 
     function initializeInventory() {
@@ -268,6 +308,62 @@ document.addEventListener('DOMContentLoaded', () => {
         buttonSound.play(); // Play the sound
         fillSound.currentTime = 0; // Rewind to the start
         fillSound.play(); // Play the sound
+    });
+
+    // NEW: Function to draw the grid onto the canvas
+    function drawGridToCanvas() {
+        ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear the canvas
+
+        const gridBlocks = document.querySelectorAll('.grid-block');
+        gridBlocks.forEach(blockElement => {
+            const type = blockElement.dataset.type;
+            const index = parseInt(blockElement.dataset.index);
+            const row = Math.floor(index / gridSize);
+            const col = index % gridSize;
+
+            const x = col * blockSize;
+            const y = row * blockSize;
+
+            if (type === 'Air') {
+                ctx.fillStyle = '#e0e0e0'; // Match 'Air' block background color
+                ctx.fillRect(x, y, blockSize, blockSize);
+            } else {
+                const img = blockImages[type];
+                if (img && img.complete) { // Ensure image is loaded before drawing
+                    ctx.drawImage(img, x, y, blockSize, blockSize);
+                } else {
+                    // Fallback if image isn't loaded (shouldn't happen with preloading)
+                    console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
+                    ctx.fillStyle = '#ff00ff'; // Magenta placeholder for missing texture
+                    ctx.fillRect(x, y, blockSize, blockSize);
+                }
+            }
+        });
+    }
+
+    // NEW: Function to save the canvas as a PNG
+    function saveCanvasAsPng() {
+        drawGridToCanvas(); // Draw the current grid state to the canvas
+
+        // Get the data URL of the canvas content (PNG format)
+        const dataURL = hiddenCanvas.toDataURL('image/png');
+
+        // Create a temporary link element
+        const a = document.createElement('a');
+        a.href = dataURL;
+        a.download = 'my_block_design.png'; // Suggested file name
+        document.body.appendChild(a); // Append to body (needed for Firefox)
+        a.click(); // Programmatically click the link to trigger download
+        document.body.removeChild(a); // Clean up the link element
+    }
+
+    // NEW: Event Listener for Save PNG Button
+    savePngButton.addEventListener('click', () => {
+        saveCanvasAsPng();
+        if (saveSound) { // Only play if saveSound is defined
+            saveSound.currentTime = 0;
+            saveSound.play();
+        }
     });
 
     // --- Run Initialization ---
