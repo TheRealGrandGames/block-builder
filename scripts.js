@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Stone: [
             { name: 'Stone', texture: 'textures/stone.png' },
         ],
-        Ores: [
+        Minerals: [
             { name: 'Coal Ore', texture: 'textures/coal_ore.png' },
             { name: 'Iron Ore', texture: 'textures/iron_ore.png' },
             { name: 'Copper Ore', texture: 'textures/copper_ore.png' },
@@ -44,8 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Emerald Ore', texture: 'textures/emerald_ore.png' },
             { name: 'Lapis Lazuli Ore', texture: 'textures/lapis_ore.png' },
             { name: 'Diamond Ore', texture: 'textures/diamond_ore.png' },
-        ],
-        Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
             { name: 'Iron Block', texture: 'textures/iron_block.png' },
             { name: 'Gold Block', texture: 'textures/gold_block.png' },
