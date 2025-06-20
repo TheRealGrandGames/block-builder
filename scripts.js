@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Get the hidden canvas
     const hiddenCanvas = document.getElementById('hiddenCanvas');
 
-    const ctx = hiddenCanvas.getContext('2d'); 
+    //const ctx = hiddenCanvas.getContext('2d'); 
     
     const gridSize = 10;
     let selectedBlockType = 'Grass Block';
