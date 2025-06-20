@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hiddenCanvas = document.getElementById('hiddenCanvas');
 
     const gridSize = 10;
-    let selectedBlockType = 'Grass';
+    let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
             blockInventory.appendChild(categoryDiv);
         }
 
-        const initialGrassBlock = document.querySelector('.inventory-block[data-type="Grass"]');
+        const initialGrassBlock = document.querySelector('.inventory-block[data-type="Grass Block"]');
         if (initialGrassBlock) {
             selectBlock('Grass', initialGrassBlock);
         }
