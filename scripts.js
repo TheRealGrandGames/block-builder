@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockTooltip = document.getElementById('blockTooltip');
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const clearGridButton = document.getElementById('clearGridButton');
+    const fillGridButton = document.getElementById('fillGridButton');
 
     const gridSize = 10;
     let selectedBlockType = 'Grass';
@@ -11,7 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPainting = false;
 
     // NEW: Create an Audio object for the click sound
-    const clearSound = new Audio('audio/button_click.ogg'); // Path to your sound file
+    const clearSound = new Audio('audio/button_click.mp3'); // Path to your sound file
+    const fillSound = new Audio('audio/fill_sound.mp3'); // Path to your fill sound file
+
 
     const blockCategories = {
         Natural: [
@@ -235,11 +238,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function fillGrid() {
+        const allGridBlocks = document.querySelectorAll('.grid-block');
+        allGridBlocks.forEach(block => {
+            placeBlock(block, selectedBlockType); // Use the currently selected block type
+        });
+    }
+
     // UPDATED: Event Listener for Clear Grid Button
     clearGridButton.addEventListener('click', () => {
         clearGrid(); // Call the function to clear the grid
         //clearSound.currentTime = 0; // Rewind to the start
         //clearSound.play(); // Play the sound
+    });
+
+    fillGridButton.addEventListener('click', () => {
+        fillGrid(); // Call the function to fill the grid
+        fillSound.currentTime = 0; // Rewind to the start
+        fillSound.play(); // Play the sound
     });
 
     // --- Run Initialization ---
