@@ -228,8 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // UPDATED: Event Listener for Clear Grid Button
     clearGridButton.addEventListener('click', () => {
         clearGrid(); // Call the function to clear the grid
-        clearSound.currentTime = 0; // Rewind to the start
-        clearSound.play(); // Play the sound
+        //clearSound.currentTime = 0; // Rewind to the start
+        //clearSound.play(); // Play the sound
     });
 
     // --- Run Initialization ---
