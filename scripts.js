@@ -77,6 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
+            { name: 'Amethyst Block', texture: 'textures/amethyst_block.png' },
+            { name: 'Budding Amethyst', texture: 'textures/budding_amethyst.png' },
 
             { name: 'Coal Ore', texture: 'textures/coal_ore.png' },
             { name: 'Iron Ore', texture: 'textures/iron_ore.png' },
