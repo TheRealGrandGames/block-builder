@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Cherry Planks', texture: 'textures/cherry_planks.png' },
             { name: 'Pale Oak Planks', texture: 'textures/pale_oak_planks.png' },
             { name: 'Bamboo Planks', texture: 'textures/bamboo_planks.png' },
+            { name: 'Bamboo Mosaic', texture: 'textures/bamboo_mosaic.png' },
             { name: 'Crimson Planks', texture: 'textures/crimson_planks.png' },
             { name: 'Warped Planks', texture: 'textures/warped_planks.png' },
         ],
