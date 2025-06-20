@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const clearGridButton = document.getElementById('clearGridButton');
 
-    const gridSize = 15;
+    const gridSize = 10;
     let selectedBlockType = 'Grass';
     let currentInventoryBlockElement = null;
     let isPainting = false;
