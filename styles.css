@@ -283,7 +283,7 @@ h1 {
 }
 
 .fill-button {
-    background-image: url('textures/fill_button.png'); /* Path to your fill button texture */
+    background-image: url('textures/button.png'); /* Path to your fill button texture */
     background-color: #f0f0f0; /* Default background */
     text-color: #ffffff;
 }
