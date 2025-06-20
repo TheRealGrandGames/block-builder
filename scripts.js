@@ -26,10 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const blockCategories = {
         Natural: [
-            { name: 'Grass', texture: 'textures/grass.png' },
+            { name: 'Grass Block', texture: 'textures/grass.png' },
+            { name: 'Moss Block', texture: 'textures/moss_block.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
-            { name: 'Dirt', texture: 'textures/coarse_dirt.png' },
-            { name: 'Dirt', texture: 'textures/rooted_dirt.png' },
+            { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
+            { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
         ],
         Wood: [
             { name: 'Oak Planks', texture: 'textures/oak_planks.png' },
