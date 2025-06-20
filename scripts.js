@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
         Natural: [
             { name: 'Grass', texture: 'textures/grass.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
+            { name: 'Dirt', texture: 'textures/coarse_dirt.png' },
+            { name: 'Dirt', texture: 'textures/rooted_dirt.png' },
         ],
         Wood: [
             { name: 'Oak Planks', texture: 'textures/oak_planks.png' },
