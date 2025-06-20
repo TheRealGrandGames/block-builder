@@ -345,31 +345,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // NEW: Function to save the canvas as a PNG
-    function saveCanvasAsPng() {
-        drawGridToCanvas(); // Draw the current grid state to the canvas
+    function drawGridToCanvas() {
+        // ... (this function remains the same, but now ctx is defined) ...
+        ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear the canvas
 
-        // Get the data URL of the canvas content (PNG format)
-        const dataURL = hiddenCanvas.toDataURL('image/png');
+        const gridBlocks = document.querySelectorAll('.grid-block');
+        gridBlocks.forEach(blockElement => {
+            const type = blockElement.dataset.type;
+            const index = parseInt(blockElement.dataset.index);
+            const row = Math.floor(index / gridSize);
+            const col = index % gridSize;
 
-        // Create a temporary link element
-        const a = document.createElement('a');
-        a.href = dataURL;
-        a.download = 'my_block_design.png'; // Suggested file name
-        document.body.appendChild(a); // Append to body (needed for Firefox)
-        a.click(); // Programmatically click the link to trigger download
-        document.body.removeChild(a); // Clean up the link element
+            const x = col * blockSize;
+            const y = row * blockSize;
+
+            if (type === 'Air') {
+                ctx.fillStyle = '#e0e0e0'; // Match 'Air' block background color
+                ctx.fillRect(x, y, blockSize, blockSize);
+            } else {
+                const img = blockImages[type];
+                if (img && img.complete) {
+                    ctx.drawImage(img, x, y, blockSize, blockSize);
+                } else {
+                    console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
+                    ctx.fillStyle = '#ff00ff';
+                    ctx.fillRect(x, y, blockSize, blockSize);
+                }
+            }
+        });
     }
 
-    // NEW: Event Listener for Save PNG Button
-    savePngButton.addEventListener('click', () => {
-        saveCanvasAsPng();
-        buttonSound.currentTime = 0; // Rewind to the start
-        buttonSound.play(); // Play the sound
-        if (saveSound) { // Only play if saveSound is defined
-            saveSound.currentTime = 0;
-            saveSound.play();
-        }
-    });
+    function saveCanvasAsPng() {
+        // ... (this function remains the same) ...
+        drawGridToCanvas();
+
+        const dataURL = hiddenCanvas.toDataURL('image/png');
+
+        const a = document.createElement('a');
+        a.href = dataURL;
+        a.download = 'my_block_design.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
 
     // --- Run Initialization ---
     initializeInventory();
