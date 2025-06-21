@@ -228,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Ice', texture: 'textures/ice.png' },
             { name: 'Packed Ice', texture: 'textures/packed_ice.png' },
             { name: 'Blue Ice', texture: 'textures/blue_ice.png' },
+            { name: 'Resin Block', texture: 'textures/resin_block.png' },
         ],
         Wood: [
             { name: 'Oak Planks', texture: 'textures/oak_planks.png' },
