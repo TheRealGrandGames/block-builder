@@ -251,8 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Cherry Log', texture: 'textures/cherry_log_top.png' },
             { name: 'Pale Oak Log', texture: 'textures/pale_oak_log_top.png' },
             { name: 'Bamboo Block', texture: 'textures/bamboo_block_top.png' },
-            { name: 'Crimson Stem', texture: 'textures/crimson_log_stem.png' },
-            { name: 'Warped Stem', texture: 'textures/warped_log_stem.png' },
+            { name: 'Crimson Stem', texture: 'textures/crimson_stem.png' },
+            { name: 'Warped Stem', texture: 'textures/warped_stem.png' },
 
             { name: 'Stripped Oak Log', texture: 'textures/stripped_oak_log_top.png' },
             { name: 'Stripped Spruce Log', texture: 'textures/stripped_spruce_log_top.png' },
