@@ -13,6 +13,17 @@
     <div class="game-container">
         <!-- Theme Selector Dropdown -->
         <div class="theme-selector-container">
+           <label for="theme-select">Music Category:</label>
+            <select id="musicCategorySelect" class="action-button music-category-select"
+                data-tooltip="Select a category of background music to play.">
+                <option value="All">All Music</option>
+                <option value="Creative">Creative</option>
+                <option value="Survival">Survival</option>
+                <option value="Nether">Nether</option>
+                <option value="End">End</option>
+                <option value="Music Discs">Music Discs</option>
+            </select>
+            
             <label for="theme-select">Theme:</label>
             <!-- Removed action-button class from select element -->
             <select id="theme-select">
