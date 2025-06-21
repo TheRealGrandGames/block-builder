@@ -65,6 +65,9 @@
             <input type="number" id="gridHeight" min="1" max="35" value="10">
             <button id="setGridSizeButton" class="action-button"
                 data-tooltip="WARNING: THE ENTIRE GRID WILL BE CLEARED">Set Grid Size</button>
+            <!-- NEW: Reset to Default Grid Size Button -->
+            <button id="resetGridSizeButton" class="action-button"
+                data-tooltip="Reset grid size to 10x10 (clears grid)">Reset to Default</button>
         </div>
         
         <div id="gameGrid" class="game-grid">
@@ -77,16 +80,16 @@
         </div>
 
         <h2>Save as .png</h2>
-
+        
+        <div class="utility-buttons-container">
+            <button id="savePngButton" class="action-button save-button">Save PNG</button>
+        </div>
         <div class="checkbox-container">
             <input type="checkbox" id="includeResourcesCheckbox" class="custom-checkbox-input">
             <label for="includeResourcesCheckbox" class="custom-checkbox-label">
                 <span class="checkbox-visual"></span>
                 Include Resource List in PNG
             </label>
-        </div>
-        <div class="utility-buttons-container">
-            <button id="savePngButton" class="action-button save-button">Save PNG</button>
         </div>
     </div>
 
