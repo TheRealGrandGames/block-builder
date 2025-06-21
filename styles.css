@@ -274,6 +274,16 @@ h1 {
     color: white;
 }
 
+/* Styles for disabled buttons */
+.action-button:disabled {
+    opacity: 0.5; /* Make them look greyed out */
+    cursor: not-allowed;
+    filter: none; /* Remove any hover filters */
+    transform: none; /* Remove any transform effects */
+    box-shadow: none; /* Remove any shadows */
+}
+
+
 .action-button:hover {
     background-color: #c82333;
 }
@@ -316,7 +326,7 @@ h1 {
     /* You can adjust width/height if you want it different from other action buttons */
 }
 
-.action-button:hover {
+.action-button:hover:not(:disabled) { /* Apply hover effect only if not disabled */
     background-image: url('textures/button_highlighted.png'); /* Path to your button texture */
     background-color: #f0f0f0; /* A neutral background color behind the texture */
     filter: brightness(1.1); /* Slightly brighten on hover */
@@ -324,7 +334,7 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
 }
 
-.action-button:active {
+.action-button:active:not(:disabled) { /* Apply active effect only if not disabled */
     filter: brightness(0.9); /* Darken slightly when clicked */
     transform: translateY(0); /* Reset lift on active */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow on active */
