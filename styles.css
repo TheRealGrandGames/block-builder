@@ -162,7 +162,7 @@ h1 {
     grid-template-rows: repeat(10, 50px);
     border: 2px solid #555;
     background-color: #eee;
-    margin-top: 20px;
+    margin: 20px auto; /* Changed margin-top to margin: 20px auto; */
     user-select: none;
 
     image-rendering: pixelated;
