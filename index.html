@@ -41,6 +41,15 @@
         <button id="clearGridButton" class="action-button clear-button">Clear</button>
         <button id="savePngButton" class="action-button save-button">Save PNG</button>
 
+        <div class="grid-size-controls">
+            <h3>Grid Dimensions:</h3>
+            <label for="gridWidth">Width (X):</label>
+            <input type="number" id="gridWidth" min="1" max="25" value="10">
+            <label for="gridHeight">Height (Z):</label>
+            <input type="number" id="gridHeight" min="1" max="25" value="10">
+            <button id="setGridSizeButton" class="action-button">Set Grid Size</button>
+        </div>
+        
         <h2>Grid</h2>
 
         <div id="gameGrid" class="game-grid">
