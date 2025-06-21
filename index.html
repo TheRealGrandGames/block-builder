@@ -11,6 +11,16 @@
     <h1>Block Builder</h1>
 
     <div class="game-container">
+        <!-- NEW: Theme Selector Dropdown -->
+        <div class="theme-selector-container">
+            <label for="theme-select">Theme:</label>
+            <select id="theme-select" class="action-button">
+                <option value="light">Light Theme</option>
+                <option value="dark">Dark Theme</option>
+                <option value="red-dye">Red Dye Theme</option>
+            </select>
+        </div>
+
         <div class="top-buttons-container">
             <button id="musicToggleButton" class="action-button music-toggle-button"
                     data-tooltip="Toggle background music on or off.">Music: ON</button>
@@ -53,8 +63,6 @@
                 data-tooltip="Clear the entire grid.">Clear</button>
             <button id="importButton" class="action-button" data-tooltip="Load a .blockbuilder file.">Import</button>
             <button id="exportButton" class="action-button" data-tooltip="Save your current grid as a .blockbuilder file.">Export</button>
-            <!-- NEW: Export to NBT Button -->
-            <!-- <button id="exportNBTButton" class="action-button" data-tooltip="Export grid to .nbt for Minecraft.">Export to NBT</button> -->
         </div>
         
         <h2>Grid</h2>
