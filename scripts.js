@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fillGridButton = document.getElementById('fillGridButton');
     const savePngButton = document.getElementById('savePngButton');
     const hiddenCanvas = document.getElementById('hiddenCanvas');
-    const soundToggleButton = document.getElementById('soundToggleButton'); // NEW: Get the sound toggle button
+    const soundToggleButton = document.getElementById('soundToggleButton');
+    const musicToggleButton = document.getElementById('musicToggleButton'); // NEW: Get the music toggle button
 
     const gridSize = 10;
     const blockSize = 50;
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
-    // NEW: Audio objects and sound enabled state
+    // Audio objects for sound effects
     const buttonSound = new Audio('audio/button_click.mp3');
     const fillSound = new Audio('audio/grid_fill.mp3');
     const selectSound = new Audio('audio/inventory_button_click.mp3');
@@ -29,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
-    // All sound effects in one array for easy iteration
-    const allSounds = [
+    // All sound effects in one array for easy iteration (optional, but good for management)
+    const allEffectSounds = [
         buttonSound,
         fillSound,
         selectSound,
@@ -39,16 +40,22 @@ document.addEventListener('DOMContentLoaded', () => {
         saveSound
     ];
 
-    // NEW: Initialize sound state from localStorage
-    // 'true' if sounds are enabled, 'false' if disabled. Default to true.
-    let soundsEnabled = localStorage.getItem('soundsEnabled') === 'false' ? false : true;
+    // NEW: Music Audio object
+    const backgroundMusic = new Audio('audio/background_music.mp3'); // <--- IMPORTANT: Update path to your music file
+    backgroundMusic.loop = true; // Make the music loop continuously
+    backgroundMusic.volume = 0.5; // Adjust volume as needed (0.0 to 1.0)
 
-    // Function to play a sound if sounds are enabled
+
+    // Initialize sound effects state from localStorage
+    let soundsEnabled = localStorage.getItem('soundsEnabled') === 'false' ? false : true;
+    // NEW: Initialize music state from localStorage
+    let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
+
+    // Function to play a sound effect if sounds are enabled
     function playSound(audioElement) {
         if (soundsEnabled) {
             audioElement.currentTime = 0; // Rewind to the start
             audioElement.play().catch(e => console.error("Error playing sound:", e));
-            // Add .catch() for Promise rejection, common with autoplay policies
         }
     }
 
@@ -57,8 +64,34 @@ document.addEventListener('DOMContentLoaded', () => {
         soundToggleButton.textContent = `Sounds: ${soundsEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // Call this immediately to set initial button text
+    // NEW: Functions for controlling background music
+    function playBackgroundMusic() {
+        if (musicEnabled) {
+            // Check if music is already playing to avoid restarting
+            if (backgroundMusic.paused) {
+                 backgroundMusic.play().catch(e => {
+                    console.error("Error playing background music:", e);
+                    // This often happens if the browser blocks autoplay before user interaction.
+                    // You might want to temporarily disable music or show a message.
+                });
+            }
+        } else {
+            backgroundMusic.pause();
+        }
+    }
+
+    function pauseBackgroundMusic() {
+        backgroundMusic.pause();
+    }
+
+    // NEW: Function to update the music toggle button's text
+    function updateMusicToggleButton() {
+        musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
+    }
+
+    // Call these immediately to set initial button text
     updateSoundToggleButton();
+    updateMusicToggleButton();
 
 
     const blockCategories = {
@@ -198,10 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryContent.classList.toggle('collapsed');
                 if (categoryContent.classList.contains('collapsed')) {
                     toggleIcon.textContent = '►';
-                    playSound(categoryCollapseSound); // Use playSound function
+                    playSound(categoryCollapseSound);
                 } else {
                     toggleIcon.textContent = '▼';
-                    playSound(categoryOpenSound); // Use playSound function
+                    playSound(categoryOpenSound);
                 }
             });
 
@@ -261,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.add('selected');
         currentInventoryBlockElement = element;
 
-        playSound(selectSound); // Use playSound function
+        playSound(selectSound);
     }
 
     function initializeGrid() {
@@ -281,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // NEW: Middle-click (scroll wheel click) to select block
             block.addEventListener('mouseup', (event) => {
                 if (event.button === 1) { // Middle mouse button
                     event.preventDefault();
@@ -296,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
-
 
             block.addEventListener('mouseenter', (event) => {
                 if (isPainting) {
@@ -366,13 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearGridButton.addEventListener('click', () => {
         clearGrid();
-        playSound(buttonSound); // Use playSound function
+        playSound(buttonSound);
     });
 
     fillGridButton.addEventListener('click', () => {
         fillGrid();
-        playSound(buttonSound); // Use playSound function
-        playSound(fillSound);   // Use playSound function
+        playSound(buttonSound);
+        playSound(fillSound);
     });
 
     function drawGridToCanvas() {
@@ -425,17 +456,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     savePngButton.addEventListener('click', async () => {
-        playSound(buttonSound); // Use playSound function
+        playSound(buttonSound);
         await saveCanvasAsPng();
-        playSound(saveSound); // Use playSound function
+        playSound(saveSound);
     });
 
-    // NEW: Sound toggle button event listener
+    // Sound effects toggle button event listener
     soundToggleButton.addEventListener('click', () => {
-        soundsEnabled = !soundsEnabled; // Toggle the state
-        localStorage.setItem('soundsEnabled', soundsEnabled); // Save the state
-        updateSoundToggleButton(); // Update the button text
+        soundsEnabled = !soundsEnabled;
+        localStorage.setItem('soundsEnabled', soundsEnabled);
+        updateSoundToggleButton();
         playSound(buttonSound); // Play button sound *if* newly enabled, otherwise no sound
+    });
+
+    // NEW: Music toggle button event listener
+    musicToggleButton.addEventListener('click', () => {
+        musicEnabled = !musicEnabled; // Toggle the state
+        localStorage.setItem('musicEnabled', musicEnabled); // Save the state
+        updateMusicToggleButton(); // Update the button text
+        if (musicEnabled) {
+            playBackgroundMusic(); // If music is now enabled, start playing
+        } else {
+            pauseBackgroundMusic(); // If music is now disabled, pause it
+        }
+        // You might want a subtle sound effect here, even if main sounds are off
+        // For example, if you want a distinct click when toggling music.
+        // If not, rely on the visual update and the music starting/stopping.
     });
 
 
@@ -444,6 +490,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
         initializeGrid();
+
+        // NEW: Attempt to play background music on initial load
+        // This will honor the 'musicEnabled' setting from localStorage
+        // Note: Browsers often prevent autoplay until a user interaction.
+        // The music might only start after the first click on the page.
+        playBackgroundMusic();
+
     }).catch(error => {
         console.error("Error preloading textures:", error);
         initializeInventory();
