@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridWidthInput = document.getElementById('gridWidth');
     const gridHeightInput = document.getElementById('gridHeight');
     const setGridSizeButton = document.getElementById('setGridSizeButton');
+    const resetGridSizeButton = document.getElementById('resetGridSizeButton'); // NEW
 
     // NEW: Undo/Redo buttons
     const undoButton = document.getElementById('undoButton');
@@ -1103,8 +1104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGrid(newWidth, newHeight, true); // Initialize a new grid, saving its state
     });
 
+    // NEW: Reset Grid Size Button functionality
+    resetGridSizeButton.addEventListener('click', () => {
+        playSound(buttonSound);
+        gridWidthInput.value = 10;
+        gridHeightInput.value = 10;
+        initializeGrid(10, 10, true); // Reset to 10x10 and clear the grid, updating history
+    });
+
+
     // --- NEW: Add Tooltip Handling for Buttons ---
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, savePngButton, importButton, exportButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
