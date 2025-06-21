@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'audio/taswell.mp3',
         'audio/dreiton.mp3',
         'audio/aria_math.mp3',
-        'audio/haunt_muskie.mp3'
+        'audio/haunt_muskie.mp3',
+        'audio/biome_fest.mp3'
     ];
 
     // NEW: Music Audio object - ONE object to manage multiple songs
