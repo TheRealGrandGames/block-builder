@@ -294,6 +294,12 @@ h1 {
     color: white;
 }
 
+.sound-toggle-button {
+    background-image: url('textures/button.png'); /* Or a specific sound button texture */
+    background-color: #f0f0f0;
+    color: white;
+}
+
 .action-button:hover {
     background-image: url('textures/button_highlighted.png'); /* Path to your button texture */
     background-color: #f0f0f0; /* A neutral background color behind the texture */
