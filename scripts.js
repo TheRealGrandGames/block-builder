@@ -206,10 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockCategories = {
         Natural: [
             { name: 'Grass Block', texture: 'textures/grass.png' },
-            { name: 'Podzol', texture: 'textures/podzol.png' },
-            { name: 'Mycelium', texture: 'textures/mycelium.png' },
+            { name: 'Podzol', texture: 'textures/podzol_top.png' },
+            { name: 'Mycelium', texture: 'textures/mycelium_top.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
-            { name: 'Dirt Path', texture: 'textures/dirt_path.png' },
+            { name: 'Dirt Path', texture: 'textures/dirt_path_top.png' },
             { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
             { name: 'Farmland', texture: 'textures/farmland.png' },
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Cobblestone', texture: 'textures/cobblestone.png' },
             { name: 'Mossy Cobblestone', texture: 'textures/mossy_cobblestone.png' },
             
-            { name: 'Deepslate', texture: 'textures/deepslate.png' },
+            { name: 'Deepslate', texture: 'textures/deepslate_top.png' },
             { name: 'Polished Deepslate', texture: 'textures/polished_deepslate.png' },
             { name: 'Deepslate Bricks', texture: 'textures/deepslate_bricks.png' },
             { name: 'Cracked Deepslate Bricks', texture: 'textures/cracked_deepslate_bricks.png' },
