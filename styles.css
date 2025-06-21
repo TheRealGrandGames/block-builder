@@ -452,3 +452,66 @@ h1 {
     justify-content: center; /* Centers the buttons horizontally */
     flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
 }
+
+/* UPDATED: Style for the checkbox container and custom checkbox */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    /* Removed gap here, as it's now handled by .custom-checkbox-label */
+}
+
+/* Hide the default browser checkbox */
+.custom-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none; /* Make sure it doesn't interfere with clicks on the label */
+}
+
+/* Style the custom label (the clickable area) */
+.custom-checkbox-label {
+    display: inline-flex; /* Use flex to align visual and text */
+    align-items: center;
+    cursor: pointer;
+    gap: 8px; /* Space between custom visual and text */
+    font-size: 1em;
+    color: #555;
+    user-select: none; /* Prevent text selection on double-click */
+    padding: 5px; /* Add some padding to the clickable area */
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+/* Style the custom visual element */
+.checkbox-visual {
+    width: 24px; /* Size of your custom checkbox image */
+    height: 24px;
+    background-image: url('textures/checkbox_unchecked.png'); /* Default unchecked state texture */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    transition: background-image 0.1s ease, filter 0.1s ease; /* Smooth transition on check/uncheck and hover */
+}
+
+/* Change visual when the hidden input is checked */
+.custom-checkbox-input:checked + .custom-checkbox-label .checkbox-visual {
+    background-image: url('textures/checkbox_checked.png'); /* Checked state texture */
+}
+
+/* Hover state for the label (applies to the visual span via inheritance) */
+.custom-checkbox-label:hover {
+    background-color: #e9e9e9; /* Subtle background change on hover */
+}
+
+.custom-checkbox-label:hover .checkbox-visual {
+    filter: brightness(1.1); /* Subtle brightness increase on hover */
+}
+
+/* Active state for the label (while being clicked) */
+.custom-checkbox-label:active .checkbox-visual {
+    filter: brightness(0.9); /* Subtle darken on active */
+}
