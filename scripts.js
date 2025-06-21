@@ -240,6 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Polished Diorite', texture: 'textures/polished_diorite.png' },
             { name: 'Andesite', texture: 'textures/andesite.png' },
             { name: 'Polished Andesite', texture: 'textures/polished_andesite.png' },
+            { name: 'Netherrack', texture: 'textures/netherrack.png' },
+            { name: 'End Stone', texture: 'textures/end_stone.png' },
         ],
         Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
