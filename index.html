@@ -5,47 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block Builder</title>
     <link rel="stylesheet" href="styles.css">
-</head>
+    </head>
 <body>
-    <h1>Block Builder</h1>
-    
-    <div class="game-container">
-        <button id="musicToggleButton" class="action-button music-toggle-button">Music: ON</button>
-        <button id="soundToggleButton" class="action-button sound-toggle-button">Sounds: ON</button>
-        
-        <div class="instructions">
-            <p>**Instructions:**</p>
-            <ul>
-                <li>Click a block in your inventory to select it.</li>
-                <li>**Left-click** on the grid to place the selected block.</li>
-                <li>**Right-click** on a block to destroy it.</li>
-                <li>**Middle-click** on a block on the grid to select it.</li>
-                <li>Click on category headers in the inventory to expand/collapse.</li>
-            </ul>
-        </div>
+    <div class="container">
+        <h1>Block Builder</h1>
 
-        <div class="inventory">
-            <h2>Inventory</h2>
-            <div id="blockInventory" class="block-items">
+        <div class="top-controls">
+            <div class="selected-block-display-container">
+                <div id="selectedBlockDisplay" class="selected-block-display"></div>
+                <p>Selected Block</p>
+            </div>
+            <div class="grid-controls">
+                <button id="clearGridButton" class="control-button">Clear Grid</button>
+                <button id="fillGridButton" class="control-button">Fill Grid</button>
+                <button id="savePngButton" class="control-button">Save as PNG</button>
+            </div>
+            <div class="audio-controls">
+                <button id="soundToggleButton" class="control-button">Sounds: ON</button>
+                <button id="musicToggleButton" class="control-button">Music: ON</button>
             </div>
         </div>
 
-        <div class="selected-block-area">
-            <h3>Currently Selected:</h3>
-            <div id="selectedBlockDisplay" class="selected-block-visual"></div>
-        </div>
-        
-        <button id="fillGridButton" class="action-button fill-button">Fill</button>
-        <button id="clearGridButton" class="action-button clear-button">Clear</button>
-        <button id="savePngButton" class="action-button save-button">Save PNG</button>
+        <div class="game-area">
+            <div id="gameGrid" class="game-grid">
+                </div>
 
-        <h2>Grid</h2>
+            <div id="resourceCount" class="resource-count-container">
+                <h2>Block Usage</h2>
+                <div id="resourceList" class="resource-list">
+                    <p>Place blocks to see usage...</p>
+                </div>
+            </div>
 
-        <div id="gameGrid" class="game-grid">
+            <div id="blockInventory" class="block-inventory">
+                </div>
         </div>
+
+        <div id="blockTooltip" class="block-tooltip"></div>
     </div>
-
-    <div id="blockTooltip" class="block-tooltip"></div>
 
     <canvas id="hiddenCanvas" style="display: none;"></canvas>
 
