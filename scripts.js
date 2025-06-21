@@ -387,10 +387,32 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Raw Iron Block', texture: 'textures/raw_iron_block.png' },
             { name: 'Iron Block', texture: 'textures/iron_block.png' },
             { name: 'Raw Copper Block', texture: 'textures/raw_copper_block.png' },
+            
             { name: 'Copper Block', texture: 'textures/copper_block.png' },
             { name: 'Exposed Copper Block', texture: 'textures/exposed_copper.png' },
             { name: 'Weathered Copper Block', texture: 'textures/weathered_copper.png' },
             { name: 'Oxidized Copper Block', texture: 'textures/oxidized_copper.png' },
+
+            { name: 'Cut Copper', texture: 'textures/cut_copper.png' },
+            { name: 'Exposed Cut Copper', texture: 'textures/exposed_cut_copper.png' },
+            { name: 'Weathered Cut Copper', texture: 'textures/weathered_cut_copper.png' },
+            { name: 'Oxidized Cut Copper', texture: 'textures/oxidized_cut_copper.png' },
+
+            { name: 'Chiseled Copper', texture: 'textures/chiseled_copper.png' },
+            { name: 'Exposed Chiseled Copper Block', texture: 'textures/exposed_chiseled_copper.png' },
+            { name: 'Weathered Chiseled Copper Block', texture: 'textures/weathered_chiseled_copper.png' },
+            { name: 'Oxidized Chiseled Copper Block', texture: 'textures/oxidized_chiseled_copper.png' },
+
+            { name: 'Copper Bulb', texture: 'textures/copper_bulb.png' },
+            { name: 'Exposed Copper Bulb', texture: 'textures/exposed_copper_bulb.png' },
+            { name: 'Weathered Copper Bulb', texture: 'textures/weathered_copper_bulb.png' },
+            { name: 'Oxidized Copper Bulb', texture: 'textures/oxidized_copper_bulb.png' },
+
+            { name: 'Copper Grate', texture: 'textures/copper_grate.png' },
+            { name: 'Exposed Copper Grate', texture: 'textures/exposed_copper_grate.png' },
+            { name: 'Weathered Copper Grate', texture: 'textures/weathered_copper_grate.png' },
+            { name: 'Oxidized Copper Grate', texture: 'textures/oxidized_copper_grate.png' },
+            
             { name: 'Raw Gold Block', texture: 'textures/raw_gold_block.png' },
             { name: 'Gold Block', texture: 'textures/gold_block.png' },
             { name: 'Redstone Block', texture: 'textures/redstone_block.png' },
