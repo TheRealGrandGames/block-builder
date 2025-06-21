@@ -206,10 +206,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockCategories = {
         Natural: [
             { name: 'Grass Block', texture: 'textures/grass.png' },
-            { name: 'Moss Block', texture: 'textures/moss_block.png' },
+            { name: 'Podzol', texture: 'textures/podzol.png' },
+            { name: 'Mycelium', texture: 'textures/mycelium.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
+            { name: 'Dirt Path', texture: 'textures/dirt_path.png' },
             { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
+            { name: 'Farmland', texture: 'textures/farmland.png' },
+            { name: 'Mud', texture: 'textures/mud.png' },
+            { name: 'Moss Block', texture: 'textures/moss_block.png' },
         ],
         Wood: [
             { name: 'Oak Planks', texture: 'textures/oak_planks.png' },
@@ -234,14 +239,29 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Chiseled Stone Bricks', texture: 'textures/chiseled_stone_bricks.png' },
             { name: 'Cobblestone', texture: 'textures/cobblestone.png' },
             { name: 'Mossy Cobblestone', texture: 'textures/mossy_cobblestone.png' },
+            
+            { name: 'Deepslate', texture: 'textures/deepslate.png' },
+            { name: 'Polished Deepslate', texture: 'textures/polished_deepslate.png' },
+            { name: 'Deepslate Bricks', texture: 'textures/deepslate_bricks.png' },
+            { name: 'Cracked Deepslate Bricks', texture: 'textures/cracked_deepslate_bricks.png' },
+            { name: 'Deepslate Tiles', texture: 'textures/deepslate_tiles.png' },
+            { name: 'Cracked Deepslate Tiles', texture: 'textures/cracked_deepslate_tiles.png' },
+            { name: 'Chiseled Deepslate', texture: 'textures/chiseled_deepslate.png' },
+            { name: 'Cobbled Deepslate', texture: 'textures/cobbled_deepslate.png' },
+            
             { name: 'Granite', texture: 'textures/granite.png' },
             { name: 'Polished Granite', texture: 'textures/polished_granite.png' },
+            
             { name: 'Diorite', texture: 'textures/diorite.png' },
             { name: 'Polished Diorite', texture: 'textures/polished_diorite.png' },
+            
             { name: 'Andesite', texture: 'textures/andesite.png' },
             { name: 'Polished Andesite', texture: 'textures/polished_andesite.png' },
+            
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
+            
             { name: 'End Stone', texture: 'textures/end_stone.png' },
+            { name: 'End Stone Bricks', texture: 'textures/end_stone_bricks.png' },
         ],
         Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
