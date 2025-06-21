@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
+    // NEW: Get the resource count display element
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
     const gridSize = 10;
@@ -23,8 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
+    // NEW: Grid state array to store block types
+    // Initialize with 'Air' for all cells
     const gridState = Array(gridSize * gridSize).fill('Air');
 
+    // NEW: Object to store resource counts
     const resourceCounts = {};
 
     // Audio objects for sound effects
@@ -387,7 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air';
+            block.dataset.type = 'Air'; // Initialize with 'Air' for visual representation
+            gridState[i] = 'Air'; // Initialize the grid state array
 
             block.addEventListener('mousedown', (event) => {
                 event.preventDefault();
@@ -449,41 +454,80 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('mouseup', () => {
             isPainting = false;
         });
+
+        // Initialize resource counts after grid is set up (all 'Air')
         updateResourceCounts();
     }
 
     function placeBlock(gridBlockElement, type) {
-        if (type === 'Air') {
-            destroyBlock(gridBlockElement);
+        const oldType = gridBlockElement.dataset.type;
+        const index = parseInt(gridBlockElement.dataset.index);
+
+        if (oldType === type) { // No change, do nothing
             return;
         }
+
+        if (oldType !== 'Air') {
+            resourceCounts[oldType] = (resourceCounts[oldType] || 0) - 1;
+            if (resourceCounts[oldType] <= 0) {
+                delete resourceCounts[oldType]; // Remove if count goes to zero or below
+            }
+        }
+
         gridBlockElement.dataset.type = type;
+        gridState[index] = type; // Update grid state array
+
         const texturePath = blockTypes[type] ? blockTypes[type].texture : 'path/to/default_empty_texture.png';
         gridBlockElement.style.backgroundImage = `url(${texturePath})`;
-        updateResourceCounts();
+        gridBlockElement.style.backgroundColor = ''; // Remove background color if texture is applied
+
+        if (type !== 'Air') { // Only increment if placing a non-air block
+            resourceCounts[type] = (resourceCounts[type] || 0) + 1;
+        }
+        updateResourceCountsDisplay();
     }
 
     function destroyBlock(gridBlockElement) {
+        const oldType = gridBlockElement.dataset.type;
+        const index = parseInt(gridBlockElement.dataset.index);
+
+        if (oldType === 'Air') { // Already air, do nothing
+            return;
+        }
+
         gridBlockElement.dataset.type = 'Air';
+        gridState[index] = 'Air'; // Update grid state array
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
-        updateResourceCounts();
+
+        resourceCounts[oldType] = (resourceCounts[oldType] || 0) - 1;
+        if (resourceCounts[oldType] <= 0) {
+            delete resourceCounts[oldType];
+        }
+        updateResourceCountsDisplay();
     }
 
     function clearGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            destroyBlock(block);
+            destroyBlock(block); // This will correctly update resource counts
         });
-        updateResourceCounts();
+        // After clearing, all counts should be zero, but we can explicitly clear and update for certainty
+        for (const key in resourceCounts) {
+            delete resourceCounts[key];
+        }
+        updateResourceCountsDisplay();
     }
 
     function fillGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            placeBlock(block, selectedBlockType);
+            placeBlock(block, selectedBlockType); // This will correctly update resource counts
         });
-        updateResourceCounts();
+        // No need to explicitly update resource counts here, as placeBlock handles it.
+        // However, if we wanted to be absolutely sure all other blocks are gone:
+        // You could clear first, then fill. Or iterate through gridState.
+        // For simplicity, relying on placeBlock's update is fine.
     }
 
     clearGridButton.addEventListener('click', () => {
@@ -587,6 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { once: true });
 
+    // NEW: Function to update resource counts based on gridState
     function updateResourceCounts() {
         // Reset counts
         for (const key in resourceCounts) {
@@ -602,6 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateResourceCountsDisplay();
     }
 
+    // NEW: Function to display resource counts
     function updateResourceCountsDisplay() {
         resourceCountDisplay.innerHTML = ''; // Clear previous display
 
@@ -644,14 +690,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
-
 
     // --- Run Initialization ---
     preloadBlockTextures().then(() => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
-        initializeGrid();
+        initializeGrid(); // This now calls updateResourceCounts at the end
 
         // No direct call to playBackgroundMusic() here anymore.
         // It will be called by the global click listener once the user interacts.
