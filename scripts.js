@@ -752,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 blockTooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (blockTooltip.offsetWidth / 2)}px`;
                 blockTooltip.style.top = `${rect.top + window.scrollY - blockTooltip.offsetHeight - 5}px`;
             }
-        });More actions
+        });
 
         button.addEventListener('mouseout', () => {
             blockTooltip.style.opacity = 0;
