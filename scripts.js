@@ -216,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
             { name: 'Farmland', texture: 'textures/farmland.png' },
             { name: 'Mud', texture: 'textures/mud.png' },
-            { name: 'Packed Mud', texture: 'textures/packed_mud.png' },
             { name: 'Clay', texture: 'textures/clay.png' },
             { name: 'Gravel', texture: 'textures/gravel.png' },
             { name: 'Suspicious Gravel', texture: 'textures/suspicious_gravel_0.png' },
@@ -229,6 +228,17 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Packed Ice', texture: 'textures/packed_ice.png' },
             { name: 'Blue Ice', texture: 'textures/blue_ice.png' },
             { name: 'Resin Block', texture: 'textures/resin_block.png' },
+            
+            { name: 'Obsidian', texture: 'textures/obsidian.png' },
+            { name: 'Crying Obsidian', texture: 'textures/crying_obsidian.png' },
+            { name: 'Bone Block', texture: 'textures/bone_block_top.png' },
+            { name: 'Crimson Nylium', texture: 'textures/crimson_nylium.png' },
+            { name: 'Nether Wart Block', texture: 'textures/nether_wart_block.png' },
+            { name: 'Warped Nylium', texture: 'textures/warped_nylium.png' },
+            { name: 'Warped Wart Block', texture: 'textures/warped_wart_block.png' },
+            { name: 'Shroomlight', texture: 'textures/shroomlight.png' },
+            { name: 'Soul Sand', texture: 'textures/soul_sand.png' },
+            { name: 'Soul Soil', texture: 'textures/soul_soil.png' },
         ],
         Wood: [
             { name: 'Oak Planks', texture: 'textures/oak_planks.png' },
@@ -327,6 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Andesite', texture: 'textures/andesite.png' },
             { name: 'Polished Andesite', texture: 'textures/polished_andesite.png' },
 
+            { name: 'Dripstone Block', texture: 'textures/dripstone_block.png' },
+
             { name: 'Calcite', texture: 'textures/calcite.png' },
 
             { name: 'Tuff', texture: 'textures/tuff.png' },
@@ -342,6 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Bedrock', texture: 'textures/bedrock.png' },
             
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
+            { name: 'Magma Block', texture: 'textures/magma.png' },
+            { name: 'Glowstone', texture: 'textures/glowstone.png' },
 
             { name: 'Blackstone', texture: 'textures/blackstone_top.png' },
             { name: 'Polished Blackstone', texture: 'textures/polished_blackstone.png' },
@@ -354,7 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         Construction: [
             { name: 'Bricks', texture: 'textures/bricks.png' },
-            
+
+            { name: 'Packed Mud', texture: 'textures/packed_mud.png' },
             { name: 'Mud Bricks', texture: 'textures/mud_bricks.png' },
             
             { name: 'Resin Bricks', texture: 'textures/resin_bricks.png' },
