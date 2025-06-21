@@ -216,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
             { name: 'Farmland', texture: 'textures/farmland.png' },
             { name: 'Mud', texture: 'textures/mud.png' },
+            { name: 'Packed Mud', texture: 'textures/packed_mud.png' },
             { name: 'Clay', texture: 'textures/clay.png' },
             { name: 'Gravel', texture: 'textures/gravel.png' },
             { name: 'Suspicious Gravel', texture: 'textures/suspicious_gravel_0.png' },
@@ -313,6 +314,9 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Polished Deepslate', texture: 'textures/polished_deepslate.png' },
             { name: 'Cobbled Deepslate', texture: 'textures/cobbled_deepslate.png' },
             { name: 'Reinforced Deepslate', texture: 'textures/reinforced_deepslate_top.png' },
+
+            { name: 'Sandstone', texture: 'textures/sandstone_top.png' },
+            { name: 'Red Sandstone', texture: 'textures/red_sandstone_top.png' },
             
             { name: 'Granite', texture: 'textures/granite.png' },
             { name: 'Polished Granite', texture: 'textures/polished_granite.png' },
@@ -332,11 +336,32 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Basalt', texture: 'textures/basalt_top.png' },
             { name: 'Polished Basalt', texture: 'textures/polished_basalt_top.png' },
             { name: 'Smooth Basalt', texture: 'textures/smooth_basalt.png' },
+
+            { name: 'Bedrock', texture: 'textures/bedrock.png' },
             
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
             
             { name: 'End Stone', texture: 'textures/end_stone.png' },
             { name: 'End Stone Bricks', texture: 'textures/end_stone_bricks.png' },
+        ],
+        Construction: [
+            { name: 'Bricks', texture: 'textures/bricks.png' },
+            
+            { name: 'Mud Bricks', texture: 'textures/mud_bricks.png' },
+            
+            { name: 'Resin Bricks', texture: 'textures/resin_bricks.png' },
+            
+            { name: 'Chiseled Resin Bricks', texture: 'textures/chiseled_resin_bricks.png' },
+
+            { name: 'Nether Bricks', texture: 'textures/nether_bricks.png' },
+            { name: 'Cracked Nether Bricks', texture: 'textures/cracked_nether_bricks.png' },
+            { name: 'Chiseled Nether Bricks', texture: 'textures/chiseled_nether_bricks.png' },
+
+            { name: 'Red Nether Bricks', texture: 'textures/red_nether_bricks.png' },
+
+            { name: 'Prismarine', texture: 'textures/prismarine.png' },
+            { name: 'Prismarine Bricks', texture: 'textures/prismarine_bricks.png' },
+            { name: 'Dark Prismarine', texture: 'textures/dark_prismarine.png' },
         ],
         Colorful: [
             { name: 'White Wool', texture: 'textures/white_wool.png' },
@@ -385,6 +410,10 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Deepslate Emerald Ore', texture: 'textures/deepslate_emerald_ore.png' },
             { name: 'Deepslate Lapis Lazuli Ore', texture: 'textures/deepslate_lapis_ore.png' },
             { name: 'Deepslate Diamond Ore', texture: 'textures/deepslate_diamond_ore.png' },
+
+            { name: 'Nether Quartz Ore', texture: 'textures/nether_quartz_ore.png' },
+            { name: 'Nether Gold Ore', texture: 'textures/nether_gold_ore.png' },
+            { name: 'Ancient Debris', texture: 'textures/ancient_debris_top.png' },
         ],
         Liquids: [
             { name: 'Water', texture: 'textures/water.png' },
