@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Natural: [
             { name: 'Grass Block', texture: 'textures/grass.png' },
             { name: 'Moss Block', texture: 'textures/moss_block.png' },
-            { name: 'Dirt', texture: 'textures/dirt.보다.png' },
+            { name: 'Dirt', texture: 'textures/dirt.png' },
             { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
         ],
