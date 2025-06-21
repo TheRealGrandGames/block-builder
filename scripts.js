@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockSize = 50;
     let canvasWidth;
     let canvasHeight;
-    let ctx;
+    //let ctx;
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
@@ -589,16 +589,14 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(fillSound);
     });
 
-    function drawGridToCanvas() {
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    function drawGridToCanvas(targetCanvas) { // <-- Make sure targetCanvas is a parameter here
+        const ctx = targetCanvas.getContext('2d');
 
-        ctx.imageSmoothingEnabled = false; // Standard
-        ctx.mozImageSmoothingEnabled = false; // Firefox
-        ctx.webkitImageSmoothingEnabled = false; // Safari/Chrome (older versions)
-        ctx.msImageSmoothingEnabled = false; // IE/Edge
+        ctx.imageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
 
-        // Set the canvas dimensions based on the grid size and block size
-        // Multiply by devicePixelRatio for higher resolution drawing
         const drawingWidth = currentGridWidth * blockSize;
         const drawingHeight = currentGridHeight * blockSize;
 
@@ -606,28 +604,28 @@ document.addEventListener('DOMContentLoaded', () => {
         targetCanvas.height = drawingHeight * devicePixelRatio;
 
         ctx.scale(devicePixelRatio, devicePixelRatio);
-        
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach(blockElement => {
-            const type = blockElement.dataset.type;
-            const index = parseInt(blockElement.dataset.index);
-            const row = Math.floor(index / currentGridWidth);
-            const col = index % currentGridWidth;
 
-            const x = col * blockSize;
-            const y = row * blockSize;
+        ctx.clearRect(0, 0, drawingWidth, drawingHeight);
 
-            if (type === 'Air') {
-                ctx.fillStyle = '#e0e0e0';
-                ctx.fillRect(x, y, blockSize, blockSize);
-            } else {
-                const img = blockImages[type];
+        // Draw the background color for empty cells
+        ctx.fillStyle = '#e0e0e0';
+        for (let i = 0; i < currentGridWidth; i++) {
+            for (let j = 0; j < currentGridHeight; j++) {
+                ctx.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+            }
+        }
+
+        gridState.forEach((blockType, index) => {
+            if (blockType !== 'Air') {
+                const row = Math.floor(index / currentGridWidth);
+                const col = index % currentGridWidth;
+                const img = blockImages[blockType];
+
                 if (img && img.complete) {
-                    ctx.drawImage(img, x, y, blockSize, blockSize);
+                    ctx.drawImage(img, col * blockSize, row * blockSize, blockSize, blockSize);
                 } else {
-                    console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
-                    ctx.fillStyle = '#ff00ff';
-                    ctx.fillRect(x, y, blockSize, blockSize);
+                    ctx.fillStyle = 'lightgray';
+                    ctx.fillRect(col * blockSize, row * blockSize, blockSize, blockSize);
                 }
             }
         });
