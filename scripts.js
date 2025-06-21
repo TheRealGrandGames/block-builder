@@ -23,10 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const importButton = document.getElementById('importButton');
     const exportButton = document.getElementById('exportButton');
     const importFileInput = document.getElementById('importFileInput');
-    // const exportNBTButton = document.getElementById('exportNBTButton'); // As per previous interaction, removed this button logic from JS
 
     const includeResourcesCheckbox = document.getElementById('includeResourcesCheckbox');
-    const themeSelect = document.getElementById('theme-select'); // NEW
+    const themeSelect = document.getElementById('theme-select');
+    const musicCategorySelect = document.getElementById('musicCategorySelect'); // NEW
 
     let currentGridWidth = 10;
     let currentGridHeight = 10;
@@ -64,10 +64,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    const musicPlaylist = [
-        'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
-        'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
-    ];
+    // NEW: Categorized music playlists
+    const categorizedMusic = {
+        "All": [
+            'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
+            'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
+        ],
+        "Creative": [
+            'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
+            'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
+        ],
+        "Survival": [
+            // Add survival music paths here, e.g., 'audio/music/survival_song1.mp3'
+        ],
+        "Nether": [
+            // Add nether music paths here, e.g., 'audio/music/nether_song1.mp3'
+        ],
+        "End": [
+            // Add end music paths here, e.g., 'audio/music/end_song1.mp3'
+        ],
+        "Music Discs": [
+            // Add music disc paths here, e.g., 'audio/music/disc_13.mp3'
+        ]
+    };
+
+    let musicPlaylist = []; // This will hold the currently active playlist
 
     const backgroundMusic = new Audio();
     backgroundMusic.loop = false;
@@ -84,13 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeShuffledPlaylist() {
-        shuffledPlaylistIndices = Array.from({ length: musicPlaylist.length }, (_, i) => i);
-        shuffleArray(shuffledPlaylistIndices);
-        currentShuffledIndex = 0;
-    }
-
-    if (musicPlaylist.length > 0) {
-        initializeShuffledPlaylist();
+        if (musicPlaylist.length > 0) {
+            shuffledPlaylistIndices = Array.from({ length: musicPlaylist.length }, (_, i) => i);
+            shuffleArray(shuffledPlaylistIndices);
+            currentShuffledIndex = 0;
+        } else {
+            shuffledPlaylistIndices = [];
+            currentShuffledIndex = 0;
+            console.warn("No songs in the current music playlist.");
+        }
     }
 
     backgroundMusic.onended = () => {
@@ -173,7 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playNextSong() {
-        if (musicPlaylist.length === 0) return;
+        if (musicPlaylist.length === 0) {
+            pauseBackgroundMusic();
+            return;
+        }
 
         currentShuffledIndex++;
 
@@ -188,6 +214,14 @@ document.addEventListener('DOMContentLoaded', () => {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
 
+    // NEW: Function to update the active music playlist based on selection
+    function updateMusicPlaylist() {
+        const selectedCategory = musicCategorySelect.value;
+        musicPlaylist = categorizedMusic[selectedCategory] || [];
+        initializeShuffledPlaylist(); // Re-shuffle the new playlist
+        playBackgroundMusic(); // Attempt to play music from the new playlist
+        localStorage.setItem('selectedMusicCategory', selectedCategory); // Save selection
+    }
 
 
     updateSoundToggleButton();
@@ -588,11 +622,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const backgroundTextures = [
             'textures/netherrack.png',
             'textures/end_stone.png',
-            'textures/water.png', // Changed from water_still.png to water.png for consistency
+            'textures/water.png',
             'textures/grass.png',
             'textures/button.png',
-            'textures/cave_theme_bg.png', // Added for cave theme
-            'textures/reef_theme_bg.png' // Added for reef theme
+            'textures/cave_theme_bg.png',
+            'textures/reef_theme_bg.png'
         ];
         backgroundTextures.forEach(src => {
             imagesToLoad.push(new Promise((resolve) => {
@@ -865,8 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
 
-        updateResourceCounts(); // Update counts based on the current gridState
-        // saveState() is explicitly handled by the caller (e.g., in DOMContentLoaded or importGrid)
+        updateResourceCounts();
         updateUndoRedoButtonStates();
     }
 
@@ -888,7 +921,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gridBlockElement.dataset.type = type;
         gridState[index] = type;
 
-        const texturePath = blockTypes[type] ? blockTypes[type].texture : null; // Changed from default_empty_texture.png
+        const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
         if (texturePath) {
             gridBlockElement.style.backgroundImage = `url(${texturePath})`;
             gridBlockElement.style.backgroundColor = '';
@@ -927,15 +960,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clearGrid() {
-        // Clear the resource counts completely before updating
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
-        updateResourceCountsDisplay(); // Update display to show no resources
+        updateResourceCountsDisplay();
 
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            // No need to call destroyBlock individually, directly set to 'Air'
             const index = parseInt(block.dataset.index);
             block.dataset.type = 'Air';
             gridState[index] = 'Air';
@@ -947,13 +978,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function fillGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
-        // Clear existing counts before refilling
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
 
         allGridBlocks.forEach(block => {
-            // Directly set the block and update resource counts for the fill operation
             const index = parseInt(block.dataset.index);
             const currentBlockType = block.dataset.type;
             
@@ -988,16 +1017,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function saveState() {
-        // Remove any future states if we're not at the end of history
         if (historyPointer < gridHistory.length - 1) {
             gridHistory = gridHistory.slice(0, historyPointer + 1);
         }
 
-        const stateToSave = JSON.parse(JSON.stringify(gridState)); // Deep copy
+        const stateToSave = JSON.parse(JSON.stringify(gridState));
         gridHistory.push(stateToSave);
         historyPointer++;
 
-        // Trim history if it exceeds max size
         if (gridHistory.length > MAX_HISTORY_STATES) {
             gridHistory.shift();
             historyPointer--;
@@ -1079,14 +1106,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
                     
-                    // Set grid size inputs
                     gridWidthInput.value = loadedData.width;
                     gridHeightInput.value = loadedData.height;
 
-                    // Initialize the grid with the loaded data. This also resets history.
                     initializeGrid(loadedData.width, loadedData.height, true, loadedData.grid);
                     
-                    // Explicitly save the imported state to history
                     saveState();
 
                     alert('Grid imported successfully!');
@@ -1097,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error parsing .blockbuilder file:", error);
                 alert('Error: Could not read or parse the .blockbuilder file. It might be corrupted or not a valid JSON.');
             } finally {
-                event.target.value = ''; // Clear file input for next import
+                event.target.value = '';
             }
         };
         reader.onerror = () => {
@@ -1285,7 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('musicEnabled', musicEnabled);
         updateMusicToggleButton();
         if (musicEnabled) {
-            initializeShuffledPlaylist();
+            // No need to re-initialize shuffled playlist here, as updateMusicPlaylist() handles it
             playBackgroundMusic();
         } else {
             pauseBackgroundMusic();
@@ -1293,13 +1317,18 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
+    // NEW: Music category dropdown event listener
+    musicCategorySelect.addEventListener('change', () => {
+        updateMusicPlaylist(); // Update playlist based on new selection
+        playSound(buttonSound); // Play a sound for the dropdown change
+    });
+
+
     function updateResourceCounts() {
-        // Reset resource counts
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
 
-        // Recalculate based on current gridState
         gridState.forEach(blockType => {
             if (blockType !== 'Air') {
                 resourceCounts[blockType] = (resourceCounts[blockType] || 0) + 1;
@@ -1367,20 +1396,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        initializeGrid(newWidth, newHeight, true); // Create new empty grid
-        saveState(); // Save this new empty grid as the first state
+        initializeGrid(newWidth, newHeight, true);
+        saveState();
     });
 
     resetGridSizeButton.addEventListener('click', () => {
         playSound(buttonSound);
         gridWidthInput.value = 10;
         gridHeightInput.value = 10;
-        initializeGrid(10, 10, true); // Create new 10x10 empty grid
-        saveState(); // Save this new empty grid as the first state
+        initializeGrid(10, 10, true);
+        saveState();
     });
 
 
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect]; // Added musicCategorySelect
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -1427,13 +1456,24 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
-        saveState(); // Save the initial empty grid state
+        saveState();
         updateUndoRedoButtonStates();
+
+        // NEW: Load saved music category and initialize playlist
+        const savedMusicCategory = localStorage.getItem('selectedMusicCategory') || 'All';
+        musicCategorySelect.value = savedMusicCategory;
+        updateMusicPlaylist(); // Initialize the music playlist based on saved category
+
     }).catch(error => {
         console.error("Error preloading textures:", error);
         initializeInventory();
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
-        saveState(); // Try to save even if textures fail, might still be functional
+        saveState();
         updateUndoRedoButtonStates();
+        
+        // NEW: Also attempt to initialize music on error
+        const savedMusicCategory = localStorage.getItem('selectedMusicCategory') || 'All';
+        musicCategorySelect.value = savedMusicCategory;
+        updateMusicPlaylist();
     });
 });
