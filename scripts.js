@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {More actions
     const gameGrid = document.getElementById('gameGrid');
     const blockInventory = document.getElementById('blockInventory');
     const blockTooltip = document.getElementById('blockTooltip');
@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicToggleButton = document.getElementById('musicToggleButton');
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    
     const gridWidthInput = document.getElementById('gridWidth');
     const gridHeightInput = document.getElementById('gridHeight');
     const setGridSizeButton = document.getElementById('setGridSizeButton');
@@ -23,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockSize = 50;
     let canvasWidth;
     let canvasHeight;
-    //let ctx;
+    let ctx;
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
@@ -177,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentShuffledIndex >= shuffledPlaylistIndices.length) {
             initializeShuffledPlaylist();
         }
-        
+
         playBackgroundMusic();
     }
 
@@ -185,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
 
-    
+
 
     updateSoundToggleButton();
     updateGridSoundToggleButton();
@@ -589,43 +587,30 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(fillSound);
     });
 
-    function drawGridToCanvas(targetCanvas) { // <-- Make sure targetCanvas is a parameter here
-        const ctx = targetCanvas.getContext('2d');
+    function drawGridToCanvas() {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-        ctx.imageSmoothingEnabled = false;
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
+        const gridBlocks = document.querySelectorAll('.grid-block');
+        gridBlocks.forEach(blockElement => {
+            const type = blockElement.dataset.type;
+            const index = parseInt(blockElement.dataset.index);
+            const row = Math.floor(index / currentGridWidth);
+            const col = index % currentGridWidth;
 
-        const drawingWidth = currentGridWidth * blockSize;
-        const drawingHeight = currentGridHeight * blockSize;
+            const x = col * blockSize;
+            const y = row * blockSize;
 
-        targetCanvas.width = drawingWidth * devicePixelRatio;
-        targetCanvas.height = drawingHeight * devicePixelRatio;
-
-        ctx.scale(devicePixelRatio, devicePixelRatio);
-
-        ctx.clearRect(0, 0, drawingWidth, drawingHeight);
-
-        // Draw the background color for empty cells
-        ctx.fillStyle = '#e0e0e0';
-        for (let i = 0; i < currentGridWidth; i++) {
-            for (let j = 0; j < currentGridHeight; j++) {
-                ctx.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
-            }
-        }
-
-        gridState.forEach((blockType, index) => {
-            if (blockType !== 'Air') {
-                const row = Math.floor(index / currentGridWidth);
-                const col = index % currentGridWidth;
-                const img = blockImages[blockType];
-
+            if (type === 'Air') {
+                ctx.fillStyle = '#e0e0e0';
+                ctx.fillRect(x, y, blockSize, blockSize);
+            } else {
+                const img = blockImages[type];
                 if (img && img.complete) {
-                    ctx.drawImage(img, col * blockSize, row * blockSize, blockSize, blockSize);
+                    ctx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
-                    ctx.fillStyle = 'lightgray';
-                    ctx.fillRect(col * blockSize, row * blockSize, blockSize, blockSize);
+                    console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
+                    ctx.fillStyle = '#ff00ff';
+                    ctx.fillRect(x, y, blockSize, blockSize);
                 }
             }
         });
@@ -767,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 blockTooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (blockTooltip.offsetWidth / 2)}px`;
                 blockTooltip.style.top = `${rect.top + window.scrollY - blockTooltip.offsetHeight - 5}px`;
             }
-        });
+        });More actions
 
         button.addEventListener('mouseout', () => {
             blockTooltip.style.opacity = 0;
