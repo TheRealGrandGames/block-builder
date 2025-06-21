@@ -206,23 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockCategories = {
         Natural: [
             { name: 'Grass Block', texture: 'textures/grass.png' },
-            { name: 'Podzol', texture: 'textures/podzol_top.png' },
-            { name: 'Mycelium', texture: 'textures/mycelium_top.png' },
+            { name: 'Moss Block', texture: 'textures/moss_block.png' },
             { name: 'Dirt', texture: 'textures/dirt.png' },
-            { name: 'Dirt Path', texture: 'textures/dirt_path_top.png' },
             { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
-            { name: 'Farmland', texture: 'textures/farmland.png' },
-            { name: 'Mud', texture: 'textures/mud.png' },
-            { name: 'Moss Block', texture: 'textures/moss_block.png' },
-            { name: 'Clay', texture: 'textures/clay.png' },
-            { name: 'Gravel', texture: 'textures/gravel.png' },
-            { name: 'Sand', texture: 'textures/sand.png' },
-            { name: 'Red Sand', texture: 'textures/red_sand.png' },
-            { name: 'Snow', texture: 'textures/snow.png' },
-            { name: 'Ice', texture: 'textures/ice.png' },
-            { name: 'Packed Ice', texture: 'textures/packed_ice.png' },
-            { name: 'Blue Ice', texture: 'textures/blue_ice.png' },
         ],
         Wood: [
             { name: 'Oak Planks', texture: 'textures/oak_planks.png' },
@@ -247,31 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Chiseled Stone Bricks', texture: 'textures/chiseled_stone_bricks.png' },
             { name: 'Cobblestone', texture: 'textures/cobblestone.png' },
             { name: 'Mossy Cobblestone', texture: 'textures/mossy_cobblestone.png' },
-            
-            { name: 'Deepslate', texture: 'textures/deepslate_top.png' },
-            { name: 'Polished Deepslate', texture: 'textures/polished_deepslate.png' },
-            { name: 'Deepslate Bricks', texture: 'textures/deepslate_bricks.png' },
-            { name: 'Cracked Deepslate Bricks', texture: 'textures/cracked_deepslate_bricks.png' },
-            { name: 'Deepslate Tiles', texture: 'textures/deepslate_tiles.png' },
-            { name: 'Cracked Deepslate Tiles', texture: 'textures/cracked_deepslate_tiles.png' },
-            { name: 'Chiseled Deepslate', texture: 'textures/chiseled_deepslate.png' },
-            { name: 'Cobbled Deepslate', texture: 'textures/cobbled_deepslate.png' },
-            
             { name: 'Granite', texture: 'textures/granite.png' },
             { name: 'Polished Granite', texture: 'textures/polished_granite.png' },
-            
             { name: 'Diorite', texture: 'textures/diorite.png' },
             { name: 'Polished Diorite', texture: 'textures/polished_diorite.png' },
-            
             { name: 'Andesite', texture: 'textures/andesite.png' },
             { name: 'Polished Andesite', texture: 'textures/polished_andesite.png' },
-
-            { name: 'Bedrock', texture: 'textures/bedrock.png' },
-            
-            { name: 'Netherrack', texture: 'textures/netherrack.png' },
-            
-            { name: 'End Stone', texture: 'textures/end_stone.png' },
-            { name: 'End Stone Bricks', texture: 'textures/end_stone_bricks.png' },
         ],
         Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
@@ -356,11 +324,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 resolve();
             };
         }));
-        // NEW: Preload background textures for themes
+        // Preload background textures for themes
         const backgroundTextures = [
             'textures/netherrack.png',
             'textures/end_stone.png',
-            'textures/water_still.png'
+            'textures/water_still.png',
+            'textures/grass.png',
+            'textures/button.png'
         ];
         backgroundTextures.forEach(src => {
             imagesToLoad.push(new Promise((resolve) => {
@@ -370,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.onload = resolve;
                 img.onerror = () => {
                     console.warn(`Failed to load background texture: ${src}`);
-                    resolve(); // Still resolve to not block main loading
+                    resolve();
                 };
             }));
         });
@@ -516,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 delete resourceCounts[key];
             }
             if (loadedGridState) {
-                gridState = [...loadedGridState];
+                gridState = [...loadedGridState]; // Corrected from `loadedData`
             }
         }
 
@@ -1122,23 +1092,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Theme selection logic
-    // Theme selection logic
     function applyTheme(themeName) {
         const body = document.body;
-        // Remove all theme classes, including the old 'theme-red-dye'
         body.classList.remove('theme-light', 'theme-dark', 'theme-red-dye', 'theme-nether', 'theme-end', 'theme-ocean', 'theme-overworld');
-        body.classList.add(`theme-${themeName}`); // Add the selected theme class
-        localStorage.setItem('selectedTheme', themeName); // Save preference
+        body.classList.add(`theme-${themeName}`);
+        localStorage.setItem('selectedTheme', themeName);
     }
 
     themeSelect.addEventListener('change', (event) => {
         applyTheme(event.target.value);
-        playSound(buttonSound); // Play sound on theme change
+        playSound(buttonSound);
     });
 
-    // Apply saved theme on load
-    const savedTheme = localStorage.getItem('selectedTheme') || 'light'; // Default to light
-    themeSelect.value = savedTheme; // Set dropdown to saved value
+    const savedTheme = localStorage.getItem('selectedTheme') || 'light';
+    themeSelect.value = savedTheme;
     applyTheme(savedTheme);
 
 
