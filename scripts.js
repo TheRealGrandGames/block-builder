@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockSize = 50;
     let canvasWidth;
     let canvasHeight;
-    let ctx;
+    let ctx; // Declare ctx here so it's accessible globally within this scope
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
@@ -502,6 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
         hiddenCanvas.width = canvasWidth;
         hiddenCanvas.height = canvasHeight;
         ctx = hiddenCanvas.getContext('2d');
+        // IMPORTANT: Disable image smoothing for crisp pixel art rendering on canvas
+        ctx.imageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false; // For Firefox
+        ctx.webkitImageSmoothingEnabled = false; // For Safari
+        ctx.msImageSmoothingEnabled = false; // For Edge/IE
 
         updateResourceCounts();
     }
@@ -588,6 +593,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function drawGridToCanvas() {
+        // Ensure ctx is available
+        if (!ctx) {
+            console.error("Canvas context (ctx) is not initialized.");
+            return;
+        }
+
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         const gridBlocks = document.querySelectorAll('.grid-block');
@@ -608,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (img && img.complete) {
                     ctx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
-                    console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
+                    console.warn(`Texture for ${type} not loaded or incomplete, drawing placeholder.`);
                     ctx.fillStyle = '#ff00ff';
                     ctx.fillRect(x, y, blockSize, blockSize);
                 }
@@ -725,11 +736,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const MAX_GRID_SIZE = 25;
 
         if (isNaN(newWidth) || newWidth < 1 || newWidth > MAX_GRID_SIZE) {
+            // Using a simple alert for now. Consider a custom modal for better UX.
             alert(`Please enter a valid width between 1 and ${MAX_GRID_SIZE}.`);
             gridWidthInput.value = currentGridWidth;
             return;
         }
         if (isNaN(newHeight) || newHeight < 1 || newHeight > MAX_GRID_SIZE) {
+            // Using a simple alert for now. Consider a custom modal for better UX.
             alert(`Please enter a valid height between 1 and ${MAX_GRID_SIZE}.`);
             gridHeightInput.value = currentGridHeight;
             return;
