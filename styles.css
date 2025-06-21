@@ -1,114 +1,262 @@
+:root {
+    /* Default Light Theme Variables */
+    --bg-color: #f0f0f0;
+    --text-color: #333;
+    --container-bg: #fff;
+    --border-color: #ddd;
+    --header-bg: #f8f8f8;
+    --instructions-bg: #e9e9e9;
+    --grid-bg: #eee;
+    --grid-block-border: rgba(0, 0, 0, 0.1);
+    --selected-block-border: #007bff;
+    --resource-item-bg: #fff;
+    --resource-item-border: #eee;
+    --resource-quantity-color: #007bff;
+    --input-border: #ccc;
+    --placeholder-block-bg: #e0e0e0; /* For 'Air' block */
+    --link-color: #007bff;
+    --tooltip-bg: rgba(0, 0, 0, 0.75);
+    --tooltip-text: white;
+
+    /* Background texture variables (for looping themes) */
+    --body-bg-image: none;
+    --body-bg-repeat: no-repeat;
+    --body-bg-size: auto;
+    --body-bg-position: center;
+}
+
+/* Dark Theme */
+body.theme-dark {
+    --bg-color: #2a2a2a;
+    --text-color: #e0e0e0;
+    --container-bg: #3c3c3c;
+    --border-color: #555;
+    --header-bg: #4a4a4a;
+    --instructions-bg: #3a3a3a;
+    --grid-bg: #222;
+    --grid-block-border: rgba(255, 255, 255, 0.1);
+    --selected-block-border: #88aaff;
+    --resource-item-bg: #4a4a4a;
+    --resource-item-border: #555;
+    --resource-quantity-color: #90ee90; /* Light green for contrast */
+    --input-border: #666;
+    --placeholder-block-bg: #4c4c4c;
+    --link-color: #88aaff;
+    --tooltip-bg: rgba(255, 255, 255, 0.25); /* Lighter tooltip for dark bg */
+    --tooltip-text: black;
+
+    --body-bg-image: none; /* No texture for basic dark theme */
+}
+
+/* Red Dye Theme */
+body.theme-red-dye {
+    --bg-color: #5c2a2a; /* Muted deep red */
+    --text-color: #e0dcd9; /* Light desaturated beige */
+    --container-bg: #703838; /* Slightly lighter muted red */
+    --border-color: #401e1e; /* Darker muted red */
+    --header-bg: #653030; /* Medium muted red */
+    --instructions-bg: #5a2727; /* Darker muted red for instructions */
+    --grid-bg: #4b2222; /* Even darker red for grid background */
+    --grid-block-border: rgba(255, 255, 255, 0.08); /* Subtle light border */
+    --selected-block-border: #f08080; /* Light coral red for accent */
+    --resource-item-bg: #7a4242; /* Medium red for resource items */
+    --resource-item-border: #502525;
+    --resource-quantity-color: #ffccaa; /* Soft orange for quantity */
+    --input-border: #804040;
+    --placeholder-block-bg: #602e2e;
+    --link-color: #f08080;
+    --tooltip-bg: rgba(0, 0, 0, 0.75); /* Dark tooltip */
+    --tooltip-text: white;
+
+    --body-bg-image: none; /* No texture for basic red dye theme */
+}
+
+/* NEW: Nether Theme */
+body.theme-nether {
+    --bg-color: #3b0e0e; /* Dark red background */
+    --text-color: #f0f0f0;
+    --container-bg: #4f1b1b;
+    --border-color: #6a2c2c;
+    --header-bg: #441616;
+    --instructions-bg: #350c0c;
+    --grid-bg: #2d0a0a;
+    --grid-block-border: rgba(255, 255, 255, 0.15);
+    --selected-block-border: #e88d3a; /* Fiery orange */
+    --resource-item-bg: #5a2020;
+    --resource-item-border: #753030;
+    --resource-quantity-color: #ffc266; /* Light orange for quantity */
+    --input-border: #803f3f;
+    --placeholder-block-bg: #4a1818;
+    --link-color: #e88d3a;
+    --tooltip-bg: rgba(0, 0, 0, 0.85);
+    --tooltip-text: #fff;
+
+    --body-bg-image: url('textures/netherrack.png');
+    --body-bg-repeat: repeat;
+    --body-bg-size: 100px 100px; /* Adjust size as needed for good tiling */
+    --body-bg-position: center center;
+}
+
+/* NEW: End Theme */
+body.theme-end {
+    --bg-color: #1a1a1a; /* Very dark background */
+    --text-color: #e0e0e0;
+    --container-bg: #2d2d2d;
+    --border-color: #4a4a4a;
+    --header-bg: #252525;
+    --instructions-bg: #151515;
+    --grid-bg: #0d0d0d;
+    --grid-block-border: rgba(255, 255, 255, 0.1);
+    --selected-block-border: #b8b820; /* End Crystal yellow/green */
+    --resource-item-bg: #3a3a3a;
+    --resource-item-border: #505050;
+    --resource-quantity-color: #ffff99; /* Pale yellow */
+    --input-border: #606060;
+    --placeholder-block-bg: #222222;
+    --link-color: #b8b820;
+    --tooltip-bg: rgba(0, 0, 0, 0.85);
+    --tooltip-text: #fff;
+
+    --body-bg-image: url('textures/end_stone.png');
+    --body-bg-repeat: repeat;
+    --body-bg-size: 100px 100px;
+    --body-bg-position: center center;
+}
+
+/* NEW: Ocean Theme */
+body.theme-ocean {
+    --bg-color: #3b749d; /* Deep blue */
+    --text-color: #ffffff;
+    --container-bg: #5f9bbd; /* Lighter blue */
+    --border-color: #2a5d7d;
+    --header-bg: #508ca7;
+    --instructions-bg: #30698c;
+    --grid-bg: #2d607f;
+    --grid-block-border: rgba(255, 255, 255, 0.2);
+    --selected-block-border: #70b8c0; /* Aqua/cyan */
+    --resource-item-bg: #6a9eb5;
+    --resource-item-border: #407c99;
+    --resource-quantity-color: #aaddff; /* Lighter blue */
+    --input-border: #70aacc;
+    --placeholder-block-bg: #4a80a0;
+    --link-color: #70b8c0;
+    --tooltip-bg: rgba(0, 0, 0, 0.75);
+    --tooltip-text: white;
+
+    --body-bg-image: url('textures/water_still.png'); /* Assumes a static water texture */
+    --body-bg-repeat: repeat;
+    --body-bg-size: 100px 100px;
+    --body-bg-position: center center;
+}
+
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #f0f0f0;
     margin: 20px;
+    background-color: var(--bg-color); /* Use CSS variable */
+    color: var(--text-color); /* Use CSS variable */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+    background-image: var(--body-bg-image);
+    background-repeat: var(--body-bg-repeat);
+    background-size: var(--body-bg-size);
+    background-position: var(--body-bg-position);
 }
 
-h1 {
-    color: #333;
+h1, h2, h3 {
+    color: var(--text-color); /* Use CSS variable */
 }
 
 .game-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    background-color: #fff;
+    background-color: var(--container-bg); /* Use CSS variable */
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth theme transition */
 }
 
 .instructions {
-    background-color: #e9e9e9;
+    background-color: var(--instructions-bg); /* Use CSS variable */
     padding: 15px;
     border-radius: 5px;
-    border-left: 5px solid #007bff;
+    border-left: 5px solid var(--link-color); /* Use CSS variable */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth theme transition */
 }
 
 .instructions ul {
     margin-left: 20px;
 }
 
-/* REMOVED: .selected-block-name */
-
 .inventory {
     margin-top: 10px;
 }
 
-/* New: Styles for category container */
 .inventory-category {
-    margin-bottom: 15px; /* Space between categories */
-    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color); /* Use CSS variable */
     border-radius: 5px;
-    overflow: hidden; /* Important for hiding content during collapse */
+    overflow: hidden;
+    transition: border-color 0.3s ease; /* Smooth theme transition */
 }
 
-/* New: Styles for category header */
 .category-header {
-    background-color: #f8f8f8;
+    background-color: var(--header-bg); /* Use CSS variable */
     padding: 10px 15px;
     cursor: pointer;
     font-size: 1.1em;
-    color: #333;
+    color: var(--text-color); /* Use CSS variable */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee; /* Separator between header and content */
+    border-bottom: 1px solid var(--border-color); /* Use CSS variable */
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
 }
 
 .category-header:hover {
-    background-color: #e8e8e8;
+    background-color: var(--instructions-bg); /* Slightly different background on hover */
 }
 
 .toggle-icon {
     font-size: 0.8em;
-    transition: transform 0.2s ease; /* Smooth rotation for icon */
+    transition: transform 0.2s ease;
 }
 
-
-/* New: Styles for block container within a category */
 .category-content {
-    display: flex; /* Arrange blocks horizontally */
-    flex-wrap: wrap; /* Allow blocks to wrap to the next line */
-    gap: 10px; /* Space between blocks */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     padding: 10px;
-    background-color: #fff;
-    max-height: 500px; /* Max height when expanded (adjust as needed) */
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out; /* Smooth transition */
-    overflow: hidden; /* Hide overflow content when collapsed */
+    background-color: var(--container-bg); /* Use CSS variable */
+    max-height: 500px;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out, background-color 0.3s ease;
+    overflow: hidden;
 }
 
-/* New: Class for collapsed state */
 .category-content.collapsed {
-    max-height: 0; /* Collapse by setting max-height to 0 */
+    max-height: 0;
     padding-top: 0;
     padding-bottom: 0;
 }
 
-/* Rotate the toggle icon when collapsed */
 .category-content.collapsed + .category-header .toggle-icon {
-    transform: rotate(-90deg); /* Rotate for right arrow */
+    transform: rotate(-90deg);
 }
 
-
-/* Existing .block-items will now primarily contain categories, not blocks directly */
-/* You might remove 'flex-wrap' and 'gap' from .block-items if categories manage their own layout */
 .block-items {
-    /* display: flex; */ /* This can be removed or changed depending on desired layout of categories */
-    /* flex-wrap: wrap; */
-    gap: 0; /* No gap between categories themselves */
+    gap: 0;
     margin-top: 10px;
-    flex-direction: column; /* Stack categories vertically */
+    flex-direction: column;
 }
-
 
 .inventory-block {
     width: 60px;
     height: 60px;
-    border: 2px solid #ccc;
+    border: 2px solid var(--border-color); /* Use CSS variable */
     border-radius: 4px;
     cursor: pointer;
     display: flex;
@@ -127,51 +275,55 @@ h1 {
     color: transparent;
 
     image-rendering: pixelated;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth theme transition */
 }
 
 .inventory-block.selected {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+    border-color: var(--selected-block-border); /* Use CSS variable */
+    box-shadow: 0 0 0 3px var(--selected-block-border); /* Use CSS variable */
 }
 
 .inventory-block::after {
     content: attr(data-name);
     position: absolute;
-    bottom: -50px; /* Adjust if needed to show name on hover, or remove */
+    bottom: -50px;
     left: 0;
     right: 0;
     font-size: 10px;
-    color: #555;
-    background-color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color); /* Adjust for visibility */
+    background-color: var(--container-bg); /* Use a more subtle background for the label */
     padding: 2px 0;
     pointer-events: none;
-    transition: bottom 0.2s ease-out; /* Smooth slide in/out */
+    transition: bottom 0.2s ease-out, background-color 0.3s ease, color 0.3s ease;
 }
 
 .inventory-block:hover::after {
-    bottom: 0; /* Show block name on hover */
+    bottom: 0;
 }
 
-
-.inventory-block[data-name="Air"] { background-color: #e0e0e0; color: #555; border: 1px dashed #bbb; }
-
+.inventory-block[data-name="Air"] {
+    background-color: var(--placeholder-block-bg); /* Use CSS variable */
+    color: var(--text-color); /* Adjust for visibility */
+    border: 1px dashed var(--border-color); /* Use CSS variable */
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
 
 .game-grid {
     display: grid;
     grid-template-columns: repeat(10, 50px);
     grid-template-rows: repeat(10, 50px);
-    border: 2px solid #555;
-    background-color: #eee;
+    border: 2px solid var(--text-color); /* Grid border adapts to text color */
+    background-color: var(--grid-bg); /* Use CSS variable */
     margin: 20px auto;
     user-select: none;
-
     image-rendering: pixelated;
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth theme transition */
 }
 
 .grid-block {
     width: 50px;
     height: 50px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--grid-block-border); /* Use CSS variable */
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -179,7 +331,7 @@ h1 {
     font-size: 0.8em;
     color: transparent;
     cursor: pointer;
-    transition: background-image 0.1s ease;
+    transition: background-image 0.1s ease, background-color 0.3s ease, border-color 0.3s ease;
     text-shadow: none;
 
     background-size: cover;
@@ -190,7 +342,7 @@ h1 {
 }
 
 .grid-block[data-type="Air"] {
-    background-color: #e0e0e0;
+    background-color: var(--placeholder-block-bg); /* Use CSS variable */
     background-image: none;
 }
 
@@ -200,18 +352,17 @@ h1 {
 
 .block-tooltip {
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: white;
+    background-color: var(--tooltip-bg); /* Use CSS variable */
+    color: var(--tooltip-text); /* Use CSS variable */
     padding: 5px 10px;
     border-radius: 4px;
     font-size: 0.9em;
     pointer-events: none;
     z-index: 1000;
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
 }
 
-/* NEW STYLES FOR SELECTED BLOCK DISPLAY */
 .selected-block-area {
     display: flex;
     align-items: center;
@@ -222,15 +373,15 @@ h1 {
 .selected-block-area h3 {
     margin: 0;
     font-size: 1.1em;
-    color: #555;
+    color: var(--text-color); /* Use CSS variable */
 }
 
 .selected-block-visual {
     width: 50px;
     height: 50px;
-    border: 2px solid #007bff;
+    border: 2px solid var(--selected-block-border); /* Use CSS variable */
     border-radius: 4px;
-    background-color: #e0e0e0;
+    background-color: var(--placeholder-block-bg); /* Use CSS variable */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -238,6 +389,7 @@ h1 {
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .selected-block-visual::after {
@@ -247,11 +399,12 @@ h1 {
     left: 0;
     right: 0;
     font-size: 10px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--tooltip-text); /* Ensure good contrast on overlay */
+    background-color: var(--tooltip-bg); /* Consistent with tooltip for overlay effect */
     padding: 2px 0;
     text-align: center;
     pointer-events: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .action-button {
@@ -267,9 +420,9 @@ h1 {
     background-repeat: no-repeat;
     image-rendering: pixelated;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
-    color: white;
+    background-image: url('textures/button.png'); /* Base button texture */
+    background-color: var(--bg-color); /* A neutral background color behind the texture */
+    color: white; /* Text color for buttons */
 }
 
 .action-button:disabled {
@@ -278,54 +431,13 @@ h1 {
     transform: none;
     box-shadow: none;
     background-image: url('textures/button_disabled.png');
-    background-color: #f0f0f0;
-    color: white;
-}
-
-
-.action-button:hover {
-    background-color: #c82333;
-}
-
-.clear-button {
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
-    color: white;
-}
-
-.fill-button {
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
-    color: white;
-}
-
-.save-button {
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
-    color: white;
-}
-
-.sound-toggle-button {
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
-    color: white;
-}
-
-.grid-sound-toggle-button {
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
-    color: white;
-}
-
-.music-toggle-button {
-    background-image: url('textures/button.png');
-    background-color: #f0f0f0;
+    background-color: var(--bg-color); /* Default background */
     color: white;
 }
 
 .action-button:hover:not(:disabled) {
     background-image: url('textures/button_highlighted.png');
-    background-color: #f0f0f0;
+    background-color: var(--bg-color);
     filter: brightness(1.1);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -337,22 +449,30 @@ h1 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Specific buttons (apply the base styles and then override texture if needed) */
+.clear-button, .fill-button, .save-button, .sound-toggle-button,
+.grid-sound-toggle-button, .music-toggle-button {
+    background-image: url('textures/button.png'); /* Ensures they all use the base texture */
+    background-color: var(--bg-color);
+    color: white;
+}
+
+
 .resource-count-container {
     margin-top: 20px;
     padding: 15px;
-    background-color: #f8f8f8;
-    border: 1px solid #ddd;
+    background-color: var(--header-bg); /* Use CSS variable */
+    border: 1px solid var(--border-color); /* Use CSS variable */
     border-radius: 8px;
     width: 100%;
     box-sizing: border-box;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .resource-count-container h2 {
     margin-top: 0;
     margin-bottom: 15px;
-    color: #333;
-    font-size: 1.2em;
-    text-align: center;
+    color: var(--text-color); /* Use CSS variable */
 }
 
 .resource-items {
@@ -365,11 +485,12 @@ h1 {
 .resource-item {
     display: flex;
     align-items: center;
-    background-color: #fff;
-    border: 1px solid #eee;
+    background-color: var(--resource-item-bg); /* Use CSS variable */
+    border: 1px solid var(--resource-item-border); /* Use CSS variable */
     border-radius: 5px;
     padding: 5px 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .resource-image {
@@ -378,27 +499,28 @@ h1 {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color); /* Use CSS variable */
     border-radius: 3px;
     margin-right: 8px;
     image-rendering: pixelated;
+    transition: border-color 0.3s ease;
 }
 
 .resource-name {
     font-size: 0.9em;
-    color: #444;
+    color: var(--text-color); /* Use CSS variable */
     margin-right: 8px;
     white-space: nowrap;
 }
 
 .resource-quantity {
     font-weight: bold;
-    color: #007bff;
+    color: var(--resource-quantity-color); /* Use CSS variable */
     font-size: 1em;
 }
 
 .resource-items p {
-    color: #666;
+    color: var(--text-color); /* Use CSS variable */
     font-style: italic;
     text-align: center;
     width: 100%;
@@ -411,34 +533,31 @@ h1 {
     margin-bottom: 15px;
     flex-wrap: wrap;
     justify-content: center;
-    background-color: #f0f0f0;
+    background-color: var(--instructions-bg); /* Use CSS variable */
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color); /* Use CSS variable */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .grid-size-controls label {
     font-weight: bold;
-    color: #555;
+    color: var(--text-color); /* Use CSS variable */
 }
 
 .grid-size-controls input[type="number"] {
     width: 60px;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border); /* Use CSS variable */
     border-radius: 4px;
     font-size: 1em;
     text-align: center;
+    background-color: var(--container-bg); /* Match container or slightly lighter */
+    color: var(--text-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.top-buttons-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
+.top-buttons-container,
 .utility-buttons-container {
     display: flex;
     gap: 10px;
@@ -468,11 +587,11 @@ h1 {
     cursor: pointer;
     gap: 8px;
     font-size: 1em;
-    color: #555;
+    color: var(--text-color); /* Use CSS variable */
     user-select: none;
     padding: 5px;
     border-radius: 4px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .checkbox-visual {
@@ -491,7 +610,7 @@ h1 {
 }
 
 .custom-checkbox-label:hover {
-    background-color: #e9e9e9;
+    background-color: var(--instructions-bg); /* Use themed background */
 }
 
 .custom-checkbox-label:hover .checkbox-visual {
@@ -500,4 +619,61 @@ h1 {
 
 .custom-checkbox-label:active .checkbox-visual {
     filter: brightness(0.9);
+}
+
+/* Theme selector dropdown specific styles */
+.theme-selector-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.theme-selector-container label {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.theme-selector-container select {
+    width: auto;
+    min-width: 150px;
+    height: 40px;
+    padding: 0 15px;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    appearance: none;
+    /* Custom dropdown arrow - will need to be adjusted for dark themes */
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23333333%22%20stroke-width%3D%222%22%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Adjust dropdown arrow color based on theme */
+body.theme-light .theme-selector-container select {
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23333333%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
+}
+
+body.theme-dark .theme-selector-container select,
+body.theme-red-dye .theme-selector-container select,
+body.theme-nether .theme-selector-container select,
+body.theme-end .theme-selector-container select,
+body.theme-ocean .theme-selector-container select {
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23e0e0e0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
+}
+
+.theme-selector-container select:focus {
+    outline: none;
+    border-color: var(--selected-block-border);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.theme-selector-container select option {
+    background-color: var(--container-bg);
+    color: var(--text-color);
 }
