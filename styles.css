@@ -131,6 +131,33 @@ body.theme-end {
     --body-image-rendering: pixelated; /* Apply pixelated rendering */
 }
 
+/* Cave Theme */
+body.theme-cave {
+    --bg-color: #2a2a2a;
+    --text-color: #e0e0e0;
+    --container-bg: #3c3c3c;
+    --border-color: #555;
+    --header-bg: #4a4a4a;
+    --instructions-bg: #3a3a3a;
+    --grid-bg: #222;
+    --grid-block-border: rgba(255, 255, 255, 0.1);
+    --selected-block-border: #88aaff;
+    --resource-item-bg: #4a4a4a;
+    --resource-item-border: #555;
+    --resource-quantity-color: #90ee90; /* Light green for contrast */
+    --input-border: #666;
+    --placeholder-block-bg: #4c4c4c;
+    --link-color: #88aaff;
+    --tooltip-bg: rgba(255, 255, 255, 0.25); /* Lighter tooltip for dark bg */
+    --tooltip-text: black;
+
+    --body-bg-image: url('textures/cave_theme_bg.png');
+    --body-bg-repeat: repeat;
+    --body-bg-size: 600px 600px;
+    --body-bg-position: center center;
+    --body-image-rendering: pixelated; /* Apply pixelated rendering */
+}
+
 /* Ocean Theme */
 body.theme-ocean {
     --bg-color: #3b749d; /* Deep blue */
@@ -700,8 +727,9 @@ body.theme-dark .theme-selector-container select,
 body.theme-overworld .theme-selector-container select,
 body.theme-nether .theme-selector-container select,
 body.theme-end .theme-selector-container select,
-body.theme-reef .theme-selector-container select,
-body.theme-ocean .theme-selector-container select {
+body.theme-cave .theme-selector-container select,
+body.theme-ocean .theme-selector-container select,
+body.theme-reef .theme-selector-container select {
     background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23e0e0e0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
 }
 
