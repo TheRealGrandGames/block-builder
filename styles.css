@@ -638,12 +638,12 @@ h1, h2, h3 {
     justify-content: center;
     margin-bottom: 20px;
     gap: 10px;
-    background-image: url('textures/button.png')
 }
 
 .theme-selector-container label {
     font-weight: bold;
     color: var(--text-color);
+    background-image: url('textures/button.png')
 }
 
 .theme-selector-container select {
