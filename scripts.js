@@ -521,6 +521,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Add a global click listener to mark user interaction ---
+    document.body.addEventListener('click', () => {
+        if (!hasUserInteracted) {
+            hasUserInteracted = true;
+            console.log("User interacted. Audio playback is now permitted.");
+            // After interaction, try to play music if it's enabled
+            playBackgroundMusic();
+            // And also ensure first sound effect can play
+            // (The playSound calls will now work due to hasUserInteracted being true)
+        }
+    }, { once: true }); // Use { once: true } to ensure it only runs once
+
 
     // --- Run Initialization ---
     preloadBlockTextures().then(() => {
