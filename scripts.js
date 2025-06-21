@@ -11,31 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicToggleButton = document.getElementById('musicToggleButton');
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
-    // NEW: Grid Size Control Elements
     const gridWidthInput = document.getElementById('gridWidth');
     const gridHeightInput = document.getElementById('gridHeight');
     const setGridSizeButton = document.getElementById('setGridSizeButton');
 
-    // Change gridSize to gridWidth and gridHeight
-    let currentGridWidth = 10; // Default width
-    let currentGridHeight = 10; // Default height
+    let currentGridWidth = 10;
+    let currentGridHeight = 10;
     const blockSize = 50;
-    let canvasWidth = currentGridWidth * blockSize; // Dynamically calculated
-    let canvasHeight = currentGridHeight * blockSize; // Dynamically calculated
-    let ctx; // Will be initialized after canvas size is set
-
-    // Hidden canvas context needs to be set after dimensions are known
-    // No, it must be gotten with getContext() after the canvas element has been appended to the DOM.
-    // We'll set canvas dimensions and get context inside initializeGrid after grid size is finalized.
+    let canvasWidth;
+    let canvasHeight;
+    let ctx;
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
-    // Grid state array to store block types
-    let gridState = []; // Now dynamically sized
-
-    // Object to store resource counts
+    let gridState = [];
     const resourceCounts = {};
 
     // Audio objects for sound effects
@@ -46,10 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
-    const allEffectSounds = [
-        buttonSound, fillSound, selectSound,
-        categoryOpenSound, categoryCollapseSound, saveSound
-    ];
+    // NEW: Block Place and Destroy Sounds
+    const placeBlockSound = new Audio('audio/place_block.mp3'); // Create this file
+    const destroyBlockSound = new Audio('audio/destroy_block.mp3'); // Create this file
+
+    // NEW: Pitch tracking variables
+    let consecutivePlaceCount = 0;
+    let consecutiveDestroyCount = 0;
+    const maxPitchIncrease = 0.5; // Max additional pitch (e.g., 0.5 means 50% faster)
+    const pitchIncrementPerAction = 0.05; // How much pitch increases per consecutive action
+    const pitchDecayTime = 200; // Time in ms after which pitch resets if no new action
+    let pitchResetTimeout;
 
     const musicPlaylist = [
         'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -88,11 +86,46 @@ document.addEventListener('DOMContentLoaded', () => {
     let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
     let hasUserInteracted = false;
 
-    function playSound(audioElement) {
-        if (soundsEnabled && hasUserInteracted) {
-            audioElement.currentTime = 0;
-            audioElement.play().catch(e => console.error("Error playing sound effect:", e));
+    // Modified playSound function to handle dynamic pitch
+    function playSound(audioElement, isConsecutiveAction = false, actionType = null) {
+        if (!soundsEnabled || !hasUserInteracted) {
+            return;
         }
+
+        // Clear any existing reset timeout
+        clearTimeout(pitchResetTimeout);
+
+        let currentPitch = 1.0;
+        if (isConsecutiveAction && actionType) {
+            if (actionType === 'place') {
+                consecutivePlaceCount = Math.min(consecutivePlaceCount + 1, maxPitchIncrease / pitchIncrementPerAction);
+                consecutiveDestroyCount = 0; // Reset other counter
+                currentPitch += consecutivePlaceCount * pitchIncrementPerAction;
+            } else if (actionType === 'destroy') {
+                consecutiveDestroyCount = Math.min(consecutiveDestroyCount + 1, maxPitchIncrease / pitchIncrementPerAction);
+                consecutivePlaceCount = 0; // Reset other counter
+                currentPitch += consecutiveDestroyCount * pitchIncrementPerAction;
+            }
+        } else {
+            // If not a consecutive action, reset counts for a fresh start
+            consecutivePlaceCount = 0;
+            consecutiveDestroyCount = 0;
+        }
+
+        // Clamp pitch to a reasonable range (e.g., 0.5 to 2.0)
+        audioElement.playbackRate = Math.max(0.5, Math.min(2.0, currentPitch));
+        audioElement.currentTime = 0;
+
+        audioElement.play().catch(e => console.error("Error playing sound effect:", e));
+
+        // Set a timeout to reset pitch counts if no new action occurs
+        pitchResetTimeout = setTimeout(() => {
+            consecutivePlaceCount = 0;
+            consecutiveDestroyCount = 0;
+            // Optionally, set the playbackRate of the specific sounds back to 1.0 here
+            // placeBlockSound.playbackRate = 1.0;
+            // destroyBlockSound.playbackRate = 1.0;
+        }, pitchDecayTime);
     }
 
     function updateSoundToggleButton() {
@@ -354,18 +387,16 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(selectSound);
     }
 
-    // Modified initializeGrid to accept width and height
     function initializeGrid(width, height) {
-        gameGrid.innerHTML = ''; // Clear existing grid
+        gameGrid.innerHTML = '';
         gameGrid.style.gridTemplateColumns = `repeat(${width}, ${blockSize}px)`;
         gameGrid.style.gridTemplateRows = `repeat(${height}, ${blockSize}px)`;
-        gameGrid.style.width = `${width * blockSize}px`; // Set explicit width
-        gameGrid.style.height = `${height * blockSize}px`; // Set explicit height
+        gameGrid.style.width = `${width * blockSize}px`;
+        gameGrid.style.height = `${height * blockSize}px`;
 
         currentGridWidth = width;
         currentGridHeight = height;
 
-        // Reset gridState and resourceCounts for the new grid
         gridState = Array(width * height).fill('Air');
         for (const key in resourceCounts) {
             delete resourceCounts[key];
@@ -376,7 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
             block.classList.add('grid-block');
             block.dataset.index = i;
             block.dataset.type = 'Air';
-            // No need to set gridState[i] here as it's already filled with 'Air'
 
             block.addEventListener('mousedown', (event) => {
                 event.preventDefault();
@@ -389,6 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             block.addEventListener('mouseup', (event) => {
+                // When mouseup occurs anywhere, reset painting and pitch counters
+                isPainting = false;
+                consecutivePlaceCount = 0;
+                consecutiveDestroyCount = 0;
+                if (pitchResetTimeout) {
+                    clearTimeout(pitchResetTimeout);
+                }
+
                 if (event.button === 1) { // Middle mouse button
                     event.preventDefault();
                     const clickedBlockType = block.dataset.type;
@@ -404,10 +442,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             block.addEventListener('mouseenter', (event) => {
-                if (isPainting) {
-                    if (event.buttons === 1) {
+                // Check if a mouse button is still pressed
+                if (isPainting) { // Only paint if isPainting flag is true (set by mousedown)
+                    if (event.buttons === 1) { // Left mouse button
                         placeBlock(block, selectedBlockType);
-                    } else if (event.buttons === 2) {
+                    } else if (event.buttons === 2) { // Right mouse button
                         destroyBlock(block);
                     }
                 }
@@ -434,18 +473,23 @@ document.addEventListener('DOMContentLoaded', () => {
             gameGrid.appendChild(block);
         }
 
+        // Global mouseup to stop painting
         document.addEventListener('mouseup', () => {
             isPainting = false;
+            consecutivePlaceCount = 0;
+            consecutiveDestroyCount = 0;
+            if (pitchResetTimeout) {
+                clearTimeout(pitchResetTimeout);
+            }
         });
 
-        // Set hidden canvas dimensions and get context here
         canvasWidth = currentGridWidth * blockSize;
         canvasHeight = currentGridHeight * blockSize;
         hiddenCanvas.width = canvasWidth;
         hiddenCanvas.height = canvasHeight;
-        ctx = hiddenCanvas.getContext('2d'); // Get context after setting dimensions
+        ctx = hiddenCanvas.getContext('2d');
 
-        updateResourceCounts(); // Initial update for resource display
+        updateResourceCounts();
     }
 
     function placeBlock(gridBlockElement, type) {
@@ -474,6 +518,8 @@ document.addEventListener('DOMContentLoaded', () => {
             resourceCounts[type] = (resourceCounts[type] || 0) + 1;
         }
         updateResourceCountsDisplay();
+        // Play sound when placing a block
+        playSound(placeBlockSound, isPainting, 'place');
     }
 
     function destroyBlock(gridBlockElement) {
@@ -494,6 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
             delete resourceCounts[oldType];
         }
         updateResourceCountsDisplay();
+        // Play sound when destroying a block
+        playSound(destroyBlockSound, isPainting, 'destroy');
     }
 
     function clearGrid() {
@@ -501,8 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
         allGridBlocks.forEach(block => {
             destroyBlock(block);
         });
-        // This loop ensures resourceCounts is clean, but destroyBlock already handles it per block.
-        // For a full clear, we can reset the object directly for efficiency if it's large.
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
@@ -528,13 +574,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function drawGridToCanvas() {
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Use dynamic canvas dimensions
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach(blockElement => {
             const type = blockElement.dataset.type;
             const index = parseInt(blockElement.dataset.index);
-            // Calculate row and col based on currentGridWidth
             const row = Math.floor(index / currentGridWidth);
             const col = index % currentGridWidth;
 
@@ -657,25 +702,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NEW: Event Listener for Set Grid Size Button
     setGridSizeButton.addEventListener('click', () => {
         playSound(buttonSound);
         const newWidth = parseInt(gridWidthInput.value);
         const newHeight = parseInt(gridHeightInput.value);
 
-        // Input Validation
-        if (isNaN(newWidth) || newWidth < 1 || newWidth > 30) {
-            alert('Please enter a valid width between 1 and 30.');
-            gridWidthInput.value = currentGridWidth; // Reset to current valid value
+        // UPDATED: Max grid size to 25
+        const MAX_GRID_SIZE = 25;
+
+        if (isNaN(newWidth) || newWidth < 1 || newWidth > MAX_GRID_SIZE) {
+            alert(`Please enter a valid width between 1 and ${MAX_GRID_SIZE}.`);
+            gridWidthInput.value = currentGridWidth;
             return;
         }
-        if (isNaN(newHeight) || newHeight < 1 || newHeight > 30) {
-            alert('Please enter a valid height between 1 and 30.');
-            gridHeightInput.value = currentGridHeight; // Reset to current valid value
+        if (isNaN(newHeight) || newHeight < 1 || newHeight > MAX_GRID_SIZE) {
+            alert(`Please enter a valid height between 1 and ${MAX_GRID_SIZE}.`);
+            gridHeightInput.value = currentGridHeight;
             return;
         }
 
-        // Apply new grid size
         initializeGrid(newWidth, newHeight);
     });
 
@@ -684,13 +729,11 @@ document.addEventListener('DOMContentLoaded', () => {
     preloadBlockTextures().then(() => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
-        // Call initializeGrid with default values (from HTML input fields)
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value));
 
     }).catch(error => {
         console.error("Error preloading textures:", error);
         initializeInventory();
-        // Fallback for grid initialization if textures fail
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value));
     });
 });
