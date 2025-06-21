@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
+    const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
     const gridSize = 10;
     const blockSize = 50;
@@ -21,6 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
     let isPainting = false;
+
+    const gridState = Array(gridSize * gridSize).fill('Air');
+
+    const resourceCounts = {};
 
     // Audio objects for sound effects
     const buttonSound = new Audio('audio/button_click.mp3');
@@ -444,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('mouseup', () => {
             isPainting = false;
         });
+        updateResourceCounts();
     }
 
     function placeBlock(gridBlockElement, type) {
@@ -454,12 +460,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gridBlockElement.dataset.type = type;
         const texturePath = blockTypes[type] ? blockTypes[type].texture : 'path/to/default_empty_texture.png';
         gridBlockElement.style.backgroundImage = `url(${texturePath})`;
+        updateResourceCounts();
     }
 
     function destroyBlock(gridBlockElement) {
         gridBlockElement.dataset.type = 'Air';
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
+        updateResourceCounts();
     }
 
     function clearGrid() {
@@ -467,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allGridBlocks.forEach(block => {
             destroyBlock(block);
         });
+        updateResourceCounts();
     }
 
     function fillGrid() {
@@ -474,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allGridBlocks.forEach(block => {
             placeBlock(block, selectedBlockType);
         });
+        updateResourceCounts();
     }
 
     clearGridButton.addEventListener('click', () => {
@@ -576,6 +586,65 @@ document.addEventListener('DOMContentLoaded', () => {
             playBackgroundMusic();
         }
     }, { once: true });
+
+    function updateResourceCounts() {
+        // Reset counts
+        for (const key in resourceCounts) {
+            delete resourceCounts[key];
+        }
+
+        // Recalculate based on current gridState
+        gridState.forEach(blockType => {
+            if (blockType !== 'Air') {
+                resourceCounts[blockType] = (resourceCounts[blockType] || 0) + 1;
+            }
+        });
+        updateResourceCountsDisplay();
+    }
+
+    function updateResourceCountsDisplay() {
+        resourceCountDisplay.innerHTML = ''; // Clear previous display
+
+        // Sort blocks alphabetically by name for consistent display
+        const sortedBlockTypes = Object.keys(resourceCounts).sort();
+
+        if (sortedBlockTypes.length === 0) {
+            resourceCountDisplay.innerHTML = '<p>No blocks placed yet.</p>';
+            return;
+        }
+
+        sortedBlockTypes.forEach(type => {
+            const count = resourceCounts[type];
+            if (count > 0) { // Only display blocks that exist
+                const resourceItem = document.createElement('div');
+                resourceItem.classList.add('resource-item');
+
+                const resourceImage = document.createElement('div');
+                resourceImage.classList.add('resource-image');
+                const blockData = blockTypes[type];
+                if (blockData && blockData.texture) {
+                    resourceImage.style.backgroundImage = `url(${blockData.texture})`;
+                } else {
+                    resourceImage.style.backgroundColor = '#ccc'; // Fallback
+                }
+
+                const resourceName = document.createElement('span');
+                resourceName.classList.add('resource-name');
+                resourceName.textContent = type;
+
+                const resourceQuantity = document.createElement('span');
+                resourceQuantity.classList.add('resource-quantity');
+                resourceQuantity.textContent = `x${count}`;
+
+                resourceItem.appendChild(resourceImage);
+                resourceItem.appendChild(resourceName);
+                resourceItem.appendChild(resourceQuantity);
+                resourceCountDisplay.appendChild(resourceItem);
+            }
+        });
+    }
+
+    
 
 
     // --- Run Initialization ---
