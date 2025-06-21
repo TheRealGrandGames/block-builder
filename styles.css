@@ -51,27 +51,30 @@ body.theme-dark {
 }
 
 /* Red Dye Theme */
-body.theme-red-dye {
-    --bg-color: #5c2a2a; /* Muted deep red */
-    --text-color: #e0dcd9; /* Light desaturated beige */
-    --container-bg: #703838; /* Slightly lighter muted red */
-    --border-color: #401e1e; /* Darker muted red */
-    --header-bg: #653030; /* Medium muted red */
-    --instructions-bg: #5a2727; /* Darker muted red for instructions */
-    --grid-bg: #4b2222; /* Even darker red for grid background */
-    --grid-block-border: rgba(255, 255, 255, 0.08); /* Subtle light border */
-    --selected-block-border: #f08080; /* Light coral red for accent */
-    --resource-item-bg: #7a4242; /* Medium red for resource items */
-    --resource-item-border: #502525;
-    --resource-quantity-color: #ffccaa; /* Soft orange for quantity */
-    --input-border: #804040;
-    --placeholder-block-bg: #602e2e;
-    --link-color: #f08080;
-    --tooltip-bg: rgba(0, 0, 0, 0.75); /* Dark tooltip */
+body.theme-overworld {
+    --bg-color: #7ab8e2; /* Sky blue background */
+    --text-color: #333;
+    --container-bg: #c9e6a9; /* Light grassy green */
+    --border-color: #5b8c32; /* Dark green/brown for borders */
+    --header-bg: #b0d28d; /* Slightly darker grassy green */
+    --instructions-bg: #d9edc1; /* Lighter grassy green for instructions */
+    --grid-bg: #8bb762; /* More saturated green for grid background */
+    --grid-block-border: rgba(0, 0, 0, 0.15); /* Subtle dark border for grid blocks */
+    --selected-block-border: #4CAF50; /* Vibrant green for selection */
+    --resource-item-bg: #a8d67c; /* Medium green for resource items */
+    --resource-item-border: #7baf4d;
+    --resource-quantity-color: #2e8b57; /* Sea green for quantity */
+    --input-border: #6d9c44;
+    --placeholder-block-bg: #e0e0e0; /* Default light grey for 'Air' */
+    --link-color: #4CAF50; /* Vibrant green for links */
+    --tooltip-bg: rgba(0, 0, 0, 0.75);
     --tooltip-text: white;
 
-    --body-bg-image: none; /* No texture for basic red dye theme */
-    --body-image-rendering: auto;
+    --body-bg-image: url('textures/grass.png'); /* Grass Block background */
+    --body-bg-repeat: repeat;
+    --body-bg-size: 100px 100px; /* Adjust size for good tiling of a 16x16 texture */
+    --body-bg-position: center center;
+    --body-image-rendering: pixelated; /* Ensure crisp pixel art rendering */
 }
 
 /* NEW: Nether Theme */
@@ -643,8 +646,7 @@ h1, h2, h3 {
 }
 
 .theme-selector-container select {
-    width: auto;
-    min-width: 150px;
+    width: 400;
     height: 40px;
     padding: 0 15px;
     border-radius: 5px;
@@ -667,7 +669,7 @@ body.theme-light .theme-selector-container select {
 }
 
 body.theme-dark .theme-selector-container select,
-body.theme-red-dye .theme-selector-container select,
+body.theme-overworld .theme-selector-container select,
 body.theme-nether .theme-selector-container select,
 body.theme-end .theme-selector-container select,
 body.theme-ocean .theme-selector-container select {
