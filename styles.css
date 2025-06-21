@@ -320,3 +320,71 @@ h1 {
     transform: translateY(0); /* Reset lift on active */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow on active */
 }
+
+/* NEW STYLES FOR RESOURCE COUNT DISPLAY */
+.resource-count-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%; /* Take full width of game-container */
+    box-sizing: border-box; /* Include padding and border in width */
+}
+
+.resource-count-container h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.resource-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Space between resource items */
+    justify-content: center; /* Center items if they don't fill the row */
+}
+
+.resource-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 5px 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.resource-image {
+    width: 24px; /* Smaller image for resource display */
+    height: 24px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-right: 8px;
+    image-rendering: pixelated;
+}
+
+.resource-name {
+    font-size: 0.9em;
+    color: #444;
+    margin-right: 8px;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.resource-quantity {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 1em;
+}
+
+.resource-items p { /* Style for "No blocks placed yet." */
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+}
