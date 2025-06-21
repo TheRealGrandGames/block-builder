@@ -50,7 +50,7 @@ body.theme-dark {
     --body-image-rendering: auto;
 }
 
-/* Red Dye Theme */
+/* Overworld Theme (Converted from Red Dye) */
 body.theme-overworld {
     --bg-color: #7ab8e2; /* Sky blue background */
     --text-color: #333;
@@ -72,12 +72,12 @@ body.theme-overworld {
 
     --body-bg-image: url('textures/grass.png'); /* Grass Block background */
     --body-bg-repeat: repeat;
-    --body-bg-size: 100px 100px; /* Adjust size for good tiling of a 16x16 texture */
+    --body-bg-size: 100px 100px;
     --body-bg-position: center center;
     --body-image-rendering: pixelated; /* Ensure crisp pixel art rendering */
 }
 
-/* NEW: Nether Theme */
+/* Nether Theme */
 body.theme-nether {
     --bg-color: #3b0e0e; /* Dark red background */
     --text-color: #f0f0f0;
@@ -104,7 +104,7 @@ body.theme-nether {
     --body-image-rendering: pixelated; /* Apply pixelated rendering */
 }
 
-/* NEW: End Theme */
+/* End Theme */
 body.theme-end {
     --bg-color: #1a1a1a; /* Very dark background */
     --text-color: #e0e0e0;
@@ -131,7 +131,7 @@ body.theme-end {
     --body-image-rendering: pixelated; /* Apply pixelated rendering */
 }
 
-/* NEW: Ocean Theme */
+/* Ocean Theme */
 body.theme-ocean {
     --bg-color: #3b749d; /* Deep blue */
     --text-color: #ffffff;
@@ -417,21 +417,22 @@ h1, h2, h3 {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Base styles for action buttons - button.png applied here */
 .action-button {
     border: none;
     cursor: pointer;
     margin-top: 10px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     align-self: center;
     width: 400px;
     height: 40px;
+    image-rendering: pixelated;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background-image: url('textures/button.png'); /* Apply button texture */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    image-rendering: pixelated;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    background-image: url('textures/button.png'); /* Base button texture */
-    background-color: var(--bg-color); /* A neutral background color behind the texture */
+    background-color: var(--bg-color); /* Default background color */
     color: white; /* Text color for buttons */
 }
 
@@ -441,7 +442,7 @@ h1, h2, h3 {
     transform: none;
     box-shadow: none;
     background-image: url('textures/button_disabled.png');
-    background-color: var(--bg-color); /* Default background */
+    background-color: var(--bg-color);
     color: white;
 }
 
@@ -459,12 +460,10 @@ h1, h2, h3 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Specific buttons (apply the base styles and then override texture if needed) */
+/* Specific button classes */
 .clear-button, .fill-button, .save-button, .sound-toggle-button,
 .grid-sound-toggle-button, .music-toggle-button {
-    background-image: url('textures/button.png'); /* Ensures they all use the base texture */
-    background-color: var(--bg-color);
-    color: white;
+    /* These inherit from .action-button now */
 }
 
 
@@ -643,23 +642,25 @@ h1, h2, h3 {
 .theme-selector-container label {
     font-weight: bold;
     color: var(--text-color);
-    background-image: url('textures/button.png')
 }
 
 .theme-selector-container select {
-    width: 400;
+    width: auto;
+    min-width: 150px;
     height: 40px;
     padding: 0 15px;
     border-radius: 5px;
     font-size: 1em;
-    background-color: var(--container-bg);
+    background-color: var(--container-bg); /* Use theme's container background */
     color: var(--text-color);
     border: 1px solid var(--border-color);
     cursor: pointer;
-    appearance: none;
-    /* Custom dropdown arrow - will need to be adjusted for dark themes */
-    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23333333%22%20stroke-width%3D%222%22%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
+    appearance: none; /* Remove default dropdown arrow */
+    /* Only the SVG arrow background is applied here now */
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23333333%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
     background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px 7px;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
