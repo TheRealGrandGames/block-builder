@@ -151,7 +151,7 @@ body.theme-ocean {
     --tooltip-bg: rgba(0, 0, 0, 0.75);
     --tooltip-text: white;
 
-    --body-bg-image: url('textures/water_still.png'); /* Assumes a static water texture */
+    --body-bg-image: url('textures/water.png'); /* Assumes a static water texture */
     --body-bg-repeat: repeat;
     --body-bg-size: 100px 100px;
     --body-bg-position: center center;
