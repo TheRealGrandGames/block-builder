@@ -260,6 +260,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            block.addEventListener('mouseup', (event) => {
+                // event.button === 1 corresponds to the middle mouse button
+                if (event.button === 1) {
+                    event.preventDefault(); // Prevent any default middle-click behavior (like auto-scroll)
+                    const clickedBlockType = block.dataset.type;
+                    
+                    // Only select if it's not 'Air'
+                    if (clickedBlockType && clickedBlockType !== 'Air') {
+                        // Find the corresponding inventory element
+                        const inventoryElement = document.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
+                        if (inventoryElement) {
+                            selectBlock(clickedBlockType, inventoryElement);
+                        } else {
+                            console.warn(`Middle-clicked block type "${clickedBlockType}" not found in inventory.`);
+                            // Optionally, handle cases where a block type might exist on grid but not inventory (unlikely here)
+                        }
+                    }
+                }
+            });
+
             block.addEventListener('mouseenter', (event) => {
                 if (isPainting) {
                     if (event.buttons === 1) {
