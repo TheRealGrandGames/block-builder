@@ -15,18 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridWidthInput = document.getElementById('gridWidth');
     const gridHeightInput = document.getElementById('gridHeight');
     const setGridSizeButton = document.getElementById('setGridSizeButton');
-    const resetGridSizeButton = document.getElementById('resetGridSizeButton'); // NEW
+    const resetGridSizeButton = document.getElementById('resetGridSizeButton');
 
-    // NEW: Undo/Redo buttons
     const undoButton = document.getElementById('undoButton');
     const redoButton = document.getElementById('redoButton');
 
-    // NEW: Import/Export Buttons and File Input
     const importButton = document.getElementById('importButton');
     const exportButton = document.getElementById('exportButton');
     const importFileInput = document.getElementById('importFileInput');
+    const exportNBTButton = document.getElementById('exportNBTButton'); // NEW
 
-    // NEW: Checkbox for including resources in PNG
     const includeResourcesCheckbox = document.getElementById('includeResourcesCheckbox');
 
     let currentGridWidth = 10;
@@ -34,22 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockSize = 50;
     let canvasWidth;
     let canvasHeight;
-    let ctx; // Declare ctx here so it's accessible globally within this scope
+    let ctx;
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
-    let isPainting = false; // Flag for continuous painting during drag
+    let isPainting = false;
 
-    let gridState = []; // Represents the current state of the grid
+    let gridState = [];
 
-    // NEW: History for Undo/Redo
     let gridHistory = [];
-    let historyPointer = -1; // -1 means no states saved yet, or history is empty
-    const MAX_HISTORY_STATES = 50; // Limit history to prevent excessive memory usage
+    let historyPointer = -1;
+    const MAX_HISTORY_STATES = 50;
 
     const resourceCounts = {};
 
-    // Audio objects for sound effects
     const buttonSound = new Audio('audio/button_click.mp3');
     const fillSound = new Audio('audio/grid_fill.mp3');
     const selectSound = new Audio('audio/inventory_button_click.mp3');
@@ -57,16 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
-    // NEW: Block Place and Destroy Sounds (make sure these files exist or point to valid audio)
     const placeBlockSound = new Audio('audio/inventory_button_click.mp3');
     const destroyBlockSound = new Audio('audio/destroy_block.mp3');
 
-    // NEW: Pitch tracking variables for consecutive actions
     let consecutivePlaceCount = 0;
     let consecutiveDestroyCount = 0;
-    const maxPitchIncrease = 0.5; // Max additional pitch (e.g., 0.5 means 50% faster)
-    const pitchIncrementPerAction = 0.05; // How much pitch increases per consecutive action
-    const pitchDecayTime = 200; // Time in ms after which pitch resets if no new action
+    const maxPitchIncrease = 0.5;
+    const pitchIncrementPerAction = 0.05;
+    const pitchDecayTime = 200;
     let pitchResetTimeout;
 
     const musicPlaylist = [
@@ -107,44 +101,38 @@ document.addEventListener('DOMContentLoaded', () => {
     let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
     let hasUserInteracted = false;
 
-    // Modified playSound function to handle dynamic pitch
     function playSound(audioElement, isConsecutiveAction = false, actionType = null) {
         if (!soundsEnabled || !hasUserInteracted) {
             return;
         }
 
-        // NEW: Check for gridSoundsEnabled for specific audio elements
         if ((audioElement === placeBlockSound || audioElement === destroyBlockSound) && !gridSoundsEnabled) {
-            return; // Don't play if grid sounds are off
+            return;
         }
 
-        // Clear any existing reset timeout
         clearTimeout(pitchResetTimeout);
 
         let currentPitch = 1.0;
         if (isConsecutiveAction && actionType) {
             if (actionType === 'place') {
                 consecutivePlaceCount = Math.min(consecutivePlaceCount + 1, maxPitchIncrease / pitchIncrementPerAction);
-                consecutiveDestroyCount = 0; // Reset other counter
+                consecutiveDestroyCount = 0;
                 currentPitch += consecutivePlaceCount * pitchIncrementPerAction;
             } else if (actionType === 'destroy') {
                 consecutiveDestroyCount = Math.min(consecutiveDestroyCount + 1, maxPitchIncrease / pitchIncrementPerAction);
-                consecutivePlaceCount = 0; // Reset other counter
+                consecutivePlaceCount = 0;
                 currentPitch += consecutiveDestroyCount * pitchIncrementPerAction;
             }
         } else {
-            // If not a consecutive action, reset counts for a fresh start
             consecutivePlaceCount = 0;
             consecutiveDestroyCount = 0;
         }
 
-        // Clamp pitch to a reasonable range (e.g., 0.5 to 2.0)
         audioElement.playbackRate = Math.max(0.5, Math.min(2.0, currentPitch));
         audioElement.currentTime = 0;
 
         audioElement.play().catch(e => console.error("Error playing sound effect:", e));
 
-        // Set a timeout to reset pitch counts if no new action occurs
         pitchResetTimeout = setTimeout(() => {
             consecutivePlaceCount = 0;
             consecutiveDestroyCount = 0;
@@ -305,25 +293,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     img.onerror = () => {
                         console.error(`Failed to load texture: ${blockData.texture}`);
-                        // Set a placeholder or default if texture fails to load
-                        blockImages[type] = null; // Mark as failed or provide a fallback image
+                        blockImages[type] = null;
                         resolve();
                     };
                 }));
             }
         }
-        // Also preload checkbox textures
         imagesToLoad.push(new Promise((resolve, reject) => {
             const imgUnchecked = new Image();
             imgUnchecked.src = 'textures/checkbox_unchecked.png';
             imgUnchecked.crossOrigin = "Anonymous";
             imgUnchecked.onload = () => {
-                // Not storing in blockImages, just ensuring it's in cache for CSS
                 resolve();
             };
             imgUnchecked.onerror = () => {
                 console.warn("Failed to load checkbox_unchecked.png");
-                resolve(); // Still resolve to not block main loading
+                resolve();
             };
         }));
         imagesToLoad.push(new Promise((resolve, reject) => {
@@ -331,12 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
             imgChecked.src = 'textures/checkbox_checked.png';
             imgChecked.crossOrigin = "Anonymous";
             imgChecked.onload = () => {
-                // Not storing in blockImages, just ensuring it's in cache for CSS
                 resolve();
             };
             imgChecked.onerror = () => {
                 console.warn("Failed to load checkbox_checked.png");
-                resolve(); // Still resolve to not block main loading
+                resolve();
             };
         }));
 
@@ -446,10 +430,9 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(selectSound);
     }
 
-    // Function to apply a given grid state to the actual DOM grid
     function applyState(state) {
         const allGridBlocks = document.querySelectorAll('.grid-block');
-        gridState = [...state]; // Update the current gridState to the loaded state
+        gridState = [...state];
 
         allGridBlocks.forEach((block, index) => {
             const type = gridState[index];
@@ -463,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 block.style.backgroundColor = '#e0e0e0';
             }
         });
-        updateResourceCounts(); // Recalculate resource counts after applying a state
+        updateResourceCounts();
     }
 
     function initializeGrid(width, height, isNewGrid = true, loadedGridState = null) {
@@ -476,16 +459,15 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGridWidth = width;
         currentGridHeight = height;
 
-        // If it's a new grid OR loading from a file, clear history and start fresh
         if (isNewGrid) {
-            gridHistory = []; // Clear history
-            historyPointer = -1; // Reset pointer
-            gridState = Array(width * height).fill('Air'); // Default to empty grid
+            gridHistory = [];
+            historyPointer = -1;
+            gridState = Array(width * height).fill('Air');
             for (const key in resourceCounts) {
                 delete resourceCounts[key];
             }
-            if (loadedGridState) { // If a state is provided (from import)
-                gridState = [...loadedGridState]; // Use the loaded state
+            if (loadedGridState) {
+                gridState = [...loadedGridState];
             }
         }
 
@@ -494,7 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            // Set block type from current gridState, or 'Air' if new grid
             block.dataset.type = gridState[i] || 'Air';
 
             const texturePath = blockTypes[gridState[i]] ? blockTypes[gridState[i]].texture : null;
@@ -508,15 +489,14 @@ document.addEventListener('DOMContentLoaded', () => {
             block.addEventListener('mousedown', (event) => {
                 event.preventDefault();
                 isPainting = true;
-                if (event.button === 0) { // Left-click
+                if (event.button === 0) {
                     placeBlock(block, selectedBlockType);
-                } else if (event.button === 2) { // Right-click
+                } else if (event.button === 2) {
                     destroyBlock(block);
                 }
             });
 
             block.addEventListener('mouseup', (event) => {
-                // When mouseup occurs anywhere, reset painting and pitch counters
                 isPainting = false;
                 consecutivePlaceCount = 0;
                 consecutiveDestroyCount = 0;
@@ -524,14 +504,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearTimeout(pitchResetTimeout);
                 }
 
-                // Save state only after a painting session ends
-                // This ensures a single undo step for a drag operation
                 if (event.button === 0 || event.button === 2) {
                     saveState();
                 }
 
 
-                if (event.button === 1) { // Middle mouse button
+                if (event.button === 1) {
                     event.preventDefault();
                     const clickedBlockType = block.dataset.type;
                     if (clickedBlockType && clickedBlockType !== 'Air') {
@@ -546,11 +524,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             block.addEventListener('mouseenter', (event) => {
-                // Check if a mouse button is still pressed
-                if (isPainting) { // Only paint if isPainting flag is true (set by mousedown)
-                    if (event.buttons === 1) { // Left mouse button
+                if (isPainting) {
+                    if (event.buttons === 1) {
                         placeBlock(block, selectedBlockType);
-                    } else if (event.buttons === 2) { // Right mouse button
+                    } else if (event.buttons === 2) {
                         destroyBlock(block);
                     }
                 }
@@ -577,10 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameGrid.appendChild(block);
         }
 
-        // Global mouseup to stop painting and save state if a drag occurred
         document.addEventListener('mouseup', (event) => {
             if (isPainting && (event.button === 0 || event.button === 2)) {
-                saveState(); // Save state only once after continuous drawing
+                saveState();
             }
             isPainting = false;
             consecutivePlaceCount = 0;
@@ -595,17 +571,16 @@ document.addEventListener('DOMContentLoaded', () => {
         hiddenCanvas.width = canvasWidth;
         hiddenCanvas.height = canvasHeight;
         ctx = hiddenCanvas.getContext('2d');
-        // IMPORTANT: Disable image smoothing for crisp pixel art rendering on canvas
         ctx.imageSmoothingEnabled = false;
-        ctx.mozImageSmoothingEnabled = false; // For Firefox
-        ctx.webkitImageSmoothingEnabled = false; // For Safari
-        ctx.msImageSmoothingEnabled = false; // For Edge/IE
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
 
         updateResourceCounts();
-        if (isNewGrid && !loadedGridState) { // Only save state for new grid on initial load or size change, unless loading from file
+        if (isNewGrid && !loadedGridState) {
             saveState();
         }
-        updateUndoRedoButtonStates(); // Update button states after grid initialization
+        updateUndoRedoButtonStates();
     }
 
     function placeBlock(gridBlockElement, type) {
@@ -624,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         gridBlockElement.dataset.type = type;
-        gridState[index] = type; // Update the current gridState array
+        gridState[index] = type;
 
         const texturePath = blockTypes[type] ? blockTypes[type].texture : 'path/to/default_empty_texture.png';
         gridBlockElement.style.backgroundImage = `url(${texturePath})`;
@@ -634,9 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resourceCounts[type] = (resourceCounts[type] || 0) + 1;
         }
         updateResourceCountsDisplay();
-        // Play sound when placing a block
         playSound(placeBlockSound, isPainting, 'place');
-        // Do NOT call saveState() here directly for continuous painting. It's handled on mouseup.
     }
 
     function destroyBlock(gridBlockElement) {
@@ -648,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         gridBlockElement.dataset.type = 'Air';
-        gridState[index] = 'Air'; // Update the current gridState array
+        gridState[index] = 'Air';
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
 
@@ -657,24 +630,21 @@ document.addEventListener('DOMContentLoaded', () => {
             delete resourceCounts[oldType];
         }
         updateResourceCountsDisplay();
-        // Play sound when destroying a block
         playSound(destroyBlockSound, isPainting, 'destroy');
-        // Do NOT call saveState() here directly for continuous painting. It's handled on mouseup.
     }
 
     function clearGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            if (block.dataset.type !== 'Air') { // Only 'destroy' if it's not already empty
+            if (block.dataset.type !== 'Air') {
                 destroyBlock(block);
             }
         });
-        // Clear resource counts immediately after clearing the grid visually
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
         updateResourceCountsDisplay();
-        saveState(); // Save state after clear operation
+        saveState();
     }
 
     function fillGrid() {
@@ -682,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allGridBlocks.forEach(block => {
             placeBlock(block, selectedBlockType);
         });
-        saveState(); // Save state after fill operation
+        saveState();
     }
 
     clearGridButton.addEventListener('click', () => {
@@ -696,32 +666,26 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(fillSound);
     });
 
-    // Save current grid state to history
     function saveState() {
-        // If we are not at the end of history (i.e., we have undone some actions),
-        // any new action should truncate the "redo" history.
         if (historyPointer < gridHistory.length - 1) {
             gridHistory = gridHistory.slice(0, historyPointer + 1);
         }
 
-        // Deep copy the current gridState to avoid reference issues
         const stateToSave = JSON.parse(JSON.stringify(gridState));
         gridHistory.push(stateToSave);
         historyPointer++;
 
-        // Limit history size
         if (gridHistory.length > MAX_HISTORY_STATES) {
-            gridHistory.shift(); // Remove the oldest state
-            historyPointer--; // Adjust pointer since oldest state was removed
+            gridHistory.shift();
+            historyPointer--;
         }
         updateUndoRedoButtonStates();
         console.log(`State saved. History length: ${gridHistory.length}, Pointer: ${historyPointer}`);
     }
 
-    // Undo action
     function undo() {
         if (historyPointer > 0) {
-            playSound(buttonSound); // Play sound for undo
+            playSound(buttonSound);
             historyPointer--;
             applyState(gridHistory[historyPointer]);
             updateUndoRedoButtonStates();
@@ -731,10 +695,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Redo action
     function redo() {
         if (historyPointer < gridHistory.length - 1) {
-            playSound(buttonSound); // Play sound for redo
+            playSound(buttonSound);
             historyPointer++;
             applyState(gridHistory[historyPointer]);
             updateUndoRedoButtonStates();
@@ -744,17 +707,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Update undo/redo button disabled states
     function updateUndoRedoButtonStates() {
         undoButton.disabled = (historyPointer <= 0);
         redoButton.disabled = (historyPointer >= gridHistory.length - 1);
     }
 
-    // Event Listeners for new Undo/Redo buttons
     undoButton.addEventListener('click', undo);
     redoButton.addEventListener('click', redo);
 
-    // Export functionality
     function exportGrid() {
         playSound(buttonSound);
         const dataToSave = {
@@ -762,23 +722,22 @@ document.addEventListener('DOMContentLoaded', () => {
             height: currentGridHeight,
             grid: gridState
         };
-        const jsonData = JSON.stringify(dataToSave, null, 2); // Pretty print JSON
+        const jsonData = JSON.stringify(dataToSave, null, 2);
 
         const blob = new Blob([jsonData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'my_design.blockbuilder'; // Default filename
+        a.download = 'my_design.blockbuilder';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url); // Clean up the URL object
+        URL.revokeObjectURL(url);
 
         playSound(saveSound);
     }
 
-    // Import functionality
     function importGrid(event) {
         playSound(buttonSound);
         const file = event.target.files[0];
@@ -792,53 +751,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 const loadedData = JSON.parse(e.target.result);
 
                 if (loadedData && typeof loadedData.width === 'number' && typeof loadedData.height === 'number' && Array.isArray(loadedData.grid)) {
-                    // Validate grid size match
                     if (loadedData.width * loadedData.height !== loadedData.grid.length) {
                         alert('Error: Imported file grid dimensions do not match the grid array length.');
                         return;
                     }
 
-                    // Set grid size inputs
                     gridWidthInput.value = loadedData.width;
                     gridHeightInput.value = loadedData.height;
 
-                    // Initialize a new grid with the loaded dimensions and state, clearing history
                     initializeGrid(loadedData.width, loadedData.height, true, loadedData.grid);
-                    alert('Grid imported successfully!'); // Use custom modal in production
+                    alert('Grid imported successfully!');
                 } else {
-                    alert('Error: Invalid .blockbuilder file format. Missing or incorrect data.'); // Use custom modal
+                    alert('Error: Invalid .blockbuilder file format. Missing or incorrect data.');
                 }
             } catch (error) {
                 console.error("Error parsing .blockbuilder file:", error);
-                alert('Error: Could not read or parse the .blockbuilder file. It might be corrupted or not a valid JSON.'); // Use custom modal
+                alert('Error: Could not read or parse the .blockbuilder file. It might be corrupted or not a valid JSON.');
             } finally {
-                // Clear the file input value so the same file can be selected again
                 event.target.value = '';
             }
         };
         reader.onerror = () => {
             console.error("FileReader error:", reader.error);
-            alert('Error reading file. Please try again.'); // Use custom modal
+            alert('Error reading file. Please try again.');
         };
         reader.readAsText(file);
     }
 
-    // Helper function to draw resource counts onto a canvas context
+    // NEW: NBT Export button handler
+    exportNBTButton.addEventListener('click', () => {
+        playSound(buttonSound);
+        // Instruct the user on how to use the external Python script
+        alert(
+            "To export to .nbt for Minecraft:\n\n" +
+            "1. Click the 'Export' button above to save your design as a '.blockbuilder' file.\n" +
+            "2. Use the Python script provided in the model's chat response to convert the '.blockbuilder' file to '.nbt'.\n\n" +
+            "Please refer to the detailed instructions in the chat for how to run the Python script."
+        );
+    });
+
     function drawResourcesOnCanvas(ctx, startY, canvasWidthPx, resourceCounts, blockTypes, blockImages) {
-        let currentY = startY + 20; // Initial padding below the grid
+        let currentY = startY + 20;
 
-        ctx.font = 'bold 16px Arial'; // Title font
+        ctx.font = 'bold 16px Arial';
         ctx.fillStyle = '#333';
-        ctx.textAlign = 'center'; // Center the title horizontally
+        ctx.textAlign = 'center';
         ctx.fillText("Resources Used", canvasWidthPx / 2, currentY);
-        currentY += 25; // Space after title
+        currentY += 25;
 
-        ctx.font = '14px Arial'; // Item font
+        ctx.font = '14px Arial';
         ctx.fillStyle = '#444';
 
-        const RESOURCE_ITEM_HEIGHT = 28; // Height allocated per resource item (image + text)
+        const RESOURCE_ITEM_HEIGHT = 28;
         const RESOURCE_IMG_SIZE = 24;
-        const TEXT_X_OFFSET = RESOURCE_IMG_SIZE + 10; // Text starts after image + small gap
+        const TEXT_X_OFFSET = RESOURCE_IMG_SIZE + 10;
 
         const sortedBlockTypes = Object.keys(resourceCounts).sort();
 
@@ -849,9 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Calculate maximum item width to determine a starting X for centering the block of items
         let maxItemContentWidth = 0;
-        // Temporarily set font for accurate measurement
         ctx.font = '14px Arial';
         sortedBlockTypes.forEach(type => {
             const count = resourceCounts[type];
@@ -862,10 +826,8 @@ document.addEventListener('DOMContentLoaded', () => {
             maxItemContentWidth = Math.max(maxItemContentWidth, RESOURCE_IMG_SIZE + 10 + textWidth);
         });
 
-        // Ensure text is left-aligned within each item's drawing area
         ctx.textAlign = 'left';
 
-        // Calculate starting X to center the block of resource items
         const startXForBlockItems = (canvasWidthPx - maxItemContentWidth) / 2;
 
         sortedBlockTypes.forEach(type => {
@@ -877,18 +839,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const quantity = `x${count}`;
 
                 const itemText = `${name} ${quantity}`;
-                // Recalculate text metrics for current item to vertically align
-                ctx.font = '14px Arial'; // Re-set font as a safety measure
+                ctx.font = '14px Arial';
                 const textMetrics = ctx.measureText(itemText);
 
                 let drawX = startXForBlockItems;
-                // Calculate y-coordinate to vertically center text within the item's line height
                 const textY = currentY + (RESOURCE_ITEM_HEIGHT / 2) + (textMetrics.actualBoundingBoxAscent / 2);
 
                 if (img && img.complete) {
                     ctx.drawImage(img, drawX, currentY + (RESOURCE_ITEM_HEIGHT - RESOURCE_IMG_SIZE) / 2, RESOURCE_IMG_SIZE, RESOURCE_IMG_SIZE);
                 } else {
-                    // Fallback square if image not loaded or invalid
                     ctx.fillStyle = '#ccc';
                     ctx.fillRect(drawX, currentY + (RESOURCE_ITEM_HEIGHT - RESOURCE_IMG_SIZE) / 2, RESOURCE_IMG_SIZE, RESOURCE_IMG_SIZE);
                     ctx.fillStyle = '#444';
@@ -900,24 +859,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentY += RESOURCE_ITEM_HEIGHT;
             }
         });
-        // No return value needed as this is a drawing function
     }
 
-    // Helper to calculate height of resource list for canvas
     function calculateResourceListCanvasHeight() {
         if (!includeResourcesCheckbox.checked) {
-            return 0; // No extra height needed if checkbox is not checked
+            return 0;
         }
         const numItems = Object.keys(resourceCounts).length;
         if (numItems === 0) {
-            return 40; // Height for "No blocks placed yet." title + padding
+            return 40;
         }
-        // Initial padding + Title height + (number of items * item height)
         return 20 + 25 + (numItems * 28);
     }
 
     function drawGridToCanvas(targetCtx, targetCanvasWidth, targetCanvasHeight) {
-        // Clear only the grid area in the context provided
         targetCtx.clearRect(0, 0, targetCanvasWidth, targetCanvasHeight);
 
         const gridBlocks = document.querySelectorAll('.grid-block');
@@ -939,7 +894,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     targetCtx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
                     console.warn(`Texture for ${type} not loaded or incomplete, drawing placeholder.`);
-                    targetCtx.fillStyle = '#ff00ff'; // Magenta placeholder
+                    targetCtx.fillStyle = '#ff00ff';
                     targetCtx.fillRect(x, y, blockSize, blockSize);
                 }
             }
@@ -960,24 +915,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const includeResources = includeResourcesCheckbox.checked;
         const resourceListHeight = calculateResourceListCanvasHeight();
 
-        // Create a temporary canvas for export that might be taller
         const exportCanvas = document.createElement('canvas');
         const exportCtx = exportCanvas.getContext('2d');
 
         exportCanvas.width = canvasWidth;
         exportCanvas.height = canvasHeight + resourceListHeight;
 
-        // Disable image smoothing for the export canvas for crisp pixel art
         exportCtx.imageSmoothingEnabled = false;
         exportCtx.mozImageSmoothingEnabled = false;
         exportCtx.webkitImageSmoothingEnabled = false;
         exportCtx.msImageSmoothingEnabled = false;
 
-        // Draw the grid part onto the export canvas
-        drawGridToCanvas(exportCtx, canvasWidth, canvasHeight); // Draw grid from (0,0) to (canvasWidth, canvasHeight)
+        drawGridToCanvas(exportCtx, canvasWidth, canvasHeight);
 
         if (includeResources) {
-            // Draw resource list below the grid
             drawResourcesOnCanvas(exportCtx, canvasHeight, canvasWidth, resourceCounts, blockTypes, blockImages);
         }
 
@@ -989,7 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(dataURL); // Clean up the URL object
+        URL.revokeObjectURL(dataURL);
 
         playSound(saveSound);
     }
@@ -1006,10 +957,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     gridSoundToggleButton.addEventListener('click', () => {
-        gridSoundsEnabled = !gridSoundsEnabled; // Toggle the state
-        localStorage.setItem('gridSoundsEnabled', gridSoundsEnabled); // Save to localStorage
-        updateGridSoundToggleButton(); // Update button text
-        playSound(buttonSound); // Play a button click sound (this is not a grid sound, so it plays if `soundsEnabled` is ON)
+        gridSoundsEnabled = !gridSoundsEnabled;
+        localStorage.setItem('gridSoundsEnabled', gridSoundsEnabled);
+        updateGridSoundToggleButton();
+        playSound(buttonSound);
     });
 
     musicToggleButton.addEventListener('click', () => {
@@ -1026,12 +977,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateResourceCounts() {
-        // Clear existing counts before recalculating
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
 
-        // Iterate through the current gridState to count blocks
         gridState.forEach(blockType => {
             if (blockType !== 'Air') {
                 resourceCounts[blockType] = (resourceCounts[blockType] || 0) + 1;
@@ -1089,37 +1038,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const MAX_GRID_SIZE = 35; 
 
         if (isNaN(newWidth) || newWidth < 1 || newWidth > MAX_GRID_SIZE) {
-            // Using a simple alert for now. Consider a custom modal for better UX.
             alert(`Please enter a valid width between 1 and ${MAX_GRID_SIZE}.`);
             gridWidthInput.value = currentGridWidth;
             return;
         }
         if (isNaN(newHeight) || newHeight < 1 || newHeight > MAX_GRID_SIZE) {
-            // Using a simple alert for now. Consider a custom modal for better UX.
             alert(`Please enter a valid height between 1 and ${MAX_GRID_SIZE}.`);
             gridHeightInput.value = currentGridHeight;
             return;
         }
 
-        initializeGrid(newWidth, newHeight, true); // Initialize a new grid, saving its state
+        initializeGrid(newWidth, newHeight, true);
     });
 
-    // NEW: Reset Grid Size Button functionality
     resetGridSizeButton.addEventListener('click', () => {
         playSound(buttonSound);
         gridWidthInput.value = 10;
         gridHeightInput.value = 10;
-        initializeGrid(10, 10, true); // Reset to 10x10 and clear the grid, updating history
+        initializeGrid(10, 10, true);
     });
 
 
-    // --- NEW: Add Tooltip Handling for Buttons ---
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, exportNBTButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
             const tooltipText = button.dataset.tooltip;
-            if (tooltipText) { // Only show if data-tooltip exists
+            if (tooltipText) {
                 blockTooltip.textContent = tooltipText;
                 blockTooltip.style.opacity = 1;
 
@@ -1133,23 +1078,19 @@ document.addEventListener('DOMContentLoaded', () => {
             blockTooltip.style.opacity = 0;
         });
     });
-    // --- END NEW TOOLTIP HANDLING ---
 
-    // NEW: Event listeners for import/export buttons
     exportButton.addEventListener('click', exportGrid);
-    importButton.addEventListener('click', () => importFileInput.click()); // Trigger hidden file input
+    importButton.addEventListener('click', () => importFileInput.click());
     importFileInput.addEventListener('change', importGrid);
 
 
-    // --- Run Initialization ---
     preloadBlockTextures().then(() => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
-        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true); // Initial grid setup, saves first state
-        updateUndoRedoButtonStates(); // Set initial button states
+        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
+        updateUndoRedoButtonStates();
     }).catch(error => {
         console.error("Error preloading textures:", error);
-        // Fallback if textures fail to load
         initializeInventory();
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
         updateUndoRedoButtonStates();
