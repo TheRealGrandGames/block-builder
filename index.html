@@ -51,7 +51,6 @@
                 data-tooltip="Fill the grid with the selected block.">Fill</button>
             <button id="clearGridButton" class="action-button clear-button"
                 data-tooltip="Clear the entire grid.">Clear</button>
-            <!-- NEW: Import/Export Buttons -->
             <button id="importButton" class="action-button" data-tooltip="Load a .blockbuilder file.">Import</button>
             <button id="exportButton" class="action-button" data-tooltip="Save your current grid as a .blockbuilder file.">Export</button>
         </div>
@@ -82,12 +81,18 @@
         <div class="utility-buttons-container">
             <button id="savePngButton" class="action-button save-button">Save PNG</button>
         </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="includeResourcesCheckbox" class="custom-checkbox-input">
+            <label for="includeResourcesCheckbox" class="custom-checkbox-label">
+                <span class="checkbox-visual"></span>
+                Include Resource List in PNG
+            </label>
+        </div>
     </div>
 
     <div id="blockTooltip" class="block-tooltip"></div>
 
     <canvas id="hiddenCanvas" style="display: none;"></canvas>
-    <!-- Hidden file input for importing -->
     <input type="file" id="importFileInput" accept=".blockbuilder" style="display: none;">
 
     <script src="scripts.js"></script>
