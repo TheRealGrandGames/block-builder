@@ -253,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Verdant Froglight', texture: 'textures/verdant_froglight_top.png' },
             { name: 'Pearlescent Froglight', texture: 'textures/pearlescent_froglight_top.png' },
 
+            { name: 'Cobweb', texture: 'textures/cobweb.png' },
+            
             { name: 'Sculk', texture: 'textures/sculk.png' },
 
             { name: 'Dried Kelp Block', texture: 'textures/dried_kelp_top.png' },
