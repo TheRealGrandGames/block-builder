@@ -1161,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme selection logic
     function applyTheme(themeName) {
         const body = document.body;
-        body.classList.remove('theme-light', 'theme-dark', 'theme-red-dye', 'theme-nether', 'theme-end', 'theme-ocean', 'theme-overworld');
+        body.classList.remove('theme-light', 'theme-dark', 'theme-red-dye', 'theme-nether', 'theme-end', 'theme-ocean', 'theme-reef', 'theme-overworld');
         body.classList.add(`theme-${themeName}`);
         localStorage.setItem('selectedTheme', themeName);
     }
