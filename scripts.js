@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicToggleButton = document.getElementById('musicToggleButton');
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
     const gridWidthInput = document.getElementById('gridWidth');
     const gridHeightInput = document.getElementById('gridHeight');
     const setGridSizeButton = document.getElementById('setGridSizeButton');
@@ -590,6 +592,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawGridToCanvas() {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
+        ctx.imageSmoothingEnabled = false; // Standard
+        ctx.mozImageSmoothingEnabled = false; // Firefox
+        ctx.webkitImageSmoothingEnabled = false; // Safari/Chrome (older versions)
+        ctx.msImageSmoothingEnabled = false; // IE/Edge
+
+        // Set the canvas dimensions based on the grid size and block size
+        // Multiply by devicePixelRatio for higher resolution drawing
+        const drawingWidth = currentGridWidth * blockSize;
+        const drawingHeight = currentGridHeight * blockSize;
+
+        targetCanvas.width = drawingWidth * devicePixelRatio;
+        targetCanvas.height = drawingHeight * devicePixelRatio;
+
+        ctx.scale(devicePixelRatio, devicePixelRatio);
+        
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach(blockElement => {
             const type = blockElement.dataset.type;
