@@ -276,11 +276,13 @@ h1 {
 
 /* Styles for disabled buttons */
 .action-button:disabled {
-    opacity: 0.5; /* Make them look greyed out */
     cursor: not-allowed;
     filter: none; /* Remove any hover filters */
     transform: none; /* Remove any transform effects */
     box-shadow: none; /* Remove any shadows */
+    background-image: url('textures/button_disabled.png'); /* Path to your fill button texture */
+    background-color: #f0f0f0; /* Default background */
+    color: white;
 }
 
 
