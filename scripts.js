@@ -738,6 +738,28 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGrid(newWidth, newHeight);
     });
 
+    // --- NEW: Add Tooltip Handling for Buttons ---
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton];
+
+    toggleButtons.forEach(button => {
+        button.addEventListener('mouseover', (event) => {
+            const tooltipText = button.dataset.tooltip;
+            if (tooltipText) { // Only show if data-tooltip exists
+                blockTooltip.textContent = tooltipText;
+                blockTooltip.style.opacity = 1;
+
+                const rect = button.getBoundingClientRect();
+                blockTooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (blockTooltip.offsetWidth / 2)}px`;
+                blockTooltip.style.top = `${rect.top + window.scrollY - blockTooltip.offsetHeight - 5}px`;
+            }
+        });
+
+        button.addEventListener('mouseout', () => {
+            blockTooltip.style.opacity = 0;
+        });
+    });
+    // --- END NEW TOOLTIP HANDLING ---
+
     gridSoundToggleButton.addEventListener('click', () => {
         gridSoundsEnabled = !gridSoundsEnabled; // Toggle the state
         localStorage.setItem('gridSoundsEnabled', gridSoundsEnabled); // Save to localStorage
