@@ -43,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Music Playlist
     // IMPORTANT: Update these paths to your actual music files!
     const musicPlaylist = [
-        'audio/song1.mp3',
-        'audio/song2.mp3',
-        'audio/song3.mp3',
-        'audio/another_song.mp3' // Add as many as you like!
+        'audio/taswell.mp3',
+        'audio/dreiton.mp3',
+        'audio/aria_math.mp3',
+        'audio/haunt_muskie.mp3'
     ];
 
     // NEW: Music Audio object - ONE object to manage multiple songs
