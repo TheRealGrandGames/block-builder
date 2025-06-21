@@ -342,6 +342,12 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Bedrock', texture: 'textures/bedrock.png' },
             
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
+
+            { name: 'Blackstone', texture: 'textures/blackstone_top.png' },
+            { name: 'Polished Blackstone', texture: 'textures/polished_blackstone.png' },
+            { name: 'Polished Blackstone Bricks', texture: 'textures/polished_blackstone_bricks.png' },
+            { name: 'Chiseled Polished Blackstone', texture: 'textures/chiseled_polished_blackstone.png' },
+            { name: 'Gilded Blackstone', texture: 'textures/gilded_blackstone.png' },
             
             { name: 'End Stone', texture: 'textures/end_stone.png' },
             { name: 'End Stone Bricks', texture: 'textures/end_stone_bricks.png' },
@@ -364,6 +370,9 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Chiseled Nether Bricks', texture: 'textures/chiseled_nether_bricks.png' },
 
             { name: 'Red Nether Bricks', texture: 'textures/red_nether_bricks.png' },
+
+            { name: 'Purpur Block', texture: 'textures/purpur_block.png' },
+            { name: 'Purpur Pillar', texture: 'textures/purpur_pillar_top.png' },
         ],
         Colorful: [
             { name: 'White Wool', texture: 'textures/white_wool.png' },
