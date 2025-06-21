@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridHeightInput = document.getElementById('gridHeight');
     const setGridSizeButton = document.getElementById('setGridSizeButton');
 
+    // NEW: Undo/Redo buttons
+    const undoButton = document.getElementById('undoButton');
+    const redoButton = document.getElementById('redoButton');
+
     let currentGridWidth = 10;
     let currentGridHeight = 10;
     const blockSize = 50;
@@ -25,9 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
-    let isPainting = false;
+    let isPainting = false; // Flag for continuous painting during drag
 
-    let gridState = [];
+    let gridState = []; // Represents the current state of the grid
+
+    // NEW: History for Undo/Redo
+    let gridHistory = [];
+    let historyPointer = -1; // -1 means no states saved yet, or history is empty
+    const MAX_HISTORY_STATES = 50; // Limit history to prevent excessive memory usage
+
     const resourceCounts = {};
 
     // Audio objects for sound effects
@@ -38,11 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
-    // NEW: Block Place and Destroy Sounds
-    const placeBlockSound = new Audio('audio/inventory_button_click.mp3'); // Create this file
-    const destroyBlockSound = new Audio('audio/destroy_block.mp3'); // Create this file
+    // NEW: Block Place and Destroy Sounds (make sure these files exist or point to valid audio)
+    const placeBlockSound = new Audio('audio/inventory_button_click.mp3');
+    const destroyBlockSound = new Audio('audio/destroy_block.mp3');
 
-    // NEW: Pitch tracking variables
+    // NEW: Pitch tracking variables for consecutive actions
     let consecutivePlaceCount = 0;
     let consecutiveDestroyCount = 0;
     const maxPitchIncrease = 0.5; // Max additional pitch (e.g., 0.5 means 50% faster)
@@ -129,9 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pitchResetTimeout = setTimeout(() => {
             consecutivePlaceCount = 0;
             consecutiveDestroyCount = 0;
-            // Optionally, set the playbackRate of the specific sounds back to 1.0 here
-            // placeBlockSound.playbackRate = 1.0;
-            // destroyBlockSound.playbackRate = 1.0;
         }, pitchDecayTime);
     }
 
@@ -289,7 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     img.onerror = () => {
                         console.error(`Failed to load texture: ${blockData.texture}`);
-                        blockImages[type] = null;
+                        // Set a placeholder or default if texture fails to load
+                        blockImages[type] = null; // Mark as failed or provide a fallback image
                         resolve();
                     };
                 }));
@@ -401,7 +409,27 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(selectSound);
     }
 
-    function initializeGrid(width, height) {
+    // NEW: Function to apply a given grid state to the actual DOM grid
+    function applyState(state) {
+        const allGridBlocks = document.querySelectorAll('.grid-block');
+        gridState = [...state]; // Update the current gridState to the loaded state
+
+        allGridBlocks.forEach((block, index) => {
+            const type = gridState[index];
+            block.dataset.type = type;
+            const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
+            if (texturePath) {
+                block.style.backgroundImage = `url(${texturePath})`;
+                block.style.backgroundColor = '';
+            } else {
+                block.style.backgroundImage = 'none';
+                block.style.backgroundColor = '#e0e0e0';
+            }
+        });
+        updateResourceCounts(); // Recalculate resource counts after applying a state
+    }
+
+    function initializeGrid(width, height, isNewGrid = true) {
         gameGrid.innerHTML = '';
         gameGrid.style.gridTemplateColumns = `repeat(${width}, ${blockSize}px)`;
         gameGrid.style.gridTemplateRows = `repeat(${height}, ${blockSize}px)`;
@@ -411,23 +439,35 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGridWidth = width;
         currentGridHeight = height;
 
-        gridState = Array(width * height).fill('Air');
-        for (const key in resourceCounts) {
-            delete resourceCounts[key];
+        // NEW: If it's a new grid, clear history and start fresh
+        if (isNewGrid) {
+            gridState = Array(width * height).fill('Air');
+            for (const key in resourceCounts) {
+                delete resourceCounts[key];
+            }
         }
 
         for (let i = 0; i < width * height; i++) {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air';
+            // Set block type from current gridState, or 'Air' if new grid
+            block.dataset.type = gridState[i] || 'Air';
+
+            const texturePath = blockTypes[gridState[i]] ? blockTypes[gridState[i]].texture : null;
+            if (texturePath) {
+                block.style.backgroundImage = `url(${texturePath})`;
+            } else {
+                block.style.backgroundColor = '#e0e0e0';
+            }
+
 
             block.addEventListener('mousedown', (event) => {
                 event.preventDefault();
                 isPainting = true;
-                if (event.button === 0) {
+                if (event.button === 0) { // Left-click
                     placeBlock(block, selectedBlockType);
-                } else if (event.button === 2) {
+                } else if (event.button === 2) { // Right-click
                     destroyBlock(block);
                 }
             });
@@ -440,6 +480,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pitchResetTimeout) {
                     clearTimeout(pitchResetTimeout);
                 }
+
+                // NEW: Save state only after a painting session ends
+                // This ensures a single undo step for a drag operation
+                if (event.button === 0 || event.button === 2) {
+                    saveState();
+                }
+
 
                 if (event.button === 1) { // Middle mouse button
                     event.preventDefault();
@@ -487,8 +534,11 @@ document.addEventListener('DOMContentLoaded', () => {
             gameGrid.appendChild(block);
         }
 
-        // Global mouseup to stop painting
-        document.addEventListener('mouseup', () => {
+        // Global mouseup to stop painting and save state if a drag occurred
+        document.addEventListener('mouseup', (event) => {
+            if (isPainting && (event.button === 0 || event.button === 2)) {
+                saveState(); // Save state only once after continuous drawing
+            }
             isPainting = false;
             consecutivePlaceCount = 0;
             consecutiveDestroyCount = 0;
@@ -509,6 +559,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.msImageSmoothingEnabled = false; // For Edge/IE
 
         updateResourceCounts();
+        if (isNewGrid) { // Only save state for new grid on initial load or size change
+            saveState();
+        }
     }
 
     function placeBlock(gridBlockElement, type) {
@@ -527,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         gridBlockElement.dataset.type = type;
-        gridState[index] = type;
+        gridState[index] = type; // Update the current gridState array
 
         const texturePath = blockTypes[type] ? blockTypes[type].texture : 'path/to/default_empty_texture.png';
         gridBlockElement.style.backgroundImage = `url(${texturePath})`;
@@ -539,6 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateResourceCountsDisplay();
         // Play sound when placing a block
         playSound(placeBlockSound, isPainting, 'place');
+        // Do NOT call saveState() here directly for continuous painting. It's handled on mouseup.
     }
 
     function destroyBlock(gridBlockElement) {
@@ -550,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         gridBlockElement.dataset.type = 'Air';
-        gridState[index] = 'Air';
+        gridState[index] = 'Air'; // Update the current gridState array
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
 
@@ -561,17 +615,22 @@ document.addEventListener('DOMContentLoaded', () => {
         updateResourceCountsDisplay();
         // Play sound when destroying a block
         playSound(destroyBlockSound, isPainting, 'destroy');
+        // Do NOT call saveState() here directly for continuous painting. It's handled on mouseup.
     }
 
     function clearGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            destroyBlock(block);
+            if (block.dataset.type !== 'Air') { // Only 'destroy' if it's not already empty
+                destroyBlock(block);
+            }
         });
+        // Clear resource counts immediately after clearing the grid visually
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
         updateResourceCountsDisplay();
+        saveState(); // Save state after clear operation
     }
 
     function fillGrid() {
@@ -579,6 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allGridBlocks.forEach(block => {
             placeBlock(block, selectedBlockType);
         });
+        saveState(); // Save state after fill operation
     }
 
     clearGridButton.addEventListener('click', () => {
@@ -591,6 +651,65 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
         playSound(fillSound);
     });
+
+    // NEW: Save current grid state to history
+    function saveState() {
+        // If we are not at the end of history (i.e., we have undone some actions),
+        // any new action should truncate the "redo" history.
+        if (historyPointer < gridHistory.length - 1) {
+            gridHistory = gridHistory.slice(0, historyPointer + 1);
+        }
+
+        // Deep copy the current gridState to avoid reference issues
+        const stateToSave = JSON.parse(JSON.stringify(gridState));
+        gridHistory.push(stateToSave);
+        historyPointer++;
+
+        // Limit history size
+        if (gridHistory.length > MAX_HISTORY_STATES) {
+            gridHistory.shift(); // Remove the oldest state
+            historyPointer--; // Adjust pointer since oldest state was removed
+        }
+        updateUndoRedoButtonStates();
+        console.log(`State saved. History length: ${gridHistory.length}, Pointer: ${historyPointer}`);
+    }
+
+    // NEW: Undo action
+    function undo() {
+        if (historyPointer > 0) {
+            playSound(buttonSound); // Play sound for undo
+            historyPointer--;
+            applyState(gridHistory[historyPointer]);
+            updateUndoRedoButtonStates();
+            console.log(`Undid. History length: ${gridHistory.length}, Pointer: ${historyPointer}`);
+        } else {
+            console.log("Cannot undo further.");
+        }
+    }
+
+    // NEW: Redo action
+    function redo() {
+        if (historyPointer < gridHistory.length - 1) {
+            playSound(buttonSound); // Play sound for redo
+            historyPointer++;
+            applyState(gridHistory[historyPointer]);
+            updateUndoRedoButtonStates();
+            console.log(`Redid. History length: ${gridHistory.length}, Pointer: ${historyPointer}`);
+        } else {
+            console.log("Cannot redo further.");
+        }
+    }
+
+    // NEW: Update undo/redo button disabled states
+    function updateUndoRedoButtonStates() {
+        undoButton.disabled = (historyPointer <= 0);
+        redoButton.disabled = (historyPointer >= gridHistory.length - 1);
+    }
+
+    // Event Listeners for new Undo/Redo buttons
+    undoButton.addEventListener('click', undo);
+    redoButton.addEventListener('click', redo);
+
 
     function drawGridToCanvas() {
         // Ensure ctx is available
@@ -620,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
                     console.warn(`Texture for ${type} not loaded or incomplete, drawing placeholder.`);
-                    ctx.fillStyle = '#ff00ff';
+                    ctx.fillStyle = '#ff00ff'; // Magenta placeholder
                     ctx.fillRect(x, y, blockSize, blockSize);
                 }
             }
@@ -660,6 +779,13 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
+    gridSoundToggleButton.addEventListener('click', () => {
+        gridSoundsEnabled = !gridSoundsEnabled; // Toggle the state
+        localStorage.setItem('gridSoundsEnabled', gridSoundsEnabled); // Save to localStorage
+        updateGridSoundToggleButton(); // Update button text
+        playSound(buttonSound); // Play a button click sound (this is not a grid sound, so it plays if `soundsEnabled` is ON)
+    });
+
     musicToggleButton.addEventListener('click', () => {
         musicEnabled = !musicEnabled;
         localStorage.setItem('musicEnabled', musicEnabled);
@@ -674,10 +800,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateResourceCounts() {
+        // Clear existing counts before recalculating
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
 
+        // Iterate through the current gridState to count blocks
         gridState.forEach(blockType => {
             if (blockType !== 'Air') {
                 resourceCounts[blockType] = (resourceCounts[blockType] || 0) + 1;
@@ -732,7 +860,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const newWidth = parseInt(gridWidthInput.value);
         const newHeight = parseInt(gridHeightInput.value);
 
-        // UPDATED: Max grid size to 25
         const MAX_GRID_SIZE = 25;
 
         if (isNaN(newWidth) || newWidth < 1 || newWidth > MAX_GRID_SIZE) {
@@ -748,11 +875,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        initializeGrid(newWidth, newHeight);
+        initializeGrid(newWidth, newHeight, true); // Initialize a new grid, saving its state
     });
 
     // --- NEW: Add Tooltip Handling for Buttons ---
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, savePngButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -773,23 +900,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // --- END NEW TOOLTIP HANDLING ---
 
-    gridSoundToggleButton.addEventListener('click', () => {
-        gridSoundsEnabled = !gridSoundsEnabled; // Toggle the state
-        localStorage.setItem('gridSoundsEnabled', gridSoundsEnabled); // Save to localStorage
-        updateGridSoundToggleButton(); // Update button text
-        playSound(buttonSound); // Play a button click sound (this is not a grid sound, so it plays if `soundsEnabled` is ON)
-    });
-
 
     // --- Run Initialization ---
     preloadBlockTextures().then(() => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
-        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value));
-
+        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true); // Initial grid setup, saves first state
+        updateUndoRedoButtonStates(); // Set initial button states
     }).catch(error => {
         console.error("Error preloading textures:", error);
+        // Fallback if textures fail to load
         initializeInventory();
-        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value));
+        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
+        updateUndoRedoButtonStates();
     });
 });
