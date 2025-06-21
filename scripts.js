@@ -385,7 +385,11 @@ document.addEventListener('DOMContentLoaded', () => {
         Minerals: [
             { name: 'Coal Block', texture: 'textures/coal_block.png' },
             { name: 'Iron Block', texture: 'textures/iron_block.png' },
+            { name: 'Raw Iron', texture: 'textures/raw_iron.png' },
+            { name: 'Copper Block', texture: 'textures/copper_block.png' },
+            { name: 'Raw Copper', texture: 'textures/raw_copper.png' },
             { name: 'Gold Block', texture: 'textures/gold_block.png' },
+            { name: 'Raw Gold', texture: 'textures/raw_gold.png' },
             { name: 'Redstone Block', texture: 'textures/redstone_block.png' },
             { name: 'Diamond Block', texture: 'textures/diamond_block.png' },
             { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
