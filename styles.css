@@ -415,3 +415,11 @@ h1 {
     font-size: 1em;
     text-align: center;
 }
+
+.top-buttons-container {
+    display: flex; /* Makes children flex items */
+    gap: 10px;    /* Adds space between the buttons */
+    margin-bottom: 20px; /* Adds some space below the buttons */
+    justify-content: center; /* Centers the buttons horizontally */
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+}
