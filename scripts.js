@@ -273,8 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Chiseled Tuff', texture: 'textures/chiseled_tuff_top.png' },
             { name: 'Polished Tuff', texture: 'textures/polished_tuff.png' },
 
-            { name: 'Basalt', texture: 'textures/basalt.png' },
-            { name: 'Polished Basalt', texture: 'textures/polished_basalt.png' },
+            { name: 'Basalt', texture: 'textures/basalt_top.png' },
+            { name: 'Polished Basalt', texture: 'textures/polished_basalt_top.png' },
             { name: 'Smooth Basalt', texture: 'textures/smooth_basalt.png' },
             
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
