@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveSound = new Audio('audio/save_sound.mp3');
 
     // NEW: Block Place and Destroy Sounds
-    const placeBlockSound = new Audio('audio/place_block.mp3'); // Create this file
+    const placeBlockSound = new Audio('audio/inventory_button_click.mp3'); // Create this file
     const destroyBlockSound = new Audio('audio/destroy_block.mp3'); // Create this file
 
     // NEW: Pitch tracking variables
