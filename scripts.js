@@ -265,6 +265,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             { name: 'Andesite', texture: 'textures/andesite.png' },
             { name: 'Polished Andesite', texture: 'textures/polished_andesite.png' },
+
+            { name: 'Bedrock', texture: 'textures/bedrock.png' },
             
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
             
