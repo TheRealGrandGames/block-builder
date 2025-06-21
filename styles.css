@@ -23,6 +23,7 @@
     --body-bg-repeat: no-repeat;
     --body-bg-size: auto;
     --body-bg-position: center;
+    --body-image-rendering: auto; /* Default rendering for non-pixelated backgrounds */
 }
 
 /* Dark Theme */
@@ -46,6 +47,7 @@ body.theme-dark {
     --tooltip-text: black;
 
     --body-bg-image: none; /* No texture for basic dark theme */
+    --body-image-rendering: auto;
 }
 
 /* Red Dye Theme */
@@ -69,6 +71,7 @@ body.theme-red-dye {
     --tooltip-text: white;
 
     --body-bg-image: none; /* No texture for basic red dye theme */
+    --body-image-rendering: auto;
 }
 
 /* NEW: Nether Theme */
@@ -95,6 +98,7 @@ body.theme-nether {
     --body-bg-repeat: repeat;
     --body-bg-size: 100px 100px; /* Adjust size as needed for good tiling */
     --body-bg-position: center center;
+    --body-image-rendering: pixelated; /* Apply pixelated rendering */
 }
 
 /* NEW: End Theme */
@@ -121,6 +125,7 @@ body.theme-end {
     --body-bg-repeat: repeat;
     --body-bg-size: 100px 100px;
     --body-bg-position: center center;
+    --body-image-rendering: pixelated; /* Apply pixelated rendering */
 }
 
 /* NEW: Ocean Theme */
@@ -143,10 +148,11 @@ body.theme-ocean {
     --tooltip-bg: rgba(0, 0, 0, 0.75);
     --tooltip-text: white;
 
-    --body-bg-image: url('textures/water.png'); /* Assumes a static water texture */
+    --body-bg-image: url('textures/water_still.png'); /* Assumes a static water texture */
     --body-bg-repeat: repeat;
     --body-bg-size: 100px 100px;
     --body-bg-position: center center;
+    --body-image-rendering: pixelated; /* Apply pixelated rendering */
 }
 
 
@@ -163,6 +169,7 @@ body {
     background-repeat: var(--body-bg-repeat);
     background-size: var(--body-bg-size);
     background-position: var(--body-bg-position);
+    image-rendering: var(--body-image-rendering); /* Apply based on theme variable */
 }
 
 h1, h2, h3 {
@@ -637,7 +644,7 @@ h1, h2, h3 {
 
 .theme-selector-container select {
     width: auto;
-    min-width: 400px;
+    min-width: 150px;
     height: 40px;
     padding: 0 15px;
     border-radius: 5px;
