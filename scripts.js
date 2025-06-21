@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const undoButton = document.getElementById('undoButton');
     const redoButton = document.getElementById('redoButton');
 
+    // NEW: Import/Export Buttons and File Input
+    const importButton = document.getElementById('importButton');
+    const exportButton = document.getElementById('exportButton');
+    const importFileInput = document.getElementById('importFileInput');
+
     let currentGridWidth = 10;
     let currentGridHeight = 10;
     const blockSize = 50;
@@ -429,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateResourceCounts(); // Recalculate resource counts after applying a state
     }
 
-    function initializeGrid(width, height, isNewGrid = true) {
+    function initializeGrid(width, height, isNewGrid = true, loadedGridState = null) {
         gameGrid.innerHTML = '';
         gameGrid.style.gridTemplateColumns = `repeat(${width}, ${blockSize}px)`;
         gameGrid.style.gridTemplateRows = `repeat(${height}, ${blockSize}px)`;
@@ -439,13 +444,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGridWidth = width;
         currentGridHeight = height;
 
-        // NEW: If it's a new grid, clear history and start fresh
+        // NEW: If it's a new grid OR loading from a file, clear history and start fresh
         if (isNewGrid) {
-            gridState = Array(width * height).fill('Air');
+            gridHistory = []; // Clear history
+            historyPointer = -1; // Reset pointer
+            gridState = Array(width * height).fill('Air'); // Default to empty grid
             for (const key in resourceCounts) {
                 delete resourceCounts[key];
             }
+            if (loadedGridState) { // If a state is provided (from import)
+                gridState = [...loadedGridState]; // Use the loaded state
+            }
         }
+
 
         for (let i = 0; i < width * height; i++) {
             const block = document.createElement('div');
@@ -559,9 +570,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.msImageSmoothingEnabled = false; // For Edge/IE
 
         updateResourceCounts();
-        if (isNewGrid) { // Only save state for new grid on initial load or size change
+        if (isNewGrid && !loadedGridState) { // Only save state for new grid on initial load or size change, unless loading from file
             saveState();
         }
+        updateUndoRedoButtonStates(); // Update button states after grid initialization
     }
 
     function placeBlock(gridBlockElement, type) {
@@ -709,6 +721,75 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners for new Undo/Redo buttons
     undoButton.addEventListener('click', undo);
     redoButton.addEventListener('click', redo);
+
+    // NEW: Export functionality
+    function exportGrid() {
+        playSound(buttonSound);
+        const dataToSave = {
+            width: currentGridWidth,
+            height: currentGridHeight,
+            grid: gridState
+        };
+        const jsonData = JSON.stringify(dataToSave, null, 2); // Pretty print JSON
+
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'my_design.blockbuilder'; // Default filename
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url); // Clean up the URL object
+
+        playSound(saveSound);
+    }
+
+    // NEW: Import functionality
+    function importGrid(event) {
+        playSound(buttonSound);
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const loadedData = JSON.parse(e.target.result);
+
+                if (loadedData && typeof loadedData.width === 'number' && typeof loadedData.height === 'number' && Array.isArray(loadedData.grid)) {
+                    // Validate grid size match
+                    if (loadedData.width * loadedData.height !== loadedData.grid.length) {
+                        alert('Error: Imported file grid dimensions do not match the grid array length.');
+                        return;
+                    }
+
+                    // Set grid size inputs
+                    gridWidthInput.value = loadedData.width;
+                    gridHeightInput.value = loadedData.height;
+
+                    // Initialize a new grid with the loaded dimensions and state, clearing history
+                    initializeGrid(loadedData.width, loadedData.height, true, loadedData.grid);
+                    alert('Grid imported successfully!'); // Use custom modal in production
+                } else {
+                    alert('Error: Invalid .blockbuilder file format. Missing or incorrect data.'); // Use custom modal
+                }
+            } catch (error) {
+                console.error("Error parsing .blockbuilder file:", error);
+                alert('Error: Could not read or parse the .blockbuilder file. It might be corrupted or not a valid JSON.'); // Use custom modal
+            } finally {
+                // Clear the file input value so the same file can be selected again
+                event.target.value = '';
+            }
+        };
+        reader.onerror = () => {
+            console.error("FileReader error:", reader.error);
+            alert('Error reading file. Please try again.'); // Use custom modal
+        };
+        reader.readAsText(file);
+    }
 
 
     function drawGridToCanvas() {
@@ -879,7 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- NEW: Add Tooltip Handling for Buttons ---
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, savePngButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, savePngButton, importButton, exportButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -899,6 +980,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     // --- END NEW TOOLTIP HANDLING ---
+
+    // NEW: Event listeners for import/export buttons
+    exportButton.addEventListener('click', exportGrid);
+    importButton.addEventListener('click', () => importFileInput.click()); // Trigger hidden file input
+    importFileInput.addEventListener('change', importGrid);
 
 
     // --- Run Initialization ---
