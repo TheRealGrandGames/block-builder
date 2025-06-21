@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {More actions
+document.addEventListener('DOMContentLoaded', () => {
     const gameGrid = document.getElementById('gameGrid');
     const blockInventory = document.getElementById('blockInventory');
     const blockTooltip = document.getElementById('blockTooltip');
