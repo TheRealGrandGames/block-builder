@@ -354,15 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             { name: 'Chiseled Resin Bricks', texture: 'textures/chiseled_resin_bricks.png' },
 
+            { name: 'Prismarine', texture: 'textures/prismarine.png' },
+            { name: 'Prismarine Bricks', texture: 'textures/prismarine_bricks.png' },
+            { name: 'Dark Prismarine', texture: 'textures/dark_prismarine.png' },
+            
             { name: 'Nether Bricks', texture: 'textures/nether_bricks.png' },
             { name: 'Cracked Nether Bricks', texture: 'textures/cracked_nether_bricks.png' },
             { name: 'Chiseled Nether Bricks', texture: 'textures/chiseled_nether_bricks.png' },
 
             { name: 'Red Nether Bricks', texture: 'textures/red_nether_bricks.png' },
-
-            { name: 'Prismarine', texture: 'textures/prismarine.png' },
-            { name: 'Prismarine Bricks', texture: 'textures/prismarine_bricks.png' },
-            { name: 'Dark Prismarine', texture: 'textures/dark_prismarine.png' },
         ],
         Colorful: [
             { name: 'White Wool', texture: 'textures/white_wool.png' },
