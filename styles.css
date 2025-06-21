@@ -676,10 +676,6 @@ h1, h2, h3 {
     background-color: var(--instructions-bg); /* Use themed background */
 }
 
-.custom-checkbox-label:hover .checkbox-visual {
-    filter: brightness(1.1);
-}
-
 .custom-checkbox-label:active .checkbox-visual {
     filter: brightness(0.9);
 }
