@@ -210,11 +210,18 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Pale Moss Block', texture: 'textures/pale_moss_block.png' },
             { name: 'Podzol', texture: 'textures/podzol_top.png' },
             { name: 'Mycelium', texture: 'textures/mycelium_top.png' },
+
+            { name: 'Mushroom Stem', texture: 'textures/mushroom_stem.png' },
+            { name: 'Brown Mushroom Block', texture: 'textures/brown_mushroom_block.png' },
+            { name: 'Red Mushroom Block', texture: 'textures/red_mushroom_block.png' },
+            
             { name: 'Dirt', texture: 'textures/dirt.png' },
             { name: 'Dirt Path', texture: 'textures/dirt_path_top.png' },
             { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
-            { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
             { name: 'Farmland', texture: 'textures/farmland.png' },
+            { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
+            { name: 'Mangrove Roots', texture: 'textures/mangrove_roots_top.png' },
+            { name: 'Muddy Mangrove Roots', texture: 'textures/muddy_mangrove_roots_top.png' },
             { name: 'Mud', texture: 'textures/mud.png' },
             { name: 'Clay', texture: 'textures/clay.png' },
             { name: 'Gravel', texture: 'textures/gravel.png' },
@@ -227,7 +234,43 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Ice', texture: 'textures/ice.png' },
             { name: 'Packed Ice', texture: 'textures/packed_ice.png' },
             { name: 'Blue Ice', texture: 'textures/blue_ice.png' },
+
+            { name: 'Pumpkin', texture: 'textures/pumpkin_top.png' },
+            { name: 'Melon', texture: 'textures/melon_top.png' },
+            
             { name: 'Resin Block', texture: 'textures/resin_block.png' },
+
+            { name: 'Hay Bale', texture: 'textures/hay_block_top.png' },
+
+            { name: 'Slime Block', texture: 'textures/slime_block.png' },
+            { name: 'Honey Block', texture: 'textures/honey_block_top.png' },
+
+            { name: 'Honeycomb Block', texture: 'textures/honeycomb_block.png' },
+
+            { name: 'Bee Nest', texture: 'textures/bee_nest_top.png' },
+
+            { name: 'Ochre Froglight', texture: 'textures/ochre_froglight_top.png' },
+            { name: 'Verdant Froglight', texture: 'textures/verdant_froglight_top.png' },
+            { name: 'Pearlescent Froglight', texture: 'textures/pearlescent_froglight_top.png' },
+
+            { name: 'Sculk', texture: 'textures/sculk.png' },
+
+            { name: 'Dried Kelp Block', texture: 'textures/dried_kelp_top.png' },
+            
+            { name: 'Tube Coral Block', texture: 'textures/tube_coral_block.png' },
+            { name: 'Brain Coral Block', texture: 'textures/brain_coral_block.png' },
+            { name: 'Bubble Coral Block', texture: 'textures/bubble_coral_block.png' },
+            { name: 'Fire Coral Block', texture: 'textures/fire_coral_block.png' },
+            { name: 'Horn Coral Block', texture: 'textures/horn_coral_block.png' },
+
+            { name: 'Dead Tube Coral Block', texture: 'textures/dead_tube_coral_block.png' },
+            { name: 'Dead Brain Coral Block', texture: 'textures/dead_brain_coral_block.png' },
+            { name: 'Dead Bubble Coral Block', texture: 'textures/dead_bubble_coral_block.png' },
+            { name: 'Dead Fire Coral Block', texture: 'textures/dead_fire_coral_block.png' },
+            { name: 'Dead Horn Coral Block', texture: 'textures/dead_horn_coral_block.png' },
+
+            { name: 'Sponge', texture: 'textures/sponge.png' },
+            { name: 'Wet Sponge', texture: 'textures/wet_sponge.png' },
             
             { name: 'Obsidian', texture: 'textures/obsidian.png' },
             { name: 'Crying Obsidian', texture: 'textures/crying_obsidian.png' },
@@ -376,9 +419,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             { name: 'Chiseled Resin Bricks', texture: 'textures/chiseled_resin_bricks.png' },
 
+            { name: 'Redstone Lamp', texture: 'textures/redstone_lamp.png' },
+            
             { name: 'Prismarine', texture: 'textures/prismarine.png' },
             { name: 'Prismarine Bricks', texture: 'textures/prismarine_bricks.png' },
             { name: 'Dark Prismarine', texture: 'textures/dark_prismarine.png' },
+            { name: 'Sea Lantern', texture: 'textures/sea_lantern.png' },
             
             { name: 'Nether Bricks', texture: 'textures/nether_bricks.png' },
             { name: 'Cracked Nether Bricks', texture: 'textures/cracked_nether_bricks.png' },
