@@ -941,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newWidth = parseInt(gridWidthInput.value);
         const newHeight = parseInt(gridHeightInput.value);
 
-        const MAX_GRID_SIZE = 35;
+        const MAX_GRID_SIZE = 35; 
 
         if (isNaN(newWidth) || newWidth < 1 || newWidth > MAX_GRID_SIZE) {
             // Using a simple alert for now. Consider a custom modal for better UX.
