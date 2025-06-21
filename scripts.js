@@ -264,6 +264,18 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Polished Diorite', texture: 'textures/polished_diorite.png' },
             { name: 'Andesite', texture: 'textures/andesite.png' },
             { name: 'Polished Andesite', texture: 'textures/polished_andesite.png' },
+
+            { name: 'Calcite', texture: 'textures/calcite.png' },
+
+            { name: 'Tuff', texture: 'textures/tuff.png' },
+            { name: 'Tuff Bricks', texture: 'textures/tuff_bricks.png' },
+            { name: 'Chiseled Tuff Bricks', texture: 'textures/chiseled_tuff_bricks.png' },
+            { name: 'Chiseled Tuff', texture: 'textures/chiseled_tuff.png' },
+            { name: 'Polished Tuff', texture: 'textures/polished_tuff.png' },
+
+            { name: 'Basalt', texture: 'textures/basalt.png' },
+            { name: 'Polished Basalt', texture: 'textures/polished_basalt.png' },
+            { name: 'Smooth Basalt', texture: 'textures/smooth_basalt.png' },
             
             { name: 'Netherrack', texture: 'textures/netherrack.png' },
             
