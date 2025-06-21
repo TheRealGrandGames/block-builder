@@ -416,10 +416,10 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Raw Gold Block', texture: 'textures/raw_gold_block.png' },
             { name: 'Gold Block', texture: 'textures/gold_block.png' },
             { name: 'Redstone Block', texture: 'textures/redstone_block.png' },
-            { name: 'Diamond Block', texture: 'textures/diamond_block.png' },
-            { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Emerald Block', texture: 'textures/emerald_block.png' },
             { name: 'Lapis Lazuli Block', texture: 'textures/lapis_block.png' },
+            { name: 'Diamond Block', texture: 'textures/diamond_block.png' },
+            { name: 'Netherite Block', texture: 'textures/netherite_block.png' },
             { name: 'Amethyst Block', texture: 'textures/amethyst_block.png' },
             { name: 'Budding Amethyst', texture: 'textures/budding_amethyst.png' },
 
