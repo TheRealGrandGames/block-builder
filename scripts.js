@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savePngButton = document.getElementById('savePngButton');
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const soundToggleButton = document.getElementById('soundToggleButton');
-    const musicToggleButton = document.getElementById('musicToggleButton'); // NEW: Get the music toggle button
+    const musicToggleButton = document.getElementById('musicToggleButton');
 
     const gridSize = 10;
     const blockSize = 50;
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
-    // All sound effects in one array for easy iteration (optional, but good for management)
+    // All sound effects in one array (optional, but good for management)
     const allEffectSounds = [
         buttonSound,
         fillSound,
@@ -40,22 +40,42 @@ document.addEventListener('DOMContentLoaded', () => {
         saveSound
     ];
 
-    // NEW: Music Audio object
-    const backgroundMusic = new Audio('audio/background_music.mp3'); // <--- IMPORTANT: Update path to your music file
-    backgroundMusic.loop = true; // Make the music loop continuously
-    backgroundMusic.volume = 0.5; // Adjust volume as needed (0.0 to 1.0)
+    // NEW: Music Playlist
+    // IMPORTANT: Update these paths to your actual music files!
+    const musicPlaylist = [
+        'audio/song1.mp3',
+        'audio/song2.mp3',
+        'audio/song3.mp3',
+        'audio/another_song.mp3' // Add as many as you like!
+    ];
 
+    // NEW: Music Audio object - ONE object to manage multiple songs
+    const backgroundMusic = new Audio();
+    backgroundMusic.loop = false; // We'll manage looping through the playlist manually
+    backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
+
+    // Load saved song index, default to 0 if not found
+    let currentSongIndex = parseInt(localStorage.getItem('currentSongIndex') || '0', 10);
+    // Ensure index is valid in case playlist changes
+    if (currentSongIndex >= musicPlaylist.length || currentSongIndex < 0) {
+        currentSongIndex = 0;
+    }
+
+    // NEW: Event listener for when a song ends - plays the next in the playlist
+    backgroundMusic.onended = () => {
+        playNextSong();
+    };
 
     // Initialize sound effects state from localStorage
     let soundsEnabled = localStorage.getItem('soundsEnabled') === 'false' ? false : true;
-    // NEW: Initialize music state from localStorage
+    // Initialize music state from localStorage
     let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
 
     // Function to play a sound effect if sounds are enabled
     function playSound(audioElement) {
         if (soundsEnabled) {
-            audioElement.currentTime = 0; // Rewind to the start
-            audioElement.play().catch(e => console.error("Error playing sound:", e));
+            audioElement.currentTime = 0; // Rewind to the start for effects
+            audioElement.play().catch(e => console.error("Error playing sound effect:", e));
         }
     }
 
@@ -64,27 +84,44 @@ document.addEventListener('DOMContentLoaded', () => {
         soundToggleButton.textContent = `Sounds: ${soundsEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // NEW: Functions for controlling background music
+    // NEW: Function to play the current song in the playlist
     function playBackgroundMusic() {
-        if (musicEnabled) {
-            // Check if music is already playing to avoid restarting
-            if (backgroundMusic.paused) {
-                 backgroundMusic.play().catch(e => {
-                    console.error("Error playing background music:", e);
-                    // This often happens if the browser blocks autoplay before user interaction.
-                    // You might want to temporarily disable music or show a message.
-                });
+        if (musicEnabled && musicPlaylist.length > 0) {
+            // Check if the current source is already loaded/playing the correct song
+            // We compare the absolute path returned by `Audio.src`
+            const expectedSrc = new URL(musicPlaylist[currentSongIndex], window.location.href).href;
+
+            if (backgroundMusic.src !== expectedSrc || backgroundMusic.paused) {
+                backgroundMusic.src = musicPlaylist[currentSongIndex];
+                backgroundMusic.load(); // Load the new source
+                console.log(`Loading and attempting to play: ${musicPlaylist[currentSongIndex]}`);
             }
+
+            // Attempt to play. This might be blocked by browser autoplay policies
+            backgroundMusic.play().catch(e => {
+                console.warn("Autoplay of background music prevented. User interaction needed:", e);
+                // The music will likely start after the first user click on the page.
+            });
         } else {
             backgroundMusic.pause();
         }
     }
 
+    // NEW: Function to pause background music
     function pauseBackgroundMusic() {
         backgroundMusic.pause();
     }
 
-    // NEW: Function to update the music toggle button's text
+    // NEW: Function to play the next song in the playlist
+    function playNextSong() {
+        if (musicPlaylist.length === 0) return; // No songs to play
+
+        currentSongIndex = (currentSongIndex + 1) % musicPlaylist.length; // Cycle to the next song
+        localStorage.setItem('currentSongIndex', currentSongIndex); // Save the new index
+        playBackgroundMusic(); // Play the newly selected song
+    }
+
+    // Function to update the music toggle button's text
     function updateMusicToggleButton() {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
@@ -329,6 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+
             block.addEventListener('mouseenter', (event) => {
                 if (isPainting) {
                     if (event.buttons === 1) {
@@ -466,22 +504,19 @@ document.addEventListener('DOMContentLoaded', () => {
         soundsEnabled = !soundsEnabled;
         localStorage.setItem('soundsEnabled', soundsEnabled);
         updateSoundToggleButton();
-        playSound(buttonSound); // Play button sound *if* newly enabled, otherwise no sound
+        playSound(buttonSound);
     });
 
-    // NEW: Music toggle button event listener
+    // Music toggle button event listener
     musicToggleButton.addEventListener('click', () => {
-        musicEnabled = !musicEnabled; // Toggle the state
-        localStorage.setItem('musicEnabled', musicEnabled); // Save the state
-        updateMusicToggleButton(); // Update the button text
+        musicEnabled = !musicEnabled;
+        localStorage.setItem('musicEnabled', musicEnabled);
+        updateMusicToggleButton();
         if (musicEnabled) {
-            playBackgroundMusic(); // If music is now enabled, start playing
+            playBackgroundMusic(); // Start playing the current song in the playlist
         } else {
-            pauseBackgroundMusic(); // If music is now disabled, pause it
+            pauseBackgroundMusic(); // Pause it
         }
-        // You might want a subtle sound effect here, even if main sounds are off
-        // For example, if you want a distinct click when toggling music.
-        // If not, rely on the visual update and the music starting/stopping.
     });
 
 
@@ -491,8 +526,8 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeInventory();
         initializeGrid();
 
-        // NEW: Attempt to play background music on initial load
-        // This will honor the 'musicEnabled' setting from localStorage
+        // Attempt to play background music on initial load
+        // This will honor the 'musicEnabled' setting and currentSongIndex from localStorage
         // Note: Browsers often prevent autoplay until a user interaction.
         // The music might only start after the first click on the page.
         playBackgroundMusic();
