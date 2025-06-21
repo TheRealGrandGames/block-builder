@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savePngButton = document.getElementById('savePngButton');
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const soundToggleButton = document.getElementById('soundToggleButton');
+    const gridSoundToggleButton = document.getElementById('gridSoundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let soundsEnabled = localStorage.getItem('soundsEnabled') === 'false' ? false : true;
+    let gridSoundsEnabled = localStorage.getItem('gridSoundsEnabled') === 'false' ? false : true;
     let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
     let hasUserInteracted = false;
 
@@ -90,6 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function playSound(audioElement, isConsecutiveAction = false, actionType = null) {
         if (!soundsEnabled || !hasUserInteracted) {
             return;
+        }
+
+        // NEW: Check for gridSoundsEnabled for specific audio elements
+        if ((audioElement === placeBlockSound || audioElement === destroyBlockSound) && !gridSoundsEnabled) {
+            return; // Don't play if grid sounds are off
         }
 
         // Clear any existing reset timeout
@@ -132,6 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
         soundToggleButton.textContent = `Sounds: ${soundsEnabled ? 'ON' : 'OFF'}`;
     }
 
+    function updateGridSoundToggleButton() {
+        gridSoundToggleButton.textContent = `Grid Sounds: ${gridSoundsEnabled ? 'ON' : 'OFF'}`;
+    }
+
     function playBackgroundMusic() {
         if (musicEnabled && musicPlaylist.length > 0 && hasUserInteracted) {
             const songToPlayIndex = shuffledPlaylistIndices[currentShuffledIndex];
@@ -172,7 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
 
+    
+
     updateSoundToggleButton();
+    updateGridSoundToggleButton();
     updateMusicToggleButton();
 
     document.body.addEventListener('click', () => {
@@ -722,6 +736,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         initializeGrid(newWidth, newHeight);
+    });
+
+    gridSoundToggleButton.addEventListener('click', () => {
+        gridSoundsEnabled = !gridSoundsEnabled; // Toggle the state
+        localStorage.setItem('gridSoundsEnabled', gridSoundsEnabled); // Save to localStorage
+        updateGridSoundToggleButton(); // Update button text
+        playSound(buttonSound); // Play a button click sound (this is not a grid sound, so it plays if `soundsEnabled` is ON)
     });
 
 
