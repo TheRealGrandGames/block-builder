@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportButton = document.getElementById('exportButton');
     const importFileInput = document.getElementById('importFileInput');
 
+    // NEW: Checkbox for including resources in PNG
+    const includeResourcesCheckbox = document.getElementById('includeResourcesCheckbox');
+
     let currentGridWidth = 10;
     let currentGridHeight = 10;
     const blockSize = 50;
@@ -308,6 +311,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 }));
             }
         }
+        // Also preload checkbox textures
+        imagesToLoad.push(new Promise((resolve, reject) => {
+            const imgUnchecked = new Image();
+            imgUnchecked.src = 'textures/checkbox_unchecked.png';
+            imgUnchecked.crossOrigin = "Anonymous";
+            imgUnchecked.onload = () => {
+                // Not storing in blockImages, just ensuring it's in cache for CSS
+                resolve();
+            };
+            imgUnchecked.onerror = () => {
+                console.warn("Failed to load checkbox_unchecked.png");
+                resolve(); // Still resolve to not block main loading
+            };
+        }));
+        imagesToLoad.push(new Promise((resolve, reject) => {
+            const imgChecked = new Image();
+            imgChecked.src = 'textures/checkbox_checked.png';
+            imgChecked.crossOrigin = "Anonymous";
+            imgChecked.onload = () => {
+                // Not storing in blockImages, just ensuring it's in cache for CSS
+                resolve();
+            };
+            imgChecked.onerror = () => {
+                console.warn("Failed to load checkbox_checked.png");
+                resolve(); // Still resolve to not block main loading
+            };
+        }));
+
 
         if (imagesToLoad.length === 0) {
             texturesLoadedPromise = Promise.resolve();
@@ -414,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(selectSound);
     }
 
-    // NEW: Function to apply a given grid state to the actual DOM grid
+    // Function to apply a given grid state to the actual DOM grid
     function applyState(state) {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         gridState = [...state]; // Update the current gridState to the loaded state
@@ -444,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGridWidth = width;
         currentGridHeight = height;
 
-        // NEW: If it's a new grid OR loading from a file, clear history and start fresh
+        // If it's a new grid OR loading from a file, clear history and start fresh
         if (isNewGrid) {
             gridHistory = []; // Clear history
             historyPointer = -1; // Reset pointer
@@ -492,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearTimeout(pitchResetTimeout);
                 }
 
-                // NEW: Save state only after a painting session ends
+                // Save state only after a painting session ends
                 // This ensures a single undo step for a drag operation
                 if (event.button === 0 || event.button === 2) {
                     saveState();
@@ -664,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(fillSound);
     });
 
-    // NEW: Save current grid state to history
+    // Save current grid state to history
     function saveState() {
         // If we are not at the end of history (i.e., we have undone some actions),
         // any new action should truncate the "redo" history.
@@ -686,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`State saved. History length: ${gridHistory.length}, Pointer: ${historyPointer}`);
     }
 
-    // NEW: Undo action
+    // Undo action
     function undo() {
         if (historyPointer > 0) {
             playSound(buttonSound); // Play sound for undo
@@ -699,20 +730,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Redo action
+    // Redo action
     function redo() {
         if (historyPointer < gridHistory.length - 1) {
             playSound(buttonSound); // Play sound for redo
             historyPointer++;
             applyState(gridHistory[historyPointer]);
             updateUndoRedoButtonStates();
-            console.log(`Redid. History length: ${gridHistory.length}, Pointer: ${historyPointer}`);
+            console.log("Redid. History length: ${gridHistory.length}, Pointer: ${historyPointer}");
         } else {
             console.log("Cannot redo further.");
         }
     }
 
-    // NEW: Update undo/redo button disabled states
+    // Update undo/redo button disabled states
     function updateUndoRedoButtonStates() {
         undoButton.disabled = (historyPointer <= 0);
         redoButton.disabled = (historyPointer >= gridHistory.length - 1);
@@ -722,7 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
     undoButton.addEventListener('click', undo);
     redoButton.addEventListener('click', redo);
 
-    // NEW: Export functionality
+    // Export functionality
     function exportGrid() {
         playSound(buttonSound);
         const dataToSave = {
@@ -746,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(saveSound);
     }
 
-    // NEW: Import functionality
+    // Import functionality
     function importGrid(event) {
         playSound(buttonSound);
         const file = event.target.files[0];
@@ -791,15 +822,102 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsText(file);
     }
 
+    // Helper function to draw resource counts onto a canvas context
+    function drawResourcesOnCanvas(ctx, startY, canvasWidthPx, resourceCounts, blockTypes, blockImages) {
+        let currentY = startY + 20; // Initial padding below the grid
 
-    function drawGridToCanvas() {
-        // Ensure ctx is available
-        if (!ctx) {
-            console.error("Canvas context (ctx) is not initialized.");
+        ctx.font = 'bold 16px Arial'; // Title font
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center'; // Center the title horizontally
+        ctx.fillText("Resources Used", canvasWidthPx / 2, currentY);
+        currentY += 25; // Space after title
+
+        ctx.font = '14px Arial'; // Item font
+        ctx.fillStyle = '#444';
+
+        const RESOURCE_ITEM_HEIGHT = 28; // Height allocated per resource item (image + text)
+        const RESOURCE_IMG_SIZE = 24;
+        const TEXT_X_OFFSET = RESOURCE_IMG_SIZE + 10; // Text starts after image + small gap
+
+        const sortedBlockTypes = Object.keys(resourceCounts).sort();
+
+        if (sortedBlockTypes.length === 0) {
+            ctx.textAlign = 'center';
+            ctx.font = 'italic 14px Arial';
+            ctx.fillText("No blocks placed yet.", canvasWidthPx / 2, currentY + 15);
             return;
         }
 
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        // Calculate maximum item width to determine a starting X for centering the block of items
+        let maxItemContentWidth = 0;
+        // Temporarily set font for accurate measurement
+        ctx.font = '14px Arial';
+        sortedBlockTypes.forEach(type => {
+            const count = resourceCounts[type];
+            const name = type;
+            const quantity = `x${count}`;
+            const text = `${name} ${quantity}`;
+            const textWidth = ctx.measureText(text).width;
+            maxItemContentWidth = Math.max(maxItemContentWidth, RESOURCE_IMG_SIZE + 10 + textWidth);
+        });
+
+        // Ensure text is left-aligned within each item's drawing area
+        ctx.textAlign = 'left';
+
+        // Calculate starting X to center the block of resource items
+        const startXForBlockItems = (canvasWidthPx - maxItemContentWidth) / 2;
+
+        sortedBlockTypes.forEach(type => {
+            const count = resourceCounts[type];
+            if (count > 0) {
+                const blockData = blockTypes[type];
+                const img = blockImages[type];
+                const name = type;
+                const quantity = `x${count}`;
+
+                const itemText = `${name} ${quantity}`;
+                // Recalculate text metrics for current item to vertically align
+                ctx.font = '14px Arial'; // Re-set font as a safety measure
+                const textMetrics = ctx.measureText(itemText);
+
+                let drawX = startXForBlockItems;
+                // Calculate y-coordinate to vertically center text within the item's line height
+                const textY = currentY + (RESOURCE_ITEM_HEIGHT / 2) + (textMetrics.actualBoundingBoxAscent / 2);
+
+                if (img && img.complete) {
+                    ctx.drawImage(img, drawX, currentY + (RESOURCE_ITEM_HEIGHT - RESOURCE_IMG_SIZE) / 2, RESOURCE_IMG_SIZE, RESOURCE_IMG_SIZE);
+                } else {
+                    // Fallback square if image not loaded or invalid
+                    ctx.fillStyle = '#ccc';
+                    ctx.fillRect(drawX, currentY + (RESOURCE_ITEM_HEIGHT - RESOURCE_IMG_SIZE) / 2, RESOURCE_IMG_SIZE, RESOURCE_IMG_SIZE);
+                    ctx.fillStyle = '#444';
+                    ctx.fillText('?', drawX + RESOURCE_IMG_SIZE / 2 - (ctx.measureText('?').width / 2), currentY + (RESOURCE_ITEM_HEIGHT / 2) + (textMetrics.actualBoundingBoxAscent / 2));
+                }
+
+                ctx.fillStyle = '#444';
+                ctx.fillText(itemText, drawX + TEXT_X_OFFSET, textY);
+                currentY += RESOURCE_ITEM_HEIGHT;
+            }
+        });
+        // No return value needed as this is a drawing function
+    }
+
+    // Helper to calculate height of resource list for canvas
+    function calculateResourceListCanvasHeight() {
+        if (!includeResourcesCheckbox.checked) {
+            return 0; // No extra height needed if checkbox is not checked
+        }
+        const numItems = Object.keys(resourceCounts).length;
+        if (numItems === 0) {
+            return 40; // Height for "No blocks placed yet." title + padding
+        }
+        // Initial padding + Title height + (number of items * item height)
+        return 20 + 25 + (numItems * 28);
+    }
+
+    function drawGridToCanvas(targetCtx, targetCanvasWidth, targetCanvasHeight) {
+        // Clear only the grid area in the context provided
+        targetCtx.clearRect(0, 0, targetCanvasWidth, targetCanvasHeight);
 
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach(blockElement => {
@@ -812,22 +930,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const y = row * blockSize;
 
             if (type === 'Air') {
-                ctx.fillStyle = '#e0e0e0';
-                ctx.fillRect(x, y, blockSize, blockSize);
+                targetCtx.fillStyle = '#e0e0e0';
+                targetCtx.fillRect(x, y, blockSize, blockSize);
             } else {
                 const img = blockImages[type];
                 if (img && img.complete) {
-                    ctx.drawImage(img, x, y, blockSize, blockSize);
+                    targetCtx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
                     console.warn(`Texture for ${type} not loaded or incomplete, drawing placeholder.`);
-                    ctx.fillStyle = '#ff00ff'; // Magenta placeholder
-                    ctx.fillRect(x, y, blockSize, blockSize);
+                    targetCtx.fillStyle = '#ff00ff'; // Magenta placeholder
+                    targetCtx.fillRect(x, y, blockSize, blockSize);
                 }
             }
         });
     }
 
+
     async function saveCanvasAsPng() {
+        playSound(buttonSound);
+
         if (texturesLoadedPromise) {
             await texturesLoadedPromise;
             console.log("Textures are ready. Proceeding to draw and save.");
@@ -835,9 +956,31 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("texturesLoadedPromise was not initialized. Drawing may fail.");
         }
 
-        drawGridToCanvas();
+        const includeResources = includeResourcesCheckbox.checked;
+        const resourceListHeight = calculateResourceListCanvasHeight();
 
-        const dataURL = hiddenCanvas.toDataURL('image/png');
+        // Create a temporary canvas for export that might be taller
+        const exportCanvas = document.createElement('canvas');
+        const exportCtx = exportCanvas.getContext('2d');
+
+        exportCanvas.width = canvasWidth;
+        exportCanvas.height = canvasHeight + resourceListHeight;
+
+        // Disable image smoothing for the export canvas for crisp pixel art
+        exportCtx.imageSmoothingEnabled = false;
+        exportCtx.mozImageSmoothingEnabled = false;
+        exportCtx.webkitImageSmoothingEnabled = false;
+        exportCtx.msImageSmoothingEnabled = false;
+
+        // Draw the grid part onto the export canvas
+        drawGridToCanvas(exportCtx, canvasWidth, canvasHeight); // Draw grid from (0,0) to (canvasWidth, canvasHeight)
+
+        if (includeResources) {
+            // Draw resource list below the grid
+            drawResourcesOnCanvas(exportCtx, canvasHeight, canvasWidth, resourceCounts, blockTypes, blockImages);
+        }
+
+        const dataURL = exportCanvas.toDataURL('image/png');
 
         const a = document.createElement('a');
         a.href = dataURL;
@@ -845,12 +988,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        URL.revokeObjectURL(dataURL); // Clean up the URL object
+
+        playSound(saveSound);
     }
 
     savePngButton.addEventListener('click', async () => {
-        playSound(buttonSound);
         await saveCanvasAsPng();
-        playSound(saveSound);
     });
 
     soundToggleButton.addEventListener('click', () => {
