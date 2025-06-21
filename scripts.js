@@ -420,11 +420,13 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Block of Emerald', texture: 'textures/emerald_block.png' },
             { name: 'Block of Lapis Lazuli', texture: 'textures/lapis_block.png' },
             { name: 'Block of Diamond', texture: 'textures/diamond_block.png' },
+            
             { name: 'Block of Quartz', texture: 'textures/quartz_block_top.png' },
-            { name: 'Chiseled Quartz Block', texture: 'textures/chiseled_quartz_block.png' },
+            { name: 'Chiseled Quartz Block', texture: 'textures/chiseled_quartz_block_top.png' },
             { name: 'Quartz Bricks', texture: 'textures/quartz_bricks.png' },
             { name: 'Quartz Pillar', texture: 'textures/quartz_pillar_top.png' },
             { name: 'Smooth Quartz Block', texture: 'textures/quartz_block_bottom.png' },
+            
             { name: 'Block of Netherite', texture: 'textures/netherite_block.png' },
             { name: 'Block of Amethyst', texture: 'textures/amethyst_block.png' },
             { name: 'Budding Amethyst', texture: 'textures/budding_amethyst.png' },
