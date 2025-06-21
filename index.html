@@ -53,6 +53,8 @@
                 data-tooltip="Clear the entire grid.">Clear</button>
             <button id="importButton" class="action-button" data-tooltip="Load a .blockbuilder file.">Import</button>
             <button id="exportButton" class="action-button" data-tooltip="Save your current grid as a .blockbuilder file.">Export</button>
+            <!-- NEW: Export to NBT Button -->
+            <button id="exportNBTButton" class="action-button" data-tooltip="Export grid to .nbt for Minecraft.">Export to NBT</button>
         </div>
         
         <h2>Grid</h2>
@@ -65,7 +67,6 @@
             <input type="number" id="gridHeight" min="1" max="35" value="10">
             <button id="setGridSizeButton" class="action-button"
                 data-tooltip="WARNING: THE ENTIRE GRID WILL BE CLEARED">Set Grid Size</button>
-            <!-- NEW: Reset to Default Grid Size Button -->
             <button id="resetGridSizeButton" class="action-button"
                 data-tooltip="Reset grid size to 10x10 (clears grid)">Reset to Default</button>
         </div>
