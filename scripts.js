@@ -739,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- NEW: Add Tooltip Handling for Buttons ---
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
