@@ -638,6 +638,7 @@ h1, h2, h3 {
     justify-content: center;
     margin-bottom: 20px;
     gap: 10px;
+    background-image: url('textures/button.png')
 }
 
 .theme-selector-container label {
@@ -659,7 +660,6 @@ h1, h2, h3 {
     /* Custom dropdown arrow - will need to be adjusted for dark themes */
     background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%23333333%22%20stroke-width%3D%222%22%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E');
     background-repeat: no-repeat;
-    background-position: right 10px center;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
