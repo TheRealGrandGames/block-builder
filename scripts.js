@@ -309,6 +309,14 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Lapis Lazuli Ore', texture: 'textures/lapis_ore.png' },
             { name: 'Diamond Ore', texture: 'textures/diamond_ore.png' },
 
+            { name: 'Deepslate Coal Ore', texture: 'textures/deepslate_coal_ore.png' },
+            { name: 'Deepslate Iron Ore', texture: 'textures/deepslate_iron_ore.png' },
+            { name: 'Deepslate Copper Ore', texture: 'textures/deepslate_copper_ore.png' },
+            { name: 'Deepslate Gold Ore', texture: 'textures/deepslate_gold_ore.png' },
+            { name: 'Deepslate Redstone Ore', texture: 'textures/deepslate_redstone_ore.png' },
+            { name: 'Deepslate Emerald Ore', texture: 'textures/deepslate_emerald_ore.png' },
+            { name: 'Deepslate Lapis Lazuli Ore', texture: 'textures/deepslate_lapis_ore.png' },
+            { name: 'Deepslate Diamond Ore', texture: 'textures/deepslate_diamond_ore.png' },
         ],
         Liquids: [
             { name: 'Water', texture: 'textures/water.png' },
