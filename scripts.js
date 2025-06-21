@@ -7,14 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const fillGridButton = document.getElementById('fillGridButton');
     const savePngButton = document.getElementById('savePngButton');
     const hiddenCanvas = document.getElementById('hiddenCanvas');
+    const soundToggleButton = document.getElementById('soundToggleButton'); // NEW: Get the sound toggle button
 
-    // NEW: Define canvas context and dimensions
     const gridSize = 10;
-    const blockSize = 50; // This should match the CSS width/height of your .grid-block
+    const blockSize = 50;
     const canvasSize = gridSize * blockSize;
     const ctx = hiddenCanvas.getContext('2d');
 
-    // Set canvas dimensions
     hiddenCanvas.width = canvasSize;
     hiddenCanvas.height = canvasSize;
 
@@ -22,13 +21,44 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
-    // NEW: Create an Audio object for the click sound
+    // NEW: Audio objects and sound enabled state
     const buttonSound = new Audio('audio/button_click.mp3');
     const fillSound = new Audio('audio/grid_fill.mp3');
     const selectSound = new Audio('audio/inventory_button_click.mp3');
     const categoryOpenSound = new Audio('audio/category_open.mp3');
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
+
+    // All sound effects in one array for easy iteration
+    const allSounds = [
+        buttonSound,
+        fillSound,
+        selectSound,
+        categoryOpenSound,
+        categoryCollapseSound,
+        saveSound
+    ];
+
+    // NEW: Initialize sound state from localStorage
+    // 'true' if sounds are enabled, 'false' if disabled. Default to true.
+    let soundsEnabled = localStorage.getItem('soundsEnabled') === 'false' ? false : true;
+
+    // Function to play a sound if sounds are enabled
+    function playSound(audioElement) {
+        if (soundsEnabled) {
+            audioElement.currentTime = 0; // Rewind to the start
+            audioElement.play().catch(e => console.error("Error playing sound:", e));
+            // Add .catch() for Promise rejection, common with autoplay policies
+        }
+    }
+
+    // Function to update the sound toggle button's text
+    function updateSoundToggleButton() {
+        soundToggleButton.textContent = `Sounds: ${soundsEnabled ? 'ON' : 'OFF'}`;
+    }
+
+    // Call this immediately to set initial button text
+    updateSoundToggleButton();
 
 
     const blockCategories = {
@@ -104,11 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NEW: Image cache to pre-load textures for canvas drawing
     const blockImages = {};
     let texturesLoadedPromise = null;
 
-    // Function to load all textures into Image objects
     function preloadBlockTextures() {
         let imagesToLoad = [];
         for (const type in blockTypes) {
@@ -117,27 +145,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 imagesToLoad.push(new Promise((resolve, reject) => {
                     const img = new Image();
                     img.src = blockData.texture;
-                    img.crossOrigin = "Anonymous"; // Important for canvas.toDataURL()
+                    img.crossOrigin = "Anonymous";
                     img.onload = () => {
-                        blockImages[type] = img; // Store the loaded Image object
+                        blockImages[type] = img;
                         resolve();
                     };
                     img.onerror = () => {
                         console.error(`Failed to load texture: ${blockData.texture}`);
-                        // Even if it fails, resolve to not block other images
-                        // You might want a fallback image here or handle differently
-                        blockImages[type] = null; // Mark as failed or use a placeholder
+                        blockImages[type] = null;
                         resolve();
                     };
                 }));
             }
         }
 
-        // If there are no images to load, resolve immediately
         if (imagesToLoad.length === 0) {
             texturesLoadedPromise = Promise.resolve();
         } else {
-            // Wait for all image promises to resolve
             texturesLoadedPromise = Promise.all(imagesToLoad);
         }
 
@@ -174,12 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryContent.classList.toggle('collapsed');
                 if (categoryContent.classList.contains('collapsed')) {
                     toggleIcon.textContent = '►';
-                    categoryCollapseSound.currentTime = 0; // Rewind to the start
-                    categoryCollapseSound.play();
+                    playSound(categoryCollapseSound); // Use playSound function
                 } else {
                     toggleIcon.textContent = '▼';
-                    categoryOpenSound.currentTime = 0; // Rewind to the start
-                    categoryOpenSound.play();
+                    playSound(categoryOpenSound); // Use playSound function
                 }
             });
 
@@ -216,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const initialGrassBlock = document.querySelector('.inventory-block[data-type="Grass Block"]');
         if (initialGrassBlock) {
-            selectBlock('Grass Block', initialGrassBlock); // Changed to 'Grass Block' for consistency
+            selectBlock('Grass Block', initialGrassBlock);
         }
     }
 
@@ -239,8 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.add('selected');
         currentInventoryBlockElement = element;
 
-        selectSound.currentTime = 0; // Rewind to the start
-        selectSound.play();
+        playSound(selectSound); // Use playSound function
     }
 
     function initializeGrid() {
@@ -260,25 +281,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            // NEW: Middle-click (scroll wheel click) to select block
             block.addEventListener('mouseup', (event) => {
-                // event.button === 1 corresponds to the middle mouse button
-                if (event.button === 1) {
-                    event.preventDefault(); // Prevent any default middle-click behavior (like auto-scroll)
+                if (event.button === 1) { // Middle mouse button
+                    event.preventDefault();
                     const clickedBlockType = block.dataset.type;
-                    
-                    // Only select if it's not 'Air'
                     if (clickedBlockType && clickedBlockType !== 'Air') {
-                        // Find the corresponding inventory element
                         const inventoryElement = document.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
                         if (inventoryElement) {
                             selectBlock(clickedBlockType, inventoryElement);
                         } else {
                             console.warn(`Middle-clicked block type "${clickedBlockType}" not found in inventory.`);
-                            // Optionally, handle cases where a block type might exist on grid but not inventory (unlikely here)
                         }
                     }
                 }
             });
+
 
             block.addEventListener('mouseenter', (event) => {
                 if (isPainting) {
@@ -342,27 +360,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function fillGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            placeBlock(block, selectedBlockType); // Use the currently selected block type
+            placeBlock(block, selectedBlockType);
         });
     }
 
     clearGridButton.addEventListener('click', () => {
         clearGrid();
-        buttonSound.currentTime = 0;
-        buttonSound.play();
+        playSound(buttonSound); // Use playSound function
     });
 
     fillGridButton.addEventListener('click', () => {
         fillGrid();
-        buttonSound.currentTime = 0;
-        buttonSound.play();
-        fillSound.currentTime = 0;
-        fillSound.play();
+        playSound(buttonSound); // Use playSound function
+        playSound(fillSound);   // Use playSound function
     });
 
-    // Function to draw the grid onto the canvas
     function drawGridToCanvas() {
-        ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear the canvas
+        ctx.clearRect(0, 0, canvasSize, canvasSize);
 
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach(blockElement => {
@@ -375,15 +389,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const y = row * blockSize;
 
             if (type === 'Air') {
-                ctx.fillStyle = '#e0e0e0'; // Match 'Air' block background color
+                ctx.fillStyle = '#e0e0e0';
                 ctx.fillRect(x, y, blockSize, blockSize);
             } else {
                 const img = blockImages[type];
-                if (img && img.complete) { // Ensure image is loaded before drawing
+                if (img && img.complete) {
                     ctx.drawImage(img, x, y, blockSize, blockSize);
                 } else {
                     console.warn(`Texture for ${type} not loaded, drawing placeholder.`);
-                    ctx.fillStyle = '#ff00ff'; // Magenta placeholder for missing texture
+                    ctx.fillStyle = '#ff00ff';
                     ctx.fillRect(x, y, blockSize, blockSize);
                 }
             }
@@ -391,15 +405,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function saveCanvasAsPng() {
-        // Ensure textures are loaded before drawing
         if (texturesLoadedPromise) {
-            await texturesLoadedPromise; // Wait for all images to load
+            await texturesLoadedPromise;
             console.log("Textures are ready. Proceeding to draw and save.");
         } else {
             console.warn("texturesLoadedPromise was not initialized. Drawing may fail.");
         }
 
-        drawGridToCanvas(); // Draw the current grid state to the canvas
+        drawGridToCanvas();
 
         const dataURL = hiddenCanvas.toDataURL('image/png');
 
@@ -412,14 +425,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     savePngButton.addEventListener('click', async () => {
-        buttonSound.currentTime = 0;
-        buttonSound.play();
+        playSound(buttonSound); // Use playSound function
         await saveCanvasAsPng();
-        if (saveSound) {
-            saveSound.currentTime = 0;
-            saveSound.play();
-        }
+        playSound(saveSound); // Use playSound function
     });
+
+    // NEW: Sound toggle button event listener
+    soundToggleButton.addEventListener('click', () => {
+        soundsEnabled = !soundsEnabled; // Toggle the state
+        localStorage.setItem('soundsEnabled', soundsEnabled); // Save the state
+        updateSoundToggleButton(); // Update the button text
+        playSound(buttonSound); // Play button sound *if* newly enabled, otherwise no sound
+    });
+
 
     // --- Run Initialization ---
     preloadBlockTextures().then(() => {
