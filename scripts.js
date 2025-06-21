@@ -23,9 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const importButton = document.getElementById('importButton');
     const exportButton = document.getElementById('exportButton');
     const importFileInput = document.getElementById('importFileInput');
-    const exportNBTButton = document.getElementById('exportNBTButton'); // NEW
+    // const exportNBTButton = document.getElementById('exportNBTButton'); // As per previous interaction, removed this button logic from JS
 
     const includeResourcesCheckbox = document.getElementById('includeResourcesCheckbox');
+    const themeSelect = document.getElementById('theme-select'); // NEW
 
     let currentGridWidth = 10;
     let currentGridHeight = 10;
@@ -323,6 +324,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 resolve();
             };
         }));
+        // NEW: Preload background textures for themes
+        const backgroundTextures = [
+            'textures/netherrack.png',
+            'textures/end_stone.png',
+            'textures/water_still.png'
+        ];
+        backgroundTextures.forEach(src => {
+            imagesToLoad.push(new Promise((resolve) => {
+                const img = new Image();
+                img.src = src;
+                img.crossOrigin = "Anonymous";
+                img.onload = resolve;
+                img.onerror = () => {
+                    console.warn(`Failed to load background texture: ${src}`);
+                    resolve(); // Still resolve to not block main loading
+                };
+            }));
+        });
 
 
         if (imagesToLoad.length === 0) {
@@ -440,9 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
             if (texturePath) {
                 block.style.backgroundImage = `url(${texturePath})`;
-                block.style.backgroundColor = '';
             } else {
-                block.style.backgroundImage = 'none';
                 block.style.backgroundColor = '#e0e0e0';
             }
         });
@@ -778,18 +795,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsText(file);
     }
 
-    // NEW: NBT Export button handler
-    exportNBTButton.addEventListener('click', () => {
-        playSound(buttonSound);
-        // Instruct the user on how to use the external Python script
-        alert(
-            "To export to .nbt for Minecraft:\n\n" +
-            "1. Click the 'Export' button above to save your design as a '.blockbuilder' file.\n" +
-            "2. Use the Python script provided in the model's chat response to convert the '.blockbuilder' file to '.nbt'.\n\n" +
-            "Please refer to the detailed instructions in the chat for how to run the Python script."
-        );
-    });
-
     function drawResourcesOnCanvas(ctx, startY, canvasWidthPx, resourceCounts, blockTypes, blockImages) {
         let currentY = startY + 20;
 
@@ -1059,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, exportNBTButton];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -1082,6 +1087,25 @@ document.addEventListener('DOMContentLoaded', () => {
     exportButton.addEventListener('click', exportGrid);
     importButton.addEventListener('click', () => importFileInput.click());
     importFileInput.addEventListener('change', importGrid);
+
+
+    // Theme selection logic
+    function applyTheme(themeName) {
+        const body = document.body;
+        body.classList.remove('theme-light', 'theme-dark', 'theme-red-dye', 'theme-nether', 'theme-end', 'theme-ocean'); // Remove all theme classes
+        body.classList.add(`theme-${themeName}`); // Add the selected theme class
+        localStorage.setItem('selectedTheme', themeName); // Save preference
+    }
+
+    themeSelect.addEventListener('change', (event) => {
+        applyTheme(event.target.value);
+        playSound(buttonSound); // Play sound on theme change
+    });
+
+    // Apply saved theme on load
+    const savedTheme = localStorage.getItem('selectedTheme') || 'light'; // Default to light
+    themeSelect.value = savedTheme; // Set dropdown to saved value
+    applyTheme(savedTheme);
 
 
     preloadBlockTextures().then(() => {
