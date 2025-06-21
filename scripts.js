@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Sand', texture: 'textures/sand.png' },
             { name: 'Red Sand', texture: 'textures/red_sand.png' },
             { name: 'Snow', texture: 'textures/snow.png' },
+            { name: 'Powder Snow', texture: 'textures/powder_snow.png' },
             { name: 'Ice', texture: 'textures/ice.png' },
             { name: 'Packed Ice', texture: 'textures/packed_ice.png' },
             { name: 'Blue Ice', texture: 'textures/blue_ice.png' },
