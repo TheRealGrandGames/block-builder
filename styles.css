@@ -269,6 +269,9 @@ h1 {
     background-repeat: no-repeat; /* Prevent the image from repeating */
     image-rendering: pixelated; /* Good for pixel art textures */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow to make it pop */
+    background-image: url('textures/button.png'); /* Path to your fill button texture */
+    background-color: #f0f0f0; /* Default background */
+    color: white;
 }
 
 .action-button:hover {
