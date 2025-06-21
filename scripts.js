@@ -43,12 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Music Playlist
     // IMPORTANT: Update these paths to your actual music files!
     const musicPlaylist = [
-        'audio/taswell.mp3',
-        'audio/dreiton.mp3',
-        'audio/aria_math.mp3',
-        'audio/haunt_muskie.mp3',
-        'audio/biome_fest.mp3',
-        'audio/blind_spots.mp3'
+        'audio/music/taswell.mp3',
+        'audio/music/dreiton.mp3',
+        'audio/music/aria_math.mp3',
+        'audio/music/haunt_muskie.mp3',
+        'audio/music/biome_fest.mp3',
+        'audio/music/blind_spots.mp3'
     ];
 
     // NEW: Music Audio object - ONE object to manage multiple songs
