@@ -9,26 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
-    // NEW: Get the resource count display element
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
 
-    const gridSize = 10;
-    const blockSize = 50;
-    const canvasSize = gridSize * blockSize;
-    const ctx = hiddenCanvas.getContext('2d');
+    // NEW: Grid Size Control Elements
+    const gridWidthInput = document.getElementById('gridWidth');
+    const gridHeightInput = document.getElementById('gridHeight');
+    const setGridSizeButton = document.getElementById('setGridSizeButton');
 
-    hiddenCanvas.width = canvasSize;
-    hiddenCanvas.height = canvasSize;
+    // Change gridSize to gridWidth and gridHeight
+    let currentGridWidth = 10; // Default width
+    let currentGridHeight = 10; // Default height
+    const blockSize = 50;
+    let canvasWidth = currentGridWidth * blockSize; // Dynamically calculated
+    let canvasHeight = currentGridHeight * blockSize; // Dynamically calculated
+    let ctx; // Will be initialized after canvas size is set
+
+    // Hidden canvas context needs to be set after dimensions are known
+    // No, it must be gotten with getContext() after the canvas element has been appended to the DOM.
+    // We'll set canvas dimensions and get context inside initializeGrid after grid size is finalized.
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
-    // NEW: Grid state array to store block types
-    // Initialize with 'Air' for all cells
-    const gridState = Array(gridSize * gridSize).fill('Air');
+    // Grid state array to store block types
+    let gridState = []; // Now dynamically sized
 
-    // NEW: Object to store resource counts
+    // Object to store resource counts
     const resourceCounts = {};
 
     // Audio objects for sound effects
@@ -39,36 +46,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
 
-    // All sound effects in one array (optional, but good for management)
     const allEffectSounds = [
-        buttonSound,
-        fillSound,
-        selectSound,
-        categoryOpenSound,
-        categoryCollapseSound,
-        saveSound
+        buttonSound, fillSound, selectSound,
+        categoryOpenSound, categoryCollapseSound, saveSound
     ];
 
-    // Music Playlist
     const musicPlaylist = [
-        'audio/music/taswell.mp3',
-        'audio/music/dreiton.mp3',
-        'audio/music/aria_math.mp3',
-        'audio/music/haunt_muskie.mp3',
-        'audio/music/biome_fest.mp3',
-        'audio/music/blind_spots.mp3'
+        'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
+        'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
     ];
 
-    // Music Audio object - ONE object to manage multiple songs
     const backgroundMusic = new Audio();
-    backgroundMusic.loop = false; // We'll manage looping through the playlist manually
-    backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
+    backgroundMusic.loop = false;
+    backgroundMusic.volume = 0.5;
 
-    // NEW: Variables for shuffled playlist
     let shuffledPlaylistIndices = [];
     let currentShuffledIndex = 0;
 
-    // Function to shuffle the playlist indices using Fisher-Yates algorithm
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -76,61 +70,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialize the shuffled playlist
     function initializeShuffledPlaylist() {
-        // Create an array of indices [0, 1, 2, ..., N-1]
         shuffledPlaylistIndices = Array.from({ length: musicPlaylist.length }, (_, i) => i);
         shuffleArray(shuffledPlaylistIndices);
-        currentShuffledIndex = 0; // Start at the beginning of the new shuffled list
-        // Note: We don't save currentSongIndex to localStorage anymore for random.
-        // If musicEnabled is true, it will always start with a new random sequence.
+        currentShuffledIndex = 0;
     }
 
-    // Initialize the shuffled playlist on load
     if (musicPlaylist.length > 0) {
         initializeShuffledPlaylist();
     }
 
-
-    // Event listener for when a song ends - plays the next in the playlist
     backgroundMusic.onended = () => {
         playNextSong();
     };
 
-    // Initialize sound effects state from localStorage
     let soundsEnabled = localStorage.getItem('soundsEnabled') === 'false' ? false : true;
-    // Initialize music state from localStorage
     let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
-
-    // NEW: Flag to track if user has interacted
     let hasUserInteracted = false;
 
-
-    // Function to play a sound effect if sounds are enabled
     function playSound(audioElement) {
-        if (soundsEnabled && hasUserInteracted) { // Only play if enabled AND user has interacted
-            audioElement.currentTime = 0; // Rewind to the start for effects
+        if (soundsEnabled && hasUserInteracted) {
+            audioElement.currentTime = 0;
             audioElement.play().catch(e => console.error("Error playing sound effect:", e));
         }
     }
 
-    // Function to update the sound toggle button's text
     function updateSoundToggleButton() {
         soundToggleButton.textContent = `Sounds: ${soundsEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // Function to play the current song in the playlist
     function playBackgroundMusic() {
-        if (musicEnabled && musicPlaylist.length > 0 && hasUserInteracted) { // Only play if enabled AND user has interacted
+        if (musicEnabled && musicPlaylist.length > 0 && hasUserInteracted) {
             const songToPlayIndex = shuffledPlaylistIndices[currentShuffledIndex];
             const songPath = musicPlaylist[songToPlayIndex];
-
-            // We compare the absolute path returned by `Audio.src`
             const expectedSrc = new URL(songPath, window.location.href).href;
 
             if (backgroundMusic.src !== expectedSrc || backgroundMusic.paused) {
                 backgroundMusic.src = songPath;
-                backgroundMusic.load(); // Load the new source
+                backgroundMusic.load();
                 console.log(`Loading and attempting to play: ${songPath}`);
             }
 
@@ -142,45 +119,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to pause background music
     function pauseBackgroundMusic() {
         backgroundMusic.pause();
     }
 
-    // Function to play the next song in the playlist (randomized)
     function playNextSong() {
-        if (musicPlaylist.length === 0) return; // No songs to play
+        if (musicPlaylist.length === 0) return;
 
-        currentShuffledIndex++; // Move to the next song in the shuffled list
+        currentShuffledIndex++;
 
         if (currentShuffledIndex >= shuffledPlaylistIndices.length) {
-            // If we've reached the end of the shuffled list, re-shuffle and start over
             initializeShuffledPlaylist();
         }
         
-        // No need to save index to localStorage for random playback, as it will always start a new random sequence
-        playBackgroundMusic(); // Play the newly selected random song
+        playBackgroundMusic();
     }
 
-    // Function to update the music toggle button's text
     function updateMusicToggleButton() {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // Call these immediately to set initial button text
     updateSoundToggleButton();
     updateMusicToggleButton();
 
-
-    // --- Add a global click listener to mark user interaction ---
     document.body.addEventListener('click', () => {
         if (!hasUserInteracted) {
             hasUserInteracted = true;
             console.log("User interacted. Audio playback is now permitted.");
-            // After interaction, try to play music if it's enabled
             playBackgroundMusic();
         }
-    }, { once: true }); // Use { once: true } to ensure it only runs once
+    }, { once: true });
 
 
     const blockCategories = {
@@ -386,13 +354,29 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(selectSound);
     }
 
-    function initializeGrid() {
-        for (let i = 0; i < gridSize * gridSize; i++) {
+    // Modified initializeGrid to accept width and height
+    function initializeGrid(width, height) {
+        gameGrid.innerHTML = ''; // Clear existing grid
+        gameGrid.style.gridTemplateColumns = `repeat(${width}, ${blockSize}px)`;
+        gameGrid.style.gridTemplateRows = `repeat(${height}, ${blockSize}px)`;
+        gameGrid.style.width = `${width * blockSize}px`; // Set explicit width
+        gameGrid.style.height = `${height * blockSize}px`; // Set explicit height
+
+        currentGridWidth = width;
+        currentGridHeight = height;
+
+        // Reset gridState and resourceCounts for the new grid
+        gridState = Array(width * height).fill('Air');
+        for (const key in resourceCounts) {
+            delete resourceCounts[key];
+        }
+
+        for (let i = 0; i < width * height; i++) {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air'; // Initialize with 'Air' for visual representation
-            gridState[i] = 'Air'; // Initialize the grid state array
+            block.dataset.type = 'Air';
+            // No need to set gridState[i] here as it's already filled with 'Air'
 
             block.addEventListener('mousedown', (event) => {
                 event.preventDefault();
@@ -418,7 +402,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
-
 
             block.addEventListener('mouseenter', (event) => {
                 if (isPainting) {
@@ -455,33 +438,39 @@ document.addEventListener('DOMContentLoaded', () => {
             isPainting = false;
         });
 
-        // Initialize resource counts after grid is set up (all 'Air')
-        updateResourceCounts();
+        // Set hidden canvas dimensions and get context here
+        canvasWidth = currentGridWidth * blockSize;
+        canvasHeight = currentGridHeight * blockSize;
+        hiddenCanvas.width = canvasWidth;
+        hiddenCanvas.height = canvasHeight;
+        ctx = hiddenCanvas.getContext('2d'); // Get context after setting dimensions
+
+        updateResourceCounts(); // Initial update for resource display
     }
 
     function placeBlock(gridBlockElement, type) {
         const oldType = gridBlockElement.dataset.type;
         const index = parseInt(gridBlockElement.dataset.index);
 
-        if (oldType === type) { // No change, do nothing
+        if (oldType === type) {
             return;
         }
 
         if (oldType !== 'Air') {
             resourceCounts[oldType] = (resourceCounts[oldType] || 0) - 1;
             if (resourceCounts[oldType] <= 0) {
-                delete resourceCounts[oldType]; // Remove if count goes to zero or below
+                delete resourceCounts[oldType];
             }
         }
 
         gridBlockElement.dataset.type = type;
-        gridState[index] = type; // Update grid state array
+        gridState[index] = type;
 
         const texturePath = blockTypes[type] ? blockTypes[type].texture : 'path/to/default_empty_texture.png';
         gridBlockElement.style.backgroundImage = `url(${texturePath})`;
-        gridBlockElement.style.backgroundColor = ''; // Remove background color if texture is applied
+        gridBlockElement.style.backgroundColor = '';
 
-        if (type !== 'Air') { // Only increment if placing a non-air block
+        if (type !== 'Air') {
             resourceCounts[type] = (resourceCounts[type] || 0) + 1;
         }
         updateResourceCountsDisplay();
@@ -491,12 +480,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldType = gridBlockElement.dataset.type;
         const index = parseInt(gridBlockElement.dataset.index);
 
-        if (oldType === 'Air') { // Already air, do nothing
+        if (oldType === 'Air') {
             return;
         }
 
         gridBlockElement.dataset.type = 'Air';
-        gridState[index] = 'Air'; // Update grid state array
+        gridState[index] = 'Air';
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
 
@@ -510,9 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            destroyBlock(block); // This will correctly update resource counts
+            destroyBlock(block);
         });
-        // After clearing, all counts should be zero, but we can explicitly clear and update for certainty
+        // This loop ensures resourceCounts is clean, but destroyBlock already handles it per block.
+        // For a full clear, we can reset the object directly for efficiency if it's large.
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
@@ -522,12 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function fillGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
         allGridBlocks.forEach(block => {
-            placeBlock(block, selectedBlockType); // This will correctly update resource counts
+            placeBlock(block, selectedBlockType);
         });
-        // No need to explicitly update resource counts here, as placeBlock handles it.
-        // However, if we wanted to be absolutely sure all other blocks are gone:
-        // You could clear first, then fill. Or iterate through gridState.
-        // For simplicity, relying on placeBlock's update is fine.
     }
 
     clearGridButton.addEventListener('click', () => {
@@ -542,14 +528,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function drawGridToCanvas() {
-        ctx.clearRect(0, 0, canvasSize, canvasSize);
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Use dynamic canvas dimensions
 
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach(blockElement => {
             const type = blockElement.dataset.type;
             const index = parseInt(blockElement.dataset.index);
-            const row = Math.floor(index / gridSize);
-            const col = index % gridSize;
+            // Calculate row and col based on currentGridWidth
+            const row = Math.floor(index / currentGridWidth);
+            const col = index % currentGridWidth;
 
             const x = col * blockSize;
             const y = row * blockSize;
@@ -596,7 +583,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(saveSound);
     });
 
-    // Sound effects toggle button event listener
     soundToggleButton.addEventListener('click', () => {
         soundsEnabled = !soundsEnabled;
         localStorage.setItem('soundsEnabled', soundsEnabled);
@@ -604,15 +590,11 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
-    // Music toggle button event listener
     musicToggleButton.addEventListener('click', () => {
         musicEnabled = !musicEnabled;
         localStorage.setItem('musicEnabled', musicEnabled);
         updateMusicToggleButton();
         if (musicEnabled) {
-            // If turning music ON, ensure it starts playing from a random song
-            // We'll call initializeShuffledPlaylist() to get a fresh order
-            // and then play the first song in that order.
             initializeShuffledPlaylist();
             playBackgroundMusic();
         } else {
@@ -621,24 +603,11 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
-    // --- Add a global click listener to mark user interaction ---
-    document.body.addEventListener('click', () => {
-        if (!hasUserInteracted) {
-            hasUserInteracted = true;
-            console.log("User interacted. Audio playback is now permitted.");
-            // After interaction, try to play music if it's enabled
-            playBackgroundMusic();
-        }
-    }, { once: true });
-
-    // NEW: Function to update resource counts based on gridState
     function updateResourceCounts() {
-        // Reset counts
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
 
-        // Recalculate based on current gridState
         gridState.forEach(blockType => {
             if (blockType !== 'Air') {
                 resourceCounts[blockType] = (resourceCounts[blockType] || 0) + 1;
@@ -647,11 +616,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateResourceCountsDisplay();
     }
 
-    // NEW: Function to display resource counts
     function updateResourceCountsDisplay() {
-        resourceCountDisplay.innerHTML = ''; // Clear previous display
+        resourceCountDisplay.innerHTML = '';
 
-        // Sort blocks alphabetically by name for consistent display
         const sortedBlockTypes = Object.keys(resourceCounts).sort();
 
         if (sortedBlockTypes.length === 0) {
@@ -661,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sortedBlockTypes.forEach(type => {
             const count = resourceCounts[type];
-            if (count > 0) { // Only display blocks that exist
+            if (count > 0) {
                 const resourceItem = document.createElement('div');
                 resourceItem.classList.add('resource-item');
 
@@ -671,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (blockData && blockData.texture) {
                     resourceImage.style.backgroundImage = `url(${blockData.texture})`;
                 } else {
-                    resourceImage.style.backgroundColor = '#ccc'; // Fallback
+                    resourceImage.style.backgroundColor = '#ccc';
                 }
 
                 const resourceName = document.createElement('span');
@@ -690,19 +657,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // NEW: Event Listener for Set Grid Size Button
+    setGridSizeButton.addEventListener('click', () => {
+        playSound(buttonSound);
+        const newWidth = parseInt(gridWidthInput.value);
+        const newHeight = parseInt(gridHeightInput.value);
+
+        // Input Validation
+        if (isNaN(newWidth) || newWidth < 1 || newWidth > 30) {
+            alert('Please enter a valid width between 1 and 30.');
+            gridWidthInput.value = currentGridWidth; // Reset to current valid value
+            return;
+        }
+        if (isNaN(newHeight) || newHeight < 1 || newHeight > 30) {
+            alert('Please enter a valid height between 1 and 30.');
+            gridHeightInput.value = currentGridHeight; // Reset to current valid value
+            return;
+        }
+
+        // Apply new grid size
+        initializeGrid(newWidth, newHeight);
+    });
+
 
     // --- Run Initialization ---
     preloadBlockTextures().then(() => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
-        initializeGrid(); // This now calls updateResourceCounts at the end
-
-        // No direct call to playBackgroundMusic() here anymore.
-        // It will be called by the global click listener once the user interacts.
+        // Call initializeGrid with default values (from HTML input fields)
+        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value));
 
     }).catch(error => {
         console.error("Error preloading textures:", error);
         initializeInventory();
-        initializeGrid();
+        // Fallback for grid initialization if textures fail
+        initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value));
     });
 });
