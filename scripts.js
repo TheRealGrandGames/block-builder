@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             { name: 'Tuff', texture: 'textures/tuff.png' },
             { name: 'Tuff Bricks', texture: 'textures/tuff_bricks.png' },
-            { name: 'Chiseled Tuff Bricks', texture: 'textures/chiseled_tuff_bricks.png' },
-            { name: 'Chiseled Tuff', texture: 'textures/chiseled_tuff.png' },
+            { name: 'Chiseled Tuff Bricks', texture: 'textures/chiseled_tuff_bricks_top.png' },
+            { name: 'Chiseled Tuff', texture: 'textures/chiseled_tuff_top.png' },
             { name: 'Polished Tuff', texture: 'textures/polished_tuff.png' },
 
             { name: 'Basalt', texture: 'textures/basalt.png' },
