@@ -253,8 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Verdant Froglight', texture: 'textures/verdant_froglight_top.png' },
             { name: 'Pearlescent Froglight', texture: 'textures/pearlescent_froglight_top.png' },
 
-            { name: 'Cobweb', texture: 'textures/cobweb.png' },
-            
             { name: 'Sculk', texture: 'textures/sculk.png' },
 
             { name: 'Dried Kelp Block', texture: 'textures/dried_kelp_top.png' },
@@ -483,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             { name: 'Copper Grate', texture: 'textures/copper_grate.png' },
             { name: 'Exposed Copper Grate', texture: 'textures/exposed_copper_grate.png' },
-            { name: 'Weathered Copper Grate', texture: 'textures/weathered_copper_grate.png' },
+            { name: 'Weathered Copper Grate', texture: 'textures/weather_copper_grate.png' },
             { name: 'Oxidized Copper Grate', texture: 'textures/oxidized_copper_grate.png' },
             
             { name: 'Block of Raw Gold', texture: 'textures/raw_gold_block.png' },
@@ -590,9 +588,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const backgroundTextures = [
             'textures/netherrack.png',
             'textures/end_stone.png',
-            'textures/water_still.png',
+            'textures/water.png', // Changed from water_still.png to water.png for consistency
             'textures/grass.png',
-            'textures/button.png'
+            'textures/button.png',
+            'textures/cave_theme_bg.png', // Added for cave theme
+            'textures/reef_theme_bg.png' // Added for reef theme
         ];
         backgroundTextures.forEach(src => {
             imagesToLoad.push(new Promise((resolve) => {
@@ -715,16 +715,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyState(state) {
         const allGridBlocks = document.querySelectorAll('.grid-block');
-        gridState = [...state];
+        gridState = [...state]; // Update internal gridState
 
         allGridBlocks.forEach((block, index) => {
-            const type = gridState[index];
-            block.dataset.type = type;
+            const type = gridState[index]; // Get type from the state
+            block.dataset.type = type; // Update dataset attribute
+
             const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
             if (texturePath) {
                 block.style.backgroundImage = `url(${texturePath})`;
+                block.style.backgroundColor = ''; // Ensure background color is cleared
             } else {
-                block.style.backgroundColor = '#e0e0e0';
+                // This means 'type' is 'Air' or an unknown block
+                block.style.backgroundColor = '#e0e0e0'; // Set default color for 'Air'
+                block.style.backgroundImage = 'none'; // Ensure no image is shown
             }
         });
         updateResourceCounts();
@@ -741,14 +745,14 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGridHeight = height;
 
         if (isNewGrid) {
-            gridHistory = [];
+            gridHistory = []; // Always clear history for a new or imported grid
             historyPointer = -1;
-            gridState = Array(width * height).fill('Air');
+            gridState = Array(width * height).fill('Air'); // Default to Air
             for (const key in resourceCounts) {
                 delete resourceCounts[key];
             }
             if (loadedGridState) {
-                gridState = [...loadedGridState]; // Corrected from `loadedData`
+                gridState = [...loadedGridState]; // If importing, set gridState to loaded data
             }
         }
 
@@ -757,13 +761,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = gridState[i] || 'Air';
+            // Set initial type and style based on the (potentially loaded) gridState
+            const type = gridState[i] || 'Air'; // Use gridState[i] directly
+            block.dataset.type = type;
 
-            const texturePath = blockTypes[gridState[i]] ? blockTypes[gridState[i]].texture : null;
+            const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
             if (texturePath) {
                 block.style.backgroundImage = `url(${texturePath})`;
+                block.style.backgroundColor = '';
             } else {
                 block.style.backgroundColor = '#e0e0e0';
+                block.style.backgroundImage = 'none';
             }
 
 
@@ -857,10 +865,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
 
-        updateResourceCounts();
-        if (isNewGrid && !loadedGridState) {
-            saveState();
-        }
+        updateResourceCounts(); // Update counts based on the current gridState
+        // saveState() is explicitly handled by the caller (e.g., in DOMContentLoaded or importGrid)
         updateUndoRedoButtonStates();
     }
 
@@ -882,9 +888,15 @@ document.addEventListener('DOMContentLoaded', () => {
         gridBlockElement.dataset.type = type;
         gridState[index] = type;
 
-        const texturePath = blockTypes[type] ? blockTypes[type].texture : 'path/to/default_empty_texture.png';
-        gridBlockElement.style.backgroundImage = `url(${texturePath})`;
-        gridBlockElement.style.backgroundColor = '';
+        const texturePath = blockTypes[type] ? blockTypes[type].texture : null; // Changed from default_empty_texture.png
+        if (texturePath) {
+            gridBlockElement.style.backgroundImage = `url(${texturePath})`;
+            gridBlockElement.style.backgroundColor = '';
+        } else {
+            gridBlockElement.style.backgroundImage = 'none';
+            gridBlockElement.style.backgroundColor = '#e0e0e0';
+        }
+
 
         if (type !== 'Air') {
             resourceCounts[type] = (resourceCounts[type] || 0) + 1;
@@ -915,24 +927,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clearGrid() {
-        const allGridBlocks = document.querySelectorAll('.grid-block');
-        allGridBlocks.forEach(block => {
-            if (block.dataset.type !== 'Air') {
-                destroyBlock(block);
-            }
-        });
+        // Clear the resource counts completely before updating
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
-        updateResourceCountsDisplay();
+        updateResourceCountsDisplay(); // Update display to show no resources
+
+        const allGridBlocks = document.querySelectorAll('.grid-block');
+        allGridBlocks.forEach(block => {
+            // No need to call destroyBlock individually, directly set to 'Air'
+            const index = parseInt(block.dataset.index);
+            block.dataset.type = 'Air';
+            gridState[index] = 'Air';
+            block.style.backgroundColor = '#e0e0e0';
+            block.style.backgroundImage = 'none';
+        });
         saveState();
     }
 
     function fillGrid() {
         const allGridBlocks = document.querySelectorAll('.grid-block');
+        // Clear existing counts before refilling
+        for (const key in resourceCounts) {
+            delete resourceCounts[key];
+        }
+
         allGridBlocks.forEach(block => {
-            placeBlock(block, selectedBlockType);
+            // Directly set the block and update resource counts for the fill operation
+            const index = parseInt(block.dataset.index);
+            const currentBlockType = block.dataset.type;
+            
+            if (currentBlockType !== selectedBlockType) {
+                block.dataset.type = selectedBlockType;
+                gridState[index] = selectedBlockType;
+
+                const texturePath = blockTypes[selectedBlockType] ? blockTypes[selectedBlockType].texture : null;
+                if (texturePath) {
+                    block.style.backgroundImage = `url(${texturePath})`;
+                    block.style.backgroundColor = '';
+                } else {
+                    block.style.backgroundImage = 'none';
+                    block.style.backgroundColor = '#e0e0e0';
+                }
+                resourceCounts[selectedBlockType] = (resourceCounts[selectedBlockType] || 0) + 1;
+            }
         });
+        updateResourceCountsDisplay();
         saveState();
     }
 
@@ -948,14 +988,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function saveState() {
+        // Remove any future states if we're not at the end of history
         if (historyPointer < gridHistory.length - 1) {
             gridHistory = gridHistory.slice(0, historyPointer + 1);
         }
 
-        const stateToSave = JSON.parse(JSON.stringify(gridState));
+        const stateToSave = JSON.parse(JSON.stringify(gridState)); // Deep copy
         gridHistory.push(stateToSave);
         historyPointer++;
 
+        // Trim history if it exceeds max size
         if (gridHistory.length > MAX_HISTORY_STATES) {
             gridHistory.shift();
             historyPointer--;
@@ -1036,11 +1078,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Error: Imported file grid dimensions do not match the grid array length.');
                         return;
                     }
-
+                    
+                    // Set grid size inputs
                     gridWidthInput.value = loadedData.width;
                     gridHeightInput.value = loadedData.height;
 
+                    // Initialize the grid with the loaded data. This also resets history.
                     initializeGrid(loadedData.width, loadedData.height, true, loadedData.grid);
+                    
+                    // Explicitly save the imported state to history
+                    saveState();
+
                     alert('Grid imported successfully!');
                 } else {
                     alert('Error: Invalid .blockbuilder file format. Missing or incorrect data.');
@@ -1049,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error parsing .blockbuilder file:", error);
                 alert('Error: Could not read or parse the .blockbuilder file. It might be corrupted or not a valid JSON.');
             } finally {
-                event.target.value = '';
+                event.target.value = ''; // Clear file input for next import
             }
         };
         reader.onerror = () => {
@@ -1246,10 +1294,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateResourceCounts() {
+        // Reset resource counts
         for (const key in resourceCounts) {
             delete resourceCounts[key];
         }
 
+        // Recalculate based on current gridState
         gridState.forEach(blockType => {
             if (blockType !== 'Air') {
                 resourceCounts[blockType] = (resourceCounts[blockType] || 0) + 1;
@@ -1317,14 +1367,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        initializeGrid(newWidth, newHeight, true);
+        initializeGrid(newWidth, newHeight, true); // Create new empty grid
+        saveState(); // Save this new empty grid as the first state
     });
 
     resetGridSizeButton.addEventListener('click', () => {
         playSound(buttonSound);
         gridWidthInput.value = 10;
         gridHeightInput.value = 10;
-        initializeGrid(10, 10, true);
+        initializeGrid(10, 10, true); // Create new 10x10 empty grid
+        saveState(); // Save this new empty grid as the first state
     });
 
 
@@ -1375,11 +1427,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Initial texture preload complete. Initializing UI.");
         initializeInventory();
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
+        saveState(); // Save the initial empty grid state
         updateUndoRedoButtonStates();
     }).catch(error => {
         console.error("Error preloading textures:", error);
         initializeInventory();
         initializeGrid(parseInt(gridWidthInput.value), parseInt(gridHeightInput.value), true);
+        saveState(); // Try to save even if textures fail, might still be functional
         updateUndoRedoButtonStates();
     });
 });
