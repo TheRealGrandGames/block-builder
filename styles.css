@@ -162,7 +162,7 @@ h1 {
     grid-template-rows: repeat(10, 50px);
     border: 2px solid #555;
     background-color: #eee;
-    margin: 20px auto; /* Changed margin-top to margin: 20px auto; */
+    margin: 20px auto;
     user-select: none;
 
     image-rendering: pixelated;
@@ -216,32 +216,32 @@ h1 {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 15px; /* Space between the selected block display and the grid */
+    margin-bottom: 15px;
 }
 
 .selected-block-area h3 {
-    margin: 0; /* Remove default margin for heading */
+    margin: 0;
     font-size: 1.1em;
     color: #555;
 }
 
 .selected-block-visual {
-    width: 50px; /* Same size as grid blocks for consistency */
+    width: 50px;
     height: 50px;
-    border: 2px solid #007bff; /* Highlight border */
+    border: 2px solid #007bff;
     border-radius: 4px;
-    background-color: #e0e0e0; /* Default empty state */
+    background-color: #e0e0e0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     image-rendering: pixelated;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-sizing: border-box;
     position: relative;
-    overflow: hidden; /* For the name overlay */
+    overflow: hidden;
 }
 
 .selected-block-visual::after {
-    content: attr(data-type); /* Display the block name from data-type */
+    content: attr(data-type);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -251,37 +251,34 @@ h1 {
     background-color: rgba(0, 0, 0, 0.6);
     padding: 2px 0;
     text-align: center;
-    pointer-events: none; /* Make sure it doesn't interfere with clicks */
+    pointer-events: none;
 }
 
 .action-button {
-    /* Removed padding, background-color, color, border, font-size */
-    border: none; /* Ensure no border if you want a clean image */
-    /*border-radius: 5px;*/ /* Keep border-radius if your image has rounded corners or you want it to conform */
+    border: none;
     cursor: pointer;
     margin-top: 10px;
-    transition: background-color 0.2s ease; /* Keep transition for hover effects if you add them */
+    transition: background-color 0.2s ease;
     align-self: center;
-    width: 400px; /* Set a fixed width for the button to contain the image */
-    height: 40px; /* Set a fixed height for the button to contain the image */
-    background-size: cover; /* Make sure the background image covers the whole button area */
-    background-position: center; /* Center the background image */
-    background-repeat: no-repeat; /* Prevent the image from repeating */
-    image-rendering: pixelated; /* Good for pixel art textures */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow to make it pop */
-    background-image: url('textures/button.png'); /* Path to your fill button texture */
-    background-color: #f0f0f0; /* Default background */
+    width: 400px;
+    height: 40px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background-image: url('textures/button.png');
+    background-color: #f0f0f0;
     color: white;
 }
 
-/* Styles for disabled buttons */
 .action-button:disabled {
     cursor: not-allowed;
-    filter: none; /* Remove any hover filters */
-    transform: none; /* Remove any transform effects */
-    box-shadow: none; /* Remove any shadows */
-    background-image: url('textures/button_disabled.png'); /* Path to your fill button texture */
-    background-color: #f0f0f0; /* Default background */
+    filter: none;
+    transform: none;
+    box-shadow: none;
+    background-image: url('textures/button_disabled.png');
+    background-color: #f0f0f0;
     color: white;
 }
 
@@ -290,67 +287,64 @@ h1 {
     background-color: #c82333;
 }
 
-/* Specific styles for the clear button's texture */
 .clear-button {
-    background-image: url('textures/button.png'); /* Path to your button texture */
-    background-color: #f0f0f0; /* A neutral background color behind the texture */
+    background-image: url('textures/button.png');
+    background-color: #f0f0f0;
     color: white;
 }
 
 .fill-button {
-    background-image: url('textures/button.png'); /* Path to your fill button texture */
-    background-color: #f0f0f0; /* Default background */
+    background-image: url('textures/button.png');
+    background-color: #f0f0f0;
     color: white;
 }
 
 .save-button {
-    background-image: url('textures/button.png'); /* Path to your save button texture (optional) */
-    background-color: #f0f0f0; /* Default background if no texture */
+    background-image: url('textures/button.png');
+    background-color: #f0f0f0;
     color: white;
 }
 
 .sound-toggle-button {
-    background-image: url('textures/button.png'); /* Or a specific sound button texture */
+    background-image: url('textures/button.png');
     background-color: #f0f0f0;
     color: white;
 }
 
 .grid-sound-toggle-button {
-    background-image: url('textures/button.png'); /* Or a specific sound button texture */
+    background-image: url('textures/button.png');
     background-color: #f0f0f0;
     color: white;
 }
 
 .music-toggle-button {
-    background-image: url('textures/button.png'); /* Or a specific music button texture */
+    background-image: url('textures/button.png');
     background-color: #f0f0f0;
     color: white;
-    /* You can adjust width/height if you want it different from other action buttons */
 }
 
-.action-button:hover:not(:disabled) { /* Apply hover effect only if not disabled */
-    background-image: url('textures/button_highlighted.png'); /* Path to your button texture */
-    background-color: #f0f0f0; /* A neutral background color behind the texture */
-    filter: brightness(1.1); /* Slightly brighten on hover */
-    transform: translateY(-1px); /* A subtle lift effect */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
+.action-button:hover:not(:disabled) {
+    background-image: url('textures/button_highlighted.png');
+    background-color: #f0f0f0;
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.action-button:active:not(:disabled) { /* Apply active effect only if not disabled */
-    filter: brightness(0.9); /* Darken slightly when clicked */
-    transform: translateY(0); /* Reset lift on active */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reset shadow on active */
+.action-button:active:not(:disabled) {
+    filter: brightness(0.9);
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* NEW STYLES FOR RESOURCE COUNT DISPLAY */
 .resource-count-container {
     margin-top: 20px;
     padding: 15px;
     background-color: #f8f8f8;
     border: 1px solid #ddd;
     border-radius: 8px;
-    width: 100%; /* Take full width of game-container */
-    box-sizing: border-box; /* Include padding and border in width */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .resource-count-container h2 {
@@ -364,8 +358,8 @@ h1 {
 .resource-items {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px; /* Space between resource items */
-    justify-content: center; /* Center items if they don't fill the row */
+    gap: 10px;
+    justify-content: center;
 }
 
 .resource-item {
@@ -379,7 +373,7 @@ h1 {
 }
 
 .resource-image {
-    width: 24px; /* Smaller image for resource display */
+    width: 24px;
     height: 24px;
     background-size: cover;
     background-position: center;
@@ -394,7 +388,7 @@ h1 {
     font-size: 0.9em;
     color: #444;
     margin-right: 8px;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
 }
 
 .resource-quantity {
@@ -403,7 +397,7 @@ h1 {
     font-size: 1em;
 }
 
-.resource-items p { /* Style for "No blocks placed yet." */
+.resource-items p {
     color: #666;
     font-style: italic;
     text-align: center;
@@ -415,8 +409,8 @@ h1 {
     align-items: center;
     gap: 10px;
     margin-bottom: 15px;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    justify-content: center; /* Center items within the controls */
+    flex-wrap: wrap;
+    justify-content: center;
     background-color: #f0f0f0;
     padding: 10px;
     border-radius: 5px;
@@ -438,80 +432,72 @@ h1 {
 }
 
 .top-buttons-container {
-    display: flex; /* Makes children flex items */
-    gap: 10px;    /* Adds space between the buttons */
-    margin-bottom: 20px; /* Adds some space below the buttons */
-    justify-content: center; /* Centers the buttons horizontally */
-    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .utility-buttons-container {
-    display: flex; /* Makes children flex items */
-    gap: 10px;    /* Adds space between the buttons */
-    margin-bottom: 20px; /* Adds some space below the buttons */
-    justify-content: center; /* Centers the buttons horizontally */
-    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-/* UPDATED: Style for the checkbox container and custom checkbox */
 .checkbox-container {
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 10px;
-    /* Removed gap here, as it's now handled by .custom-checkbox-label */
 }
 
-/* Hide the default browser checkbox */
 .custom-checkbox-input {
     position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
-    pointer-events: none; /* Make sure it doesn't interfere with clicks on the label */
+    pointer-events: none;
 }
 
-/* Style the custom label (the clickable area) */
 .custom-checkbox-label {
-    display: inline-flex; /* Use flex to align visual and text */
+    display: inline-flex;
     align-items: center;
     cursor: pointer;
-    gap: 8px; /* Space between custom visual and text */
+    gap: 8px;
     font-size: 1em;
     color: #555;
-    user-select: none; /* Prevent text selection on double-click */
-    padding: 5px; /* Add some padding to the clickable area */
+    user-select: none;
+    padding: 5px;
     border-radius: 4px;
     transition: background-color 0.2s ease;
 }
 
-/* Style the custom visual element */
 .checkbox-visual {
-    width: 24px; /* Size of your custom checkbox image */
+    width: 24px;
     height: 24px;
-    background-image: url('textures/checkbox_unchecked.png'); /* Default unchecked state texture */
+    background-image: url('textures/checkbox_unchecked.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     image-rendering: pixelated;
-    transition: background-image 0.1s ease, filter 0.1s ease; /* Smooth transition on check/uncheck and hover */
+    transition: background-image 0.1s ease, filter 0.1s ease;
 }
 
-/* Change visual when the hidden input is checked */
 .custom-checkbox-input:checked + .custom-checkbox-label .checkbox-visual {
-    background-image: url('textures/checkbox_checked.png'); /* Checked state texture */
+    background-image: url('textures/checkbox_checked.png');
 }
 
-/* Hover state for the label (applies to the visual span via inheritance) */
 .custom-checkbox-label:hover {
-    background-color: #e9e9e9; /* Subtle background change on hover */
+    background-color: #e9e9e9;
 }
 
 .custom-checkbox-label:hover .checkbox-visual {
-    filter: brightness(1.1); /* Subtle brightness increase on hover */
+    filter: brightness(1.1);
 }
 
-/* Active state for the label (while being clicked) */
 .custom-checkbox-label:active .checkbox-visual {
-    filter: brightness(0.9); /* Subtle darken on active */
+    filter: brightness(0.9);
 }
