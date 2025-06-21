@@ -40,8 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveSound
     ];
 
-    // NEW: Music Playlist
-    // IMPORTANT: Update these paths to your actual music files!
+    // Music Playlist
     const musicPlaylist = [
         'audio/music/taswell.mp3',
         'audio/music/dreiton.mp3',
@@ -51,19 +50,40 @@ document.addEventListener('DOMContentLoaded', () => {
         'audio/music/blind_spots.mp3'
     ];
 
-    // NEW: Music Audio object - ONE object to manage multiple songs
+    // Music Audio object - ONE object to manage multiple songs
     const backgroundMusic = new Audio();
     backgroundMusic.loop = false; // We'll manage looping through the playlist manually
     backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
 
-    // Load saved song index, default to 0 if not found
-    let currentSongIndex = parseInt(localStorage.getItem('currentSongIndex') || '0', 10);
-    // Ensure index is valid in case playlist changes
-    if (currentSongIndex >= musicPlaylist.length || currentSongIndex < 0) {
-        currentSongIndex = 0;
+    // NEW: Variables for shuffled playlist
+    let shuffledPlaylistIndices = [];
+    let currentShuffledIndex = 0;
+
+    // Function to shuffle the playlist indices using Fisher-Yates algorithm
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
-    // NEW: Event listener for when a song ends - plays the next in the playlist
+    // Initialize the shuffled playlist
+    function initializeShuffledPlaylist() {
+        // Create an array of indices [0, 1, 2, ..., N-1]
+        shuffledPlaylistIndices = Array.from({ length: musicPlaylist.length }, (_, i) => i);
+        shuffleArray(shuffledPlaylistIndices);
+        currentShuffledIndex = 0; // Start at the beginning of the new shuffled list
+        // Note: We don't save currentSongIndex to localStorage anymore for random.
+        // If musicEnabled is true, it will always start with a new random sequence.
+    }
+
+    // Initialize the shuffled playlist on load
+    if (musicPlaylist.length > 0) {
+        initializeShuffledPlaylist();
+    }
+
+
+    // Event listener for when a song ends - plays the next in the playlist
     backgroundMusic.onended = () => {
         playNextSong();
     };
@@ -73,9 +93,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize music state from localStorage
     let musicEnabled = localStorage.getItem('musicEnabled') === 'false' ? false : true;
 
+    // NEW: Flag to track if user has interacted
+    let hasUserInteracted = false;
+
+
     // Function to play a sound effect if sounds are enabled
     function playSound(audioElement) {
-        if (soundsEnabled) {
+        if (soundsEnabled && hasUserInteracted) { // Only play if enabled AND user has interacted
             audioElement.currentTime = 0; // Rewind to the start for effects
             audioElement.play().catch(e => console.error("Error playing sound effect:", e));
         }
@@ -86,41 +110,47 @@ document.addEventListener('DOMContentLoaded', () => {
         soundToggleButton.textContent = `Sounds: ${soundsEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // NEW: Function to play the current song in the playlist
+    // Function to play the current song in the playlist
     function playBackgroundMusic() {
-        if (musicEnabled && musicPlaylist.length > 0) {
-            // Check if the current source is already loaded/playing the correct song
+        if (musicEnabled && musicPlaylist.length > 0 && hasUserInteracted) { // Only play if enabled AND user has interacted
+            const songToPlayIndex = shuffledPlaylistIndices[currentShuffledIndex];
+            const songPath = musicPlaylist[songToPlayIndex];
+
             // We compare the absolute path returned by `Audio.src`
-            const expectedSrc = new URL(musicPlaylist[currentSongIndex], window.location.href).href;
+            const expectedSrc = new URL(songPath, window.location.href).href;
 
             if (backgroundMusic.src !== expectedSrc || backgroundMusic.paused) {
-                backgroundMusic.src = musicPlaylist[currentSongIndex];
+                backgroundMusic.src = songPath;
                 backgroundMusic.load(); // Load the new source
-                console.log(`Loading and attempting to play: ${musicPlaylist[currentSongIndex]}`);
+                console.log(`Loading and attempting to play: ${songPath}`);
             }
 
-            // Attempt to play. This might be blocked by browser autoplay policies
             backgroundMusic.play().catch(e => {
-                console.warn("Autoplay of background music prevented. User interaction needed:", e);
-                // The music will likely start after the first user click on the page.
+                console.warn("Autoplay of background music prevented. User interaction needed (after initial gesture):", e);
             });
         } else {
             backgroundMusic.pause();
         }
     }
 
-    // NEW: Function to pause background music
+    // Function to pause background music
     function pauseBackgroundMusic() {
         backgroundMusic.pause();
     }
 
-    // NEW: Function to play the next song in the playlist
+    // Function to play the next song in the playlist (randomized)
     function playNextSong() {
         if (musicPlaylist.length === 0) return; // No songs to play
 
-        currentSongIndex = (currentSongIndex + 1) % musicPlaylist.length; // Cycle to the next song
-        localStorage.setItem('currentSongIndex', currentSongIndex); // Save the new index
-        playBackgroundMusic(); // Play the newly selected song
+        currentShuffledIndex++; // Move to the next song in the shuffled list
+
+        if (currentShuffledIndex >= shuffledPlaylistIndices.length) {
+            // If we've reached the end of the shuffled list, re-shuffle and start over
+            initializeShuffledPlaylist();
+        }
+        
+        // No need to save index to localStorage for random playback, as it will always start a new random sequence
+        playBackgroundMusic(); // Play the newly selected random song
     }
 
     // Function to update the music toggle button's text
@@ -133,11 +163,22 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMusicToggleButton();
 
 
+    // --- Add a global click listener to mark user interaction ---
+    document.body.addEventListener('click', () => {
+        if (!hasUserInteracted) {
+            hasUserInteracted = true;
+            console.log("User interacted. Audio playback is now permitted.");
+            // After interaction, try to play music if it's enabled
+            playBackgroundMusic();
+        }
+    }, { once: true }); // Use { once: true } to ensure it only runs once
+
+
     const blockCategories = {
         Natural: [
             { name: 'Grass Block', texture: 'textures/grass.png' },
             { name: 'Moss Block', texture: 'textures/moss_block.png' },
-            { name: 'Dirt', texture: 'textures/dirt.png' },
+            { name: 'Dirt', texture: 'textures/dirt.보다.png' },
             { name: 'Coarse Dirt', texture: 'textures/coarse_dirt.png' },
             { name: 'Rooted Dirt', texture: 'textures/rooted_dirt.png' },
         ],
@@ -515,10 +556,15 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('musicEnabled', musicEnabled);
         updateMusicToggleButton();
         if (musicEnabled) {
-            playBackgroundMusic(); // Start playing the current song in the playlist
+            // If turning music ON, ensure it starts playing from a random song
+            // We'll call initializeShuffledPlaylist() to get a fresh order
+            // and then play the first song in that order.
+            initializeShuffledPlaylist();
+            playBackgroundMusic();
         } else {
-            pauseBackgroundMusic(); // Pause it
+            pauseBackgroundMusic();
         }
+        playSound(buttonSound);
     });
 
     // --- Add a global click listener to mark user interaction ---
@@ -528,10 +574,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("User interacted. Audio playback is now permitted.");
             // After interaction, try to play music if it's enabled
             playBackgroundMusic();
-            // And also ensure first sound effect can play
-            // (The playSound calls will now work due to hasUserInteracted being true)
         }
-    }, { once: true }); // Use { once: true } to ensure it only runs once
+    }, { once: true });
 
 
     // --- Run Initialization ---
@@ -540,11 +584,8 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeInventory();
         initializeGrid();
 
-        // Attempt to play background music on initial load
-        // This will honor the 'musicEnabled' setting and currentSongIndex from localStorage
-        // Note: Browsers often prevent autoplay until a user interaction.
-        // The music might only start after the first click on the page.
-        playBackgroundMusic();
+        // No direct call to playBackgroundMusic() here anymore.
+        // It will be called by the global click listener once the user interacts.
 
     }).catch(error => {
         console.error("Error preloading textures:", error);
