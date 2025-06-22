@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block Builder</title>
     <link rel="stylesheet" href="styles.css">
-
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
@@ -26,7 +25,6 @@
             </select>
             
             <label for="theme-select">Theme:</label>
-            <!-- Removed action-button class from select element -->
             <select id="theme-select">
                 <option value="light">Light Theme</option>
                 <option value="dark">Dark Theme</option>
@@ -40,6 +38,10 @@
         </div>
 
         <div class="top-buttons-container">
+            <!-- New Minigame Buttons -->
+            <a href="timed_game.html" class="action-button">Play Timed Game</a>
+            <a href="memory_game.html" class="action-button">Play Memory Game</a>
+            
             <button id="musicToggleButton" class="action-button music-toggle-button"
                     data-tooltip="Toggle background music on or off.">Music: ON</button>
             <button id="soundToggleButton" class="action-button sound-toggle-button"
