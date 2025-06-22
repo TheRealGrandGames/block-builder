@@ -225,7 +225,7 @@ body {
     background-image: var(--body-bg-image);
     background-repeat: var(--body-bg-repeat);
     background-size: var(--body-bg-size);
-    background-position: var(--body-bg-position);
+    background-position: center center;
     image-rendering: var(--body-image-rendering); /* Apply based on theme variable */
 }
 
@@ -488,6 +488,11 @@ h1, h2, h3 {
     background-repeat: no-repeat;
     background-color: var(--bg-color); /* Default background color */
     color: white; /* Text color for buttons */
+    text-decoration: none; /* For anchor tags */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1em; /* Make font size explicit */
 }
 
 .action-button:disabled {
