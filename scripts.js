@@ -68,7 +68,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
-            'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
+            'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3',
+            'audio/music/survival/clark.mp3', 'audio/music/survival/dry_hands.mp3', 'audio/music/survival/haggstrom.mp3',
+            'audio/music/survival/key.mp3', 'audio/music/survival/living_mice.mp3', 'audio/music/survival/mice_on_venus.mp3',
+            'audio/music/survival/minecraft.mp3', 'audio/music/survival/oxygene.mp3', 'audio/music/survival/subwoofer_lullaby.mp3',
+            'audio/music/survival/sweden.mp3', 'audio/music/survival/wet_hands.mp3', 'audio/music/main_menu/beginning_2.mp3',
+            'audio/music/main_menu/floating_trees.mp3', 'audio/music/main_menu/moog_city_2.mp3', 'audio/music/main_menu/mutation.mp3',
+            'audio/music/underwater/dragon_fish.mp3', 'audio/music/underwater/shuniji.mp3', 'audio/music/underwater/axolotl.mp3',
+            'audio/music/nether/dead_voxel.mp3', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
+            'audio/music/nether/ballad_of_the_cats.mp3',
+        ],
+        "Main Menu": [
+            'audio/music/main_menu/beginning_2.mp3', 'audio/music/main_menu/floating_trees.mp3',
+            'audio/music/main_menu/moog_city_2.mp3', 'audio/music/main_menu/mutation.mp3'
         ],
         "Creative": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -76,12 +88,18 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         "Survival": [
             // Add survival music paths here, e.g., 'audio/music/survival_song1.mp3'
+            'audio/music/survival/clark.mp3', 'audio/music/survival/dry_hands.mp3', 'audio/music/survival/haggstrom.mp3',
+            'audio/music/survival/key.mp3', 'audio/music/survival/living_mice.mp3', 'audio/music/survival/mice_on_venus.mp3',
+            'audio/music/survival/minecraft.mp3', 'audio/music/survival/oxygene.mp3', 'audio/music/survival/subwoofer_lullaby.mp3',
+            'audio/music/survival/sweden.mp3', 'audio/music/survival/wet_hands.mp3'
+        ],
+        "Underwater": [
+            'audio/music/underwater/dragon_fish.mp3', 'audio/music/underwater/shuniji.mp3', 'audio/music/underwater/axolotl.mp3'
         ],
         "Nether": [
             // Add nether music paths here, e.g., 'audio/music/nether_song1.mp3'
-        ],
-        "End": [
-            // Add end music paths here, e.g., 'audio/music/end_song1.mp3'
+            'audio/music/nether/dead_voxel.mp3', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
+            'audio/music/nether/ballad_of_the_cats.mp3'
         ],
         "Music Discs": [
             // Add music disc paths here, e.g., 'audio/music/disc_13.mp3'
