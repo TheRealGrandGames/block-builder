@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                 }));
             }
-        }
+        });
         const buttonTextures = [
             'textures/button.png',
             'textures/button_highlighted.png',
@@ -446,7 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (event.button === 1) { // Middle click
                     event.preventDefault();
-                    const clickedBlockType = playerGridState[block.dataset.index]; // Get type from player's grid state
+                    // Get type from player's grid state, not block.dataset.type
+                    const clickedBlockType = playerGridState[block.dataset.index];
                     if (clickedBlockType && clickedBlockType !== 'Air') {
                         const inventoryElement = document.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
                         if (inventoryElement) {
@@ -499,11 +500,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * Updates the visual state of all grid blocks based on playerGridState and targetPattern.
+     * This function now handles revealing ghost blocks when a player block is destroyed.
+     */
     function updateGridVisuals() {
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach((blockElement, index) => {
             const playerType = playerGridState[index];
-            const targetType = targetPattern[index];
+            const targetType = targetPattern[index]; // The original pattern block type
 
             if (playerType !== 'Air') {
                 // If player has placed a block, show it normally (opaque)
@@ -517,21 +522,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 blockElement.classList.remove('ghost-block'); // Ensure it's not transparent
             } else if (targetType !== 'Air') {
-                // If player hasn't placed a block, but target has one, show it as ghost
+                // If player has *not* placed a block, but target has one, show it as ghost
                 const texturePath = blockTypes[targetType] ? blockTypes[targetType].texture : null;
                 if (texturePath) {
                     blockElement.style.backgroundImage = `url(${texturePath})`;
-                    blockElement.style.backgroundColor = ''; // Remove specific background color if texture applies
+                    blockElement.style.backgroundColor = '';
                 } else {
                     blockElement.style.backgroundImage = 'none';
-                    blockElement.style.backgroundColor = '#e0e0e0'; // Fallback for ghost
+                    blockElement.style.backgroundColor = '#e0e0e0';
                 }
                 blockElement.classList.add('ghost-block'); // Make it transparent
             } else {
-                // Both are 'Air', show empty grid block
+                // Both player and target are 'Air', show empty grid block
                 blockElement.style.backgroundImage = 'none';
                 blockElement.style.backgroundColor = '#e0e0e0';
-                blockElement.classList.remove('ghost-block');
+                blockElement.classList.remove('ghost-block'); // Ensure no ghost class
             }
         });
     }
@@ -559,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         playerGridState[index] = 'Air';
-        updateGridVisuals(); // Update visual state after player action
+        updateGridVisuals(); // Update visual state after player action (this will now re-reveal ghost if present)
         playSound(destroyBlockSound, isPainting, 'destroy');
     }
 
@@ -601,8 +606,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startLevel() {
         targetPattern = getPatternForLevel(currentLevel); // Get pattern for the current level
-        clearPlayerGrid(); // Clear player's progress from previous level
-        updateGridVisuals(); // Display the new ghost pattern
+        clearPlayerGrid(); // Clear player's progress from previous level (and update visuals)
+        updateGridVisuals(); // Ensure ghost pattern is displayed correctly
         clearInterval(timerInterval);
         startTimer();
     }
