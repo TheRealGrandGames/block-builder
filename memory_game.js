@@ -6,15 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDisplay = document.getElementById('statusDisplay');
     const countdownDisplay = document.getElementById('countdownDisplay');
     const levelDisplay = document.getElementById('levelDisplay');
+    const scoreDisplay = document.getElementById('scoreDisplay'); // New score display element
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
     const submitButton = document.getElementById('submitButton');
     const restartButton = document.getElementById('restartButton');
-    const revealPatternButton = document.getElementById('revealPatternButton'); // New reveal button
+    const revealPatternButton = document.getElementById('revealPatternButton');
 
     const GRID_WIDTH = 10;
     const GRID_HEIGHT = 10;
-    const BLOCK_SIZE = 50; // Standard block size for 10x10 grid
+    const BLOCK_SIZE = 50;
     const MEMORIZE_TIME = 3; // seconds
     const REVEAL_COST = 300; // points
     const REVEAL_DURATION = 3000; // milliseconds (3 seconds)
@@ -42,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const recreateStartSound = new Audio('audio/recreate_start.mp3');
     const roundCompleteSound = new Audio('audio/level_complete.mp3');
     const gameOverSound = new Audio('audio/game_over.mp3');
-    const submitSound = new Audio('audio/button_click.mp3'); // Reuse button sound for submit
-    const revealSound = new Audio('audio/level_complete.mp3'); // Reuse sound for reveal
+    const submitSound = new Audio('audio/button_click.mp3');
+    const revealSound = new Audio('audio/level_complete.mp3');
 
     // Pitch modification for consecutive actions
     let consecutivePlaceCount = 0;
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    // Music setup
+    // Music setup (ensure these paths are correct in your audio folder)
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/survival/sweden.mp3', 'audio/music/survival/wet_hands.mp3', 'audio/music/main_menu/beginning_2.mp3',
             'audio/music/main_menu/floating_trees.mp3', 'audio/music/main_menu/moog_city_2.mp3', 'audio/music/main_menu/mutation.mp3',
             'audio/music/underwater/dragon_fish.mp3', 'audio/music/underwater/shuniji.mp3', 'audio/music/underwater/axolotl.mp3',
-            'audio/music/nether/dead_voxel.mp2', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
+            'audio/music/nether/dead_voxel.mp3', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
             'audio/music/nether/ballad_of_the_cats.mp3', 'audio/music/music_discs/blocks.mp3', 'audio/music/music_discs/cat.mp3',
             'audio/music/music_discs/chirp.mp3', 'audio/music/music_discs/dog.mp3', 'audio/music/music_discs/far.mp3',
             'audio/music/music_discs/mall.mp3', 'audio/music/music_discs/mellohi.mp3', 'audio/music/music_discs/stal.mp3',
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockImages = {};
     let texturesLoadedPromise = null;
 
-    // Pre-made patterns for the Memory Game (10x10 = 100 blocks)
+    // Expanded Pre-made patterns for the Memory Game (10x10 = 100 blocks)
     const PREMADE_PATTERNS = [
         // Pattern 1: A simple line (Red Wool)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
@@ -160,8 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            const center = GRID_WIDTH / 2; // Will be 5 for 10x10
-            if (row === Math.floor(center) || col === Math.floor(center) - 1 || col === Math.floor(center)) { // Adjusted for center
+            const center = GRID_WIDTH / 2;
+            if (row === Math.floor(center) || col === Math.floor(center) || col === Math.floor(center) - 1 ) {
                 return 'Stone';
             }
             return 'Air';
@@ -170,9 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            if ((row < 2 && col < 2 && (row === 0 || col === 0)) || // Top-left L
-                (row < 2 && col >= GRID_WIDTH - 2 && (row === 0 || col === GRID_WIDTH - 1)) || // Top-right L
-                (row >= GRID_HEIGHT - 2 && col < 2 && (row === GRID_HEIGHT - 1 || col === 0)) || // Bottom-left L
+            if ((row < 2 && col < 2 && (row === 0 || col === 0)) ||
+                (row < 2 && col >= GRID_WIDTH - 2 && (row === 0 || col === GRID_WIDTH - 1)) ||
+                (row >= GRID_HEIGHT - 2 && col < 2 && (row === GRID_HEIGHT - 1 || col === 0)) ||
                 (row >= GRID_HEIGHT - 2 && col >= GRID_WIDTH - 2 && (row === GRID_HEIGHT - 1 || col === GRID_WIDTH - 1))
             ) {
                 return 'Bricks';
@@ -211,16 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return 'Air';
         }),
-        // Pattern 9: Target (Lapis Block, Gold Block, Diamond Block)
+        // Pattern 9: Target (Blue Wool, Gold Block, Diamond Block)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            const distFromCenter = Math.max(Math.abs(row - (GRID_HEIGHT - 1) / 2), Math.abs(col - (GRID_WIDTH - 1) / 2));
-            if (distFromCenter < 2) {
+            const centerX = (GRID_WIDTH - 1) / 2;
+            const centerY = (GRID_HEIGHT - 1) / 2;
+            const distance = Math.sqrt(Math.pow(row - centerY, 2) + Math.pow(col - centerX, 2));
+
+            if (distance < 2) {
                 return 'Block of Diamond';
-            } else if (distFromCenter < 4) {
+            } else if (distance < 4) {
                 return 'Block of Gold';
-            } else if (distFromCenter < 6) {
+            } else if (distance < 6) {
                 return 'Blue Wool';
             }
             return 'Air';
@@ -231,31 +235,117 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'Block of Iron';
             }
             return 'Air';
+        }),
+        // Pattern 11: Spiral (Green Wool)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const grid = Array(GRID_HEIGHT).fill(0).map(() => Array(GRID_WIDTH).fill('Air'));
+            let r_min = 0, r_max = GRID_HEIGHT - 1;
+            let c_min = 0, c_max = GRID_WIDTH - 1;
+            let count = 0;
+            const total = GRID_WIDTH * GRID_HEIGHT;
+            let currentBlock = 'Green Wool';
+
+            while (r_min <= r_max && c_min <= c_max) {
+                for (let c = c_min; c <= c_max; c++) {
+                    grid[r_min][c] = currentBlock;
+                    count++;
+                }
+                r_min++;
+
+                for (let r = r_min; r <= r_max; r++) {
+                    grid[r][c_max] = currentBlock;
+                    count++;
+                }
+                c_max--;
+
+                if (r_min <= r_max) {
+                    for (let c = c_max; c >= c_min; c--) {
+                        grid[r_max][c] = currentBlock;
+                        count++;
+                    }
+                    r_max--;
+                }
+
+                if (c_min <= c_max) {
+                    for (let r = r_max; r >= r_min; r--) {
+                        grid[r][c_min] = currentBlock;
+                        count++;
+                    }
+                    c_min++;
+                }
+                if (count >= total) break;
+            }
+            return grid.flat();
+        }),
+        // Pattern 12: Diagonal Cross (Obsidian)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row === col || row + col === GRID_WIDTH - 1) {
+                return 'Obsidian';
+            }
+            return 'Air';
+        }),
+        // Pattern 13: Border (Glowstone)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row === 0 || row === GRID_HEIGHT - 1 || col === 0 || col === GRID_WIDTH - 1) {
+                return 'Glowstone';
+            }
+            return 'Air';
+        }),
+        // Pattern 14: Scattered Diamonds on Dirt
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Dirt').map((block, i) => {
+            if (Math.random() < 0.05) { // 5% chance of diamond
+                return 'Block of Diamond';
+            }
+            return 'Dirt';
+        }),
+        // Pattern 15: Concentric Circles (using different wools)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const centerX = (GRID_WIDTH - 1) / 2;
+            const centerY = (GRID_HEIGHT - 1) / 2;
+            const distance = Math.sqrt(Math.pow(row - centerY, 2) + Math.pow(col - centerX, 2));
+
+            if (distance < 2) {
+                return 'Red Wool';
+            } else if (distance < 4) {
+                return 'Yellow Wool';
+            } else if (distance < 6) {
+                return 'Blue Wool';
+            }
+            return 'Air';
         })
     ];
 
 
     function preloadBlockTextures() {
         let imagesToLoad = [];
-        for (const type in blockTypes) {
-            const blockData = blockTypes[type];
-            if (blockData.texture) {
-                imagesToLoad.push(new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.src = blockData.texture;
-                    img.crossOrigin = "Anonymous";
-                    img.onload = () => {
-                        blockImages[type] = img;
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        console.error(`Failed to load texture: ${blockData.texture}`);
-                        blockImages[type] = null;
-                        resolve();
-                    };
-                }));
-            }
-        });
+        // Loop through all block types to load textures
+        for (const category in blockCategories) {
+            blockCategories[category].forEach(blockData => {
+                if (blockData.texture) {
+                    imagesToLoad.push(new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.src = blockData.texture;
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => {
+                            blockImages[blockData.name] = img; // Store image by block name
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            console.error(`Failed to load texture: ${blockData.texture}`);
+                            blockImages[blockData.name] = null; // Mark as failed
+                            resolve();
+                        };
+                    }));
+                }
+            });
+        }
+        // Load button textures
         const buttonTextures = [
             'textures/button.png',
             'textures/button_highlighted.png',
@@ -403,18 +493,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeInventory() {
         blockInventory.innerHTML = '';
         const allBlockTypes = Object.values(blockTypes);
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('inventory-category');
+        // Create a single container for all inventory blocks since categories are removed.
         const categoryContent = document.createElement('div');
-        categoryContent.classList.add('category-content');
-        categoryDiv.appendChild(categoryContent);
+        categoryContent.classList.add('category-content'); // Re-using class for consistent styling
+        // No category header or toggle needed if instructions are removed and no categories are shown.
+        blockInventory.appendChild(categoryContent); // Append to the actual blockInventory container
 
         allBlockTypes.forEach(blockData => {
             const inventoryBlockElement = document.createElement('div');
             inventoryBlockElement.classList.add('inventory-block');
             inventoryBlockElement.dataset.type = blockData.name;
             inventoryBlockElement.dataset.name = blockData.name;
-            inventoryBlockElement.style.backgroundImage = `url(${blockData.texture})`;
+            // Ensure texture loads correctly
+            if (blockImages[blockData.name]) {
+                inventoryBlockElement.style.backgroundImage = `url(${blockImages[blockData.name].src})`;
+            } else {
+                // Fallback if texture not loaded (shouldn't happen with preloading)
+                inventoryBlockElement.style.backgroundColor = '#ccc';
+            }
 
             inventoryBlockElement.addEventListener('click', () => {
                 selectBlock(blockData.name, inventoryBlockElement);
@@ -437,8 +533,6 @@ document.addEventListener('DOMContentLoaded', () => {
             categoryContent.appendChild(inventoryBlockElement);
         });
 
-        blockInventory.appendChild(categoryDiv);
-
         const initialGrassBlock = document.querySelector('.inventory-block[data-type="Grass Block"]');
         if (initialGrassBlock) {
             selectBlock('Grass Block', initialGrassBlock);
@@ -452,8 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedBlockType = type;
 
         const selectedBlockData = blockTypes[type];
-        if (selectedBlockData) {
-            selectedBlockDisplay.style.backgroundImage = `url(${selectedBlockData.texture})`;
+        if (selectedBlockData && blockImages[type]) {
+            selectedBlockDisplay.style.backgroundImage = `url(${blockImages[type].src})`;
+            selectedBlockDisplay.style.backgroundColor = '';
             selectedBlockDisplay.dataset.type = type;
         } else {
             selectedBlockDisplay.style.backgroundImage = 'none';
@@ -475,14 +570,19 @@ document.addEventListener('DOMContentLoaded', () => {
         gameGrid.style.width = `${width * BLOCK_SIZE}px`;
         gameGrid.style.height = `${height * BLOCK_SIZE}px`;
 
+        // Initialize playerGridState to match the new grid size if it changes
+        if (playerGridState.length !== width * height) {
+            playerGridState = Array(width * height).fill('Air');
+        }
+
         for (let i = 0; i < width * height; i++) {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air'; // Initially all air
+            block.dataset.type = playerGridState[i] || 'Air'; // Use existing player state or 'Air'
 
             block.addEventListener('mousedown', (event) => {
-                if (!gameActive || gamePhase === 'memorize') return; // Disable interaction during memorize phase
+                if (!gameActive || gamePhase === 'memorize') return;
                 event.preventDefault();
                 isPainting = true;
                 if (event.button === 0) { // Left click
@@ -499,7 +599,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pitchResetTimeout) {
                     clearTimeout(pitchResetTimeout);
                 }
-                // No auto-checkCompletion here, only on submit
                 if (event.button === 1) { // Middle click
                     event.preventDefault();
                     const clickedBlockType = playerGridState[block.dataset.index];
@@ -543,6 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gameGrid.appendChild(block);
         }
+        updateGridVisuals(); // Initial render of grid based on player and target state
 
         document.addEventListener('mouseup', (event) => {
             isPainting = false;
@@ -563,15 +663,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         playerGridState[index] = type;
-        const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
-        if (texturePath) {
-            gridBlockElement.style.backgroundImage = `url(${texturePath})`;
+        const img = blockImages[type];
+        if (img) {
+            gridBlockElement.style.backgroundImage = `url(${img.src})`;
             gridBlockElement.style.backgroundColor = '';
         } else {
             gridBlockElement.style.backgroundImage = 'none';
             gridBlockElement.style.backgroundColor = '#e0e0e0';
         }
-        gridBlockElement.classList.remove('hidden-block'); // Ensure it's visible after placing
+        gridBlockElement.classList.remove('hidden-block');
         playSound(placeBlockSound, isPainting, 'place');
     }
 
@@ -586,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerGridState[index] = 'Air';
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
-        gridBlockElement.classList.add('hidden-block'); // Make it hidden like other empty blocks
+        gridBlockElement.classList.add('hidden-block');
         playSound(destroyBlockSound, isPainting, 'destroy');
     }
 
@@ -600,12 +700,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach((block, index) => {
             const type = pattern[index];
-            const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
+            const img = blockImages[type];
 
             if (type !== 'Air') {
-                block.classList.remove('hidden-block'); // Ensure it's visible
-                if (texturePath) {
-                    block.style.backgroundImage = `url(${texturePath})`;
+                block.classList.remove('hidden-block');
+                if (img) {
+                    block.style.backgroundImage = `url(${img.src})`;
                     block.style.backgroundColor = '';
                 }
             } else {
@@ -619,18 +719,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function hidePattern() {
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach(block => {
-            block.classList.add('hidden-block'); // Hide blocks with CSS
-            block.style.backgroundImage = 'none'; // Clear image
-            block.style.backgroundColor = '#e0e0e0'; // Set to air background
+            block.classList.add('hidden-block');
+            block.style.backgroundImage = 'none';
+            block.style.backgroundColor = '#e0e0e0';
         });
     }
 
     function clearPlayerGrid() {
+        playerGridState = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach((block, index) => {
-            block.classList.remove('hidden-block'); // Ensure player can interact with a clean slate
+            block.classList.remove('hidden-block');
             block.dataset.type = 'Air';
-            playerGridState[index] = 'Air';
             block.style.backgroundColor = '#e0e0e0';
             block.style.backgroundImage = 'none';
         });
@@ -658,9 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateScoreDisplay() {
-        // Assuming score is displayed somewhere, perhaps in levelDisplay or statusDisplay
-        // For now, I'll update message for score changes
-        levelDisplay.textContent = `Level: ${currentLevel} | Score: ${score}`;
+        scoreDisplay.textContent = `Score: ${score}`;
     }
 
     function startGame() {
@@ -670,14 +768,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateScoreDisplay();
         gameActive = true;
         nextRound();
-        submitButton.disabled = false; // Enable submit button at start
-        revealPatternButton.disabled = false; // Enable reveal button at start
+        submitButton.disabled = false;
+        revealPatternButton.disabled = false;
     }
 
     function nextRound() {
         clearInterval(countdownTimer);
-        targetPattern = getPatternForLevel(currentLevel); // Get new pattern
-        clearPlayerGrid(); // Clear player's grid for the new round
+        targetPattern = getPatternForLevel(currentLevel);
+        clearPlayerGrid();
         memorizationPhase();
     }
 
@@ -685,9 +783,9 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePhase = 'memorize';
         statusDisplay.textContent = 'Memorize!';
         countdownDisplay.textContent = MEMORIZE_TIME;
-        displayPattern(targetPattern); // Show the target pattern
-        submitButton.disabled = true; // Disable submit during memorize
-        revealPatternButton.disabled = true; // Disable reveal during memorize
+        displayPattern(targetPattern);
+        submitButton.disabled = true;
+        revealPatternButton.disabled = true;
 
         playSound(memorizeStartSound);
 
@@ -705,11 +803,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function recreationPhase() {
         gamePhase = 'recreate';
         statusDisplay.textContent = 'Recreate!';
-        countdownDisplay.textContent = ''; // Clear countdown
-        hidePattern(); // Hide the target pattern
-        // playerGridState is already cleared in nextRound before memorizationPhase
-        submitButton.disabled = false; // Enable submit during recreate
-        revealPatternButton.disabled = false; // Enable reveal during recreate
+        countdownDisplay.textContent = '';
+        hidePattern();
+        submitButton.disabled = false;
+        revealPatternButton.disabled = false;
         playSound(recreateStartSound);
     }
 
@@ -721,11 +818,11 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDisplay.textContent = `Level ${currentLevel} Complete!`;
         score += SCORE_PER_LEVEL;
         currentLevel++;
-        updateScoreDisplay(); // Update score display immediately
+        updateScoreDisplay();
 
         setTimeout(() => {
             gameActive = true;
-            nextRound(); // Start next round automatically
+            nextRound();
         }, 2000);
     }
 
@@ -735,15 +832,15 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(gameOverSound);
         statusDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}. Click Restart Game to play again.`;
         countdownDisplay.textContent = '';
-        submitButton.disabled = true; // Disable submit when game is over
-        revealPatternButton.disabled = true; // Disable reveal when game is over
+        submitButton.disabled = true;
+        revealPatternButton.disabled = true;
     }
 
     function updateLevelDisplay() {
         levelDisplay.textContent = `Level: ${currentLevel}`;
     }
 
-    // New function for revealing pattern
+    // Function for revealing pattern temporarily
     function revealPatternTemporarily() {
         if (!gameActive || gamePhase === 'memorize') {
             statusDisplay.textContent = "Can only reveal during recreation!";
@@ -751,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (score < REVEAL_COST) {
-            statusDisplay.textContent = "Not enough points to reveal pattern!";
+            statusDisplay.textContent = "Not enough points to reveal pattern! Need " + REVEAL_COST + " pts.";
             return;
         }
 
@@ -760,15 +857,15 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(revealSound);
         statusDisplay.textContent = `Revealing pattern! (-${REVEAL_COST} pts)`;
         revealPatternButton.disabled = true;
-        submitButton.disabled = true; // Disable submit while revealed
+        submitButton.disabled = true;
 
         displayPattern(targetPattern);
 
         setTimeout(() => {
             hidePattern();
-            statusDisplay.textContent = 'Recreate!'; // Reset status message
-            revealPatternButton.disabled = false; // Re-enable reveal button
-            submitButton.disabled = false; // Re-enable submit button
+            statusDisplay.textContent = 'Recreate!';
+            revealPatternButton.disabled = false;
+            submitButton.disabled = false;
         }, REVEAL_DURATION);
     }
 
@@ -803,11 +900,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Memory game textures loaded.");
         initializeInventory();
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
-        musicPlaylist = categorizedMusic["Main Menu"]; // Specific music for minigame
+        musicPlaylist = categorizedMusic["Main Menu"];
         initializeShuffledPlaylist();
         startGame();
     }).catch(error => {
         console.error("Error loading memory game textures:", error);
+        // Even if textures fail, try to initialize to prevent complete blank page
         initializeInventory();
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
         musicPlaylist = categorizedMusic["Main Menu"];
