@@ -650,9 +650,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inventory functions
     function initializeInventory(requiredBlocks) {
         blockInventory.innerHTML = '';
-        const categoryContent = document.createElement('div');
-        categoryContent.classList.add('category-content');
-        blockInventory.appendChild(categoryContent);
+        // Removed categoryContent div and directly append to blockInventory.
+        // The blockInventory element itself has class="block-items" for styling.
 
         // Display only required blocks
         for (const type in requiredBlocks) {
@@ -699,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     blockTooltip.style.opacity = 0;
                 });
 
-                categoryContent.appendChild(inventoryBlockElement);
+                blockInventory.appendChild(inventoryBlockElement); // Append directly to blockInventory
             }
         }
         // Select the first available block by default
@@ -823,15 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gameGrid.appendChild(block);
         }
-
-        document.addEventListener('mouseup', (event) => {
-            isPainting = false;
-            consecutivePlaceCount = 0;
-            consecutiveDestroyCount = 0;
-            if (pitchResetTimeout) {
-                clearTimeout(pitchResetTimeout);
-            }
-        });
     }
 
     /**
