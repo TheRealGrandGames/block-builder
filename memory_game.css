@@ -294,7 +294,7 @@ h1, h2, h3 {
     margin-top: 10px;
     transition: background-color 0.2s ease, filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     align-self: center;
-    width: 200px; /* Smaller width for minigame buttons */
+    width: 400px; /* Smaller width for minigame buttons */
     height: 40px;
     image-rendering: pixelated;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
