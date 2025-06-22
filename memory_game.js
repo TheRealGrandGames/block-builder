@@ -8,15 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const levelDisplay = document.getElementById('levelDisplay');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
-    const submitButton = document.getElementById('submitButton'); // New
-    const restartButton = document.getElementById('restartButton'); // New
+    const submitButton = document.getElementById('submitButton');
+    const restartButton = document.getElementById('restartButton');
+    const revealPatternButton = document.getElementById('revealPatternButton'); // New reveal button
 
     const GRID_WIDTH = 10;
     const GRID_HEIGHT = 10;
     const BLOCK_SIZE = 50; // Standard block size for 10x10 grid
     const MEMORIZE_TIME = 3; // seconds
-    const MIN_BLOCKS_PER_PATTERN = 5;
-    const MAX_BLOCKS_PER_PATTERN = 15; // Max blocks to generate
+    const REVEAL_COST = 300; // points
+    const REVEAL_DURATION = 3000; // milliseconds (3 seconds)
     const SCORE_PER_LEVEL = 150; // points per level completed
 
     let currentLevel = 1;
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roundCompleteSound = new Audio('audio/level_complete.mp3');
     const gameOverSound = new Audio('audio/game_over.mp3');
     const submitSound = new Audio('audio/button_click.mp3'); // Reuse button sound for submit
+    const revealSound = new Audio('audio/level_complete.mp3'); // Reuse sound for reveal
 
     // Pitch modification for consecutive actions
     let consecutivePlaceCount = 0;
@@ -176,6 +178,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'Bricks';
             }
             return 'Air';
+        }),
+        // Pattern 6: Checkerboard (Grass and Dirt)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if ((row + col) % 2 === 0) {
+                return 'Grass Block';
+            }
+            return 'Dirt';
+        }),
+        // Pattern 7: Hollow Square (Cobblestone)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if ((row === 2 || row === GRID_HEIGHT - 3) && (col >= 2 && col <= GRID_WIDTH - 3)) {
+                return 'Cobblestone';
+            }
+            if ((col === 2 || col === GRID_WIDTH - 3) && (row >= 2 && row <= GRID_HEIGHT - 3)) {
+                return 'Cobblestone';
+            }
+            return 'Air';
+        }),
+        // Pattern 8: Waves (Water and Sand)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row % 3 === 0) {
+                return 'Water';
+            } else if (row % 3 === 1) {
+                return 'Sand';
+            }
+            return 'Air';
+        }),
+        // Pattern 9: Target (Lapis Block, Gold Block, Diamond Block)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const distFromCenter = Math.max(Math.abs(row - (GRID_HEIGHT - 1) / 2), Math.abs(col - (GRID_WIDTH - 1) / 2));
+            if (distFromCenter < 2) {
+                return 'Block of Diamond';
+            } else if (distFromCenter < 4) {
+                return 'Block of Gold';
+            } else if (distFromCenter < 6) {
+                return 'Blue Wool';
+            }
+            return 'Air';
+        }),
+        // Pattern 10: Random scattered blocks (Iron Block)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            if (Math.random() < 0.15) { // 15% chance to place a block
+                return 'Block of Iron';
+            }
+            return 'Air';
         })
     ];
 
@@ -200,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                 }));
             }
-        }
+        });
         const buttonTextures = [
             'textures/button.png',
             'textures/button_highlighted.png',
@@ -602,13 +657,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateScoreDisplay() {
+        // Assuming score is displayed somewhere, perhaps in levelDisplay or statusDisplay
+        // For now, I'll update message for score changes
+        levelDisplay.textContent = `Level: ${currentLevel} | Score: ${score}`;
+    }
+
     function startGame() {
         currentLevel = 1;
         score = 0;
         updateLevelDisplay();
+        updateScoreDisplay();
         gameActive = true;
         nextRound();
         submitButton.disabled = false; // Enable submit button at start
+        revealPatternButton.disabled = false; // Enable reveal button at start
     }
 
     function nextRound() {
@@ -624,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
         countdownDisplay.textContent = MEMORIZE_TIME;
         displayPattern(targetPattern); // Show the target pattern
         submitButton.disabled = true; // Disable submit during memorize
+        revealPatternButton.disabled = true; // Disable reveal during memorize
 
         playSound(memorizeStartSound);
 
@@ -645,6 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hidePattern(); // Hide the target pattern
         // playerGridState is already cleared in nextRound before memorizationPhase
         submitButton.disabled = false; // Enable submit during recreate
+        revealPatternButton.disabled = false; // Enable reveal during recreate
         playSound(recreateStartSound);
     }
 
@@ -653,9 +718,10 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(countdownTimer);
         playSound(roundCompleteSound);
 
-        statusDisplay.textContent = `Level ${currentLevel} Complete! Score: ${score + SCORE_PER_LEVEL}`;
+        statusDisplay.textContent = `Level ${currentLevel} Complete!`;
         score += SCORE_PER_LEVEL;
         currentLevel++;
+        updateScoreDisplay(); // Update score display immediately
 
         setTimeout(() => {
             gameActive = true;
@@ -670,11 +736,42 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}. Click Restart Game to play again.`;
         countdownDisplay.textContent = '';
         submitButton.disabled = true; // Disable submit when game is over
+        revealPatternButton.disabled = true; // Disable reveal when game is over
     }
 
     function updateLevelDisplay() {
         levelDisplay.textContent = `Level: ${currentLevel}`;
     }
+
+    // New function for revealing pattern
+    function revealPatternTemporarily() {
+        if (!gameActive || gamePhase === 'memorize') {
+            statusDisplay.textContent = "Can only reveal during recreation!";
+            return;
+        }
+
+        if (score < REVEAL_COST) {
+            statusDisplay.textContent = "Not enough points to reveal pattern!";
+            return;
+        }
+
+        score -= REVEAL_COST;
+        updateScoreDisplay();
+        playSound(revealSound);
+        statusDisplay.textContent = `Revealing pattern! (-${REVEAL_COST} pts)`;
+        revealPatternButton.disabled = true;
+        submitButton.disabled = true; // Disable submit while revealed
+
+        displayPattern(targetPattern);
+
+        setTimeout(() => {
+            hidePattern();
+            statusDisplay.textContent = 'Recreate!'; // Reset status message
+            revealPatternButton.disabled = false; // Re-enable reveal button
+            submitButton.disabled = false; // Re-enable submit button
+        }, REVEAL_DURATION);
+    }
+
 
     // Event listeners for toggle buttons
     soundToggleButton.addEventListener('click', () => {
@@ -698,6 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitButton.addEventListener('click', () => checkCompletion());
     restartButton.addEventListener('click', startGame);
+    revealPatternButton.addEventListener('click', revealPatternTemporarily);
 
 
     // Initial setup
