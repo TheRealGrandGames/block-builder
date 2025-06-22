@@ -52,6 +52,8 @@ h1, h2, h3 {
     align-items: center;
 }
 
+/* Instructions removed as requested */
+/*
 .instructions {
     background-color: var(--instructions-bg);
     padding: 15px;
@@ -65,9 +67,28 @@ h1, h2, h3 {
 .instructions ul {
     margin-left: 20px;
 }
+*/
+
+.main-game-layout {
+    display: flex;
+    flex-direction: row; /* Inventory and grid side-by-side */
+    gap: 20px; /* Space between inventory and grid */
+    align-items: flex-start; /* Align items to the top */
+    width: 100%; /* Take full width of parent */
+    justify-content: center; /* Center the whole block */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center inventory items horizontally */
+    gap: 20px;
+    min-width: 200px; /* Ensure inventory has enough space */
+}
+
 
 .inventory {
-    margin-top: 10px;
     width: 100%;
 }
 
@@ -120,8 +141,8 @@ h1, h2, h3 {
 }
 
 .inventory-block {
-    width: 60px;
-    height: 60px;
+    width: 70px; /* Increased size */
+    height: 70px; /* Increased size */
     border: 2px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
@@ -179,7 +200,7 @@ h1, h2, h3 {
     /* Grid size defined in JS for minigame */
     border: 2px solid var(--text-color);
     background-color: var(--grid-bg);
-    margin: 20px auto;
+    margin: 0; /* Remove auto margins to fit flex layout */
     user-select: none;
     image-rendering: pixelated;
     transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -245,9 +266,11 @@ h1, h2, h3 {
 
 .selected-block-area {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Stack header and visual vertically */
+    align-items: center; /* Center content */
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 0; /* Adjust margin for new layout */
+    width: 100%; /* Take full width of left-panel */
 }
 
 .selected-block-area h3 {
@@ -257,8 +280,8 @@ h1, h2, h3 {
 }
 
 .selected-block-visual {
-    width: 50px;
-    height: 50px;
+    width: 70px; /* Increased size */
+    height: 70px; /* Increased size */
     border: 2px solid var(--selected-block-border);
     border-radius: 4px;
     background-color: var(--placeholder-block-bg);
@@ -294,7 +317,7 @@ h1, h2, h3 {
     margin-top: 10px;
     transition: background-color 0.2s ease, filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     align-self: center;
-    width: 400px; /* Smaller width for minigame buttons */
+    width: 400px; /* Changed to 400px */
     height: 40px;
     image-rendering: pixelated;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -335,7 +358,8 @@ h1, h2, h3 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.top-buttons-container {
+.top-buttons-container,
+.utility-buttons-container { /* Applied to both button containers */
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
@@ -365,24 +389,29 @@ h1, h2, h3 {
 }
 
 /* Adjustments for responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 900px) { /* Adjust breakpoint as needed */
+    .main-game-layout {
+        flex-direction: column; /* Stack inventory and grid vertically */
+        align-items: center; /* Center items when stacked */
+    }
+
     .game-container {
         padding: 15px;
         width: 95%;
     }
 
     .inventory-block {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
     }
 
     .selected-block-visual {
-        width: 40px;
-        height: 40px;
+        width: 60px;
+        height: 60px;
     }
 
     .action-button {
-        width: 180px;
+        width: 100%; /* Full width buttons on smaller screens */
     }
 
     .minigame-header {
@@ -397,10 +426,6 @@ h1, h2, h3 {
 }
 
 @media (max-width: 480px) {
-    .action-button {
-        width: 100%;
-    }
-
     .game-grid {
         /* Further adjustments might be needed in JS for BLOCK_SIZE on very small screens */
         transform: scale(0.8);
