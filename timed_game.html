@@ -1,1 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timed Block Builder</title>
+    <link rel="stylesheet" href="timed_game.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <h1>Timed Block Builder</h1>
 
+    <div class="game-container">
+        <div class="top-buttons-container">
+            <a href="index.html" class="action-button back-button">Back to Main</a>
+            <button id="musicToggleButton" class="action-button music-toggle-button">Music: ON</button>
+            <button id="soundToggleButton" class="action-button sound-toggle-button">Sounds: ON</button>
+        </div>
+
+        <div class="minigame-header">
+            <div id="timerDisplay" class="timer-display">Time: 30s</div>
+            <div id="levelDisplay" class="level-display">Level: 1</div>
+            <div id="messageDisplay" class="message-display">Recreate the pattern!</div>
+        </div>
+
+        <div class="instructions">
+            <p>**Instructions:**</p>
+            <ul>
+                <li>Click a block in your inventory to select it.</li>
+                <li>**Left-click** on the grid to place the selected block.</li>
+                <li>**Right-click** on a block to destroy it.</li>
+                <li>**Middle-click** on a block on the grid to select it.</li>
+            </ul>
+        </div>
+        
+        <div class="inventory">
+            <h2>Inventory</h2>
+            <div id="blockInventory" class="block-items">
+                <!-- Inventory blocks will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <div class="selected-block-area">
+            <h3>Currently Selected:</h3>
+            <div id="selectedBlockDisplay" class="selected-block-visual"></div>
+        </div>
+
+        <h2>Grid</h2>
+        <div id="gameGrid" class="game-grid">
+            <!-- Game grid will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <div id="blockTooltip" class="block-tooltip"></div>
+    <script src="timed_game.js"></script>
+</body>
+</html>
