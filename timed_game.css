@@ -195,7 +195,7 @@ h1, h2, h3 {
     font-size: 0.8em;
     color: transparent;
     cursor: pointer;
-    transition: background-image 0.1s ease, background-color 0.3s ease, border-color 0.3s ease;
+    transition: background-image 0.1s ease, background-color 0.3s ease, border-color 0.3s ease, opacity 0.1s ease; /* Added opacity transition */
     text-shadow: none;
 
     background-size: cover;
@@ -218,7 +218,7 @@ h1, h2, h3 {
 .grid-block.ghost-block {
     opacity: 0.5; /* Makes them transparent */
     border: 1px dashed var(--selected-block-border); /* Dashed border for ghost effect */
-    background-color: var(--placeholder-block-bg); /* Still show base 'Air' color */
+    /* Note: background-image and background-color are set directly in JS for ghost state */
 }
 
 
