@@ -13,8 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const GRID_HEIGHT = 15;
     const BLOCK_SIZE = 40; // Smaller block size for larger grid
     const INITIAL_TIME = 30; // seconds
-    const MIN_BLOCKS_PER_PATTERN = 10;
-    const MAX_BLOCKS_PER_PATTERN = 30; // Max blocks to generate
     const TIME_BONUS_PER_LEVEL = 5; // seconds added per level
     const SCORE_PER_LEVEL = 100; // points per level completed
 
@@ -68,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Creative": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
             'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
-        ] // Limiting for simplicity in minigame, could be more specific
+        ]
     };
     let musicPlaylist = [];
     const backgroundMusic = new Audio();
@@ -112,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Diamond Ore', texture: 'textures/diamond_ore.png' },
             { name: 'Emerald Ore', texture: 'textures/emerald_ore.png' }
         ]
-        // Reduced categories for simplicity in minigame inventory
     };
     const blockTypes = {};
     for (const category in blockCategories) {
@@ -122,6 +119,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const blockImages = {};
     let texturesLoadedPromise = null;
+
+    // Pre-made patterns for the Timed Game (15x15 = 225 blocks)
+    // Using a few distinct block types for clarity in patterns.
+    const PREMADE_PATTERNS = [
+        // Pattern 1: A large cross (Red Wool on Grass)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Grass Block').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row === Math.floor(GRID_HEIGHT / 2) || col === Math.floor(GRID_WIDTH / 2)) {
+                return 'Red Wool';
+            }
+            return 'Grass Block';
+        }),
+        // Pattern 2: Concentric squares (Blue Wool and Yellow Wool)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Dirt').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const distance = Math.min(row, col, GRID_WIDTH - 1 - row, GRID_HEIGHT - 1 - col);
+            if (distance % 2 === 0) {
+                return 'Blue Wool';
+            }
+            return 'Yellow Wool';
+        }),
+        // Pattern 3: Diagonal stripes (Stone and Cobblestone)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if ((row + col) % 2 === 0) {
+                return 'Stone';
+            }
+            return 'Cobblestone';
+        }),
+        // Pattern 4: Four corners with a center block
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const midRow = Math.floor(GRID_HEIGHT / 2);
+            const midCol = Math.floor(GRID_WIDTH / 2);
+
+            // Corners (3x3 blocks)
+            if ((row < 3 && col < 3) || // Top-left
+                (row < 3 && col >= GRID_WIDTH - 3) || // Top-right
+                (row >= GRID_HEIGHT - 3 && col < 3) || // Bottom-left
+                (row >= GRID_HEIGHT - 3 && col >= GRID_WIDTH - 3)) { // Bottom-right
+                return 'Bricks';
+            }
+            // Center 1x1 block
+            if (row === midRow && col === midCol) {
+                return 'Block of Diamond';
+            }
+            return 'Air';
+        })
+    ];
+
 
     function preloadBlockTextures() {
         let imagesToLoad = [];
@@ -144,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }));
             }
         }
-        // Preload button textures needed for these game pages
         const buttonTextures = [
             'textures/button.png',
             'textures/button_highlighted.png',
@@ -292,7 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeInventory() {
         blockInventory.innerHTML = '';
         const allBlockTypes = Object.values(blockTypes);
-        // Only one category for simplicity in minigame
         const categoryDiv = document.createElement('div');
         categoryDiv.classList.add('inventory-category');
         const categoryContent = document.createElement('div');
@@ -365,13 +414,11 @@ document.addEventListener('DOMContentLoaded', () => {
         gameGrid.style.width = `${width * BLOCK_SIZE}px`;
         gameGrid.style.height = `${height * BLOCK_SIZE}px`;
 
-        playerGridState = Array(width * height).fill('Air');
-
         for (let i = 0; i < width * height; i++) {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air';
+            block.dataset.type = 'Air'; // Initially all air for player
             block.style.backgroundColor = '#e0e0e0';
             block.style.backgroundImage = 'none';
 
@@ -399,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (event.button === 1) { // Middle click
                     event.preventDefault();
-                    const clickedBlockType = block.dataset.type;
+                    const clickedBlockType = playerGridState[block.dataset.index]; // Get type from player's grid state
                     if (clickedBlockType && clickedBlockType !== 'Air') {
                         const inventoryElement = document.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
                         if (inventoryElement) {
@@ -425,7 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             block.addEventListener('mouseover', (event) => {
-                const blockType = block.dataset.type;
+                // Show the type of the block currently on the grid (player's view)
+                const blockType = playerGridState[block.dataset.index] || 'Air';
                 blockTooltip.textContent = blockType;
                 blockTooltip.style.opacity = 1;
 
@@ -451,91 +499,79 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function updateGridVisuals() {
+        const gridBlocks = document.querySelectorAll('.grid-block');
+        gridBlocks.forEach((blockElement, index) => {
+            const playerType = playerGridState[index];
+            const targetType = targetPattern[index];
+
+            if (playerType !== 'Air') {
+                // If player has placed a block, show it normally (opaque)
+                const texturePath = blockTypes[playerType] ? blockTypes[playerType].texture : null;
+                if (texturePath) {
+                    blockElement.style.backgroundImage = `url(${texturePath})`;
+                    blockElement.style.backgroundColor = '';
+                } else {
+                    blockElement.style.backgroundImage = 'none';
+                    blockElement.style.backgroundColor = '#e0e0e0';
+                }
+                blockElement.classList.remove('ghost-block'); // Ensure it's not transparent
+            } else if (targetType !== 'Air') {
+                // If player hasn't placed a block, but target has one, show it as ghost
+                const texturePath = blockTypes[targetType] ? blockTypes[targetType].texture : null;
+                if (texturePath) {
+                    blockElement.style.backgroundImage = `url(${texturePath})`;
+                    blockElement.style.backgroundColor = ''; // Remove specific background color if texture applies
+                } else {
+                    blockElement.style.backgroundImage = 'none';
+                    blockElement.style.backgroundColor = '#e0e0e0'; // Fallback for ghost
+                }
+                blockElement.classList.add('ghost-block'); // Make it transparent
+            } else {
+                // Both are 'Air', show empty grid block
+                blockElement.style.backgroundImage = 'none';
+                blockElement.style.backgroundColor = '#e0e0e0';
+                blockElement.classList.remove('ghost-block');
+            }
+        });
+    }
+
+
     function placeBlock(gridBlockElement, type) {
-        const oldType = gridBlockElement.dataset.type;
         const index = parseInt(gridBlockElement.dataset.index);
+        const oldType = playerGridState[index];
 
         if (oldType === type) {
-            return;
+            return; // No change needed if placing the same block
         }
 
-        gridBlockElement.dataset.type = type;
         playerGridState[index] = type;
-
-        const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
-        if (texturePath) {
-            gridBlockElement.style.backgroundImage = `url(${texturePath})`;
-            gridBlockElement.style.backgroundColor = '';
-        } else {
-            gridBlockElement.style.backgroundImage = 'none';
-            gridBlockElement.style.backgroundColor = '#e0e0e0';
-        }
+        updateGridVisuals(); // Update visual state after player action
         playSound(placeBlockSound, isPainting, 'place');
     }
 
     function destroyBlock(gridBlockElement) {
-        const oldType = gridBlockElement.dataset.type;
         const index = parseInt(gridBlockElement.dataset.index);
+        const oldType = playerGridState[index];
 
         if (oldType === 'Air') {
-            return;
+            return; // Nothing to destroy
         }
 
-        gridBlockElement.dataset.type = 'Air';
         playerGridState[index] = 'Air';
-        gridBlockElement.style.backgroundColor = '#e0e0e0';
-        gridBlockElement.style.backgroundImage = 'none';
+        updateGridVisuals(); // Update visual state after player action
         playSound(destroyBlockSound, isPainting, 'destroy');
     }
 
     // Game logic functions
-    function generateRandomPattern() {
-        targetPattern = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
-        const availableBlocks = Object.keys(blockTypes);
-        const numBlocksToPlace = Math.floor(Math.random() * (MAX_BLOCKS_PER_PATTERN - MIN_BLOCKS_PER_PATTERN + 1)) + MIN_BLOCKS_PER_PATTERN;
-
-        let placedCount = 0;
-        while (placedCount < numBlocksToPlace) {
-            const randomIndex = Math.floor(Math.random() * (GRID_WIDTH * GRID_HEIGHT));
-            const randomBlockType = availableBlocks[Math.floor(Math.random() * availableBlocks.length)];
-
-            if (targetPattern[randomIndex] === 'Air') {
-                targetPattern[randomIndex] = randomBlockType;
-                placedCount++;
-            }
-        }
-        displayTargetPattern();
-    }
-
-    function displayTargetPattern() {
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach((block, index) => {
-            const type = targetPattern[index];
-            const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
-
-            if (type !== 'Air') {
-                block.classList.add('ghost-block'); // Add ghost effect
-                if (texturePath) {
-                    block.style.backgroundImage = `url(${texturePath})`;
-                    block.style.backgroundColor = '';
-                }
-            } else {
-                block.classList.remove('ghost-block');
-                block.style.backgroundImage = 'none';
-                block.style.backgroundColor = '#e0e0e0';
-            }
-        });
+    function getPatternForLevel(level) {
+        const patternIndex = (level - 1) % PREMADE_PATTERNS.length;
+        return PREMADE_PATTERNS[patternIndex];
     }
 
     function clearPlayerGrid() {
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach((block, index) => {
-            block.classList.remove('ghost-block'); // Ensure no ghost class remains
-            block.dataset.type = 'Air';
-            playerGridState[index] = 'Air';
-            block.style.backgroundColor = '#e0e0e0';
-            block.style.backgroundImage = 'none';
-        });
+        playerGridState = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
+        updateGridVisuals(); // Update visuals to reflect empty player grid
     }
 
     function checkCompletion() {
@@ -560,8 +596,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTimerDisplay();
         messageDisplay.textContent = 'Recreate the pattern!';
         gameActive = true;
-        clearPlayerGrid();
-        generateRandomPattern();
+        startLevel(); // Start the first level
+    }
+
+    function startLevel() {
+        targetPattern = getPatternForLevel(currentLevel); // Get pattern for the current level
+        clearPlayerGrid(); // Clear player's progress from previous level
+        updateGridVisuals(); // Display the new ghost pattern
+        clearInterval(timerInterval);
         startTimer();
     }
 
@@ -572,16 +614,16 @@ document.addEventListener('DOMContentLoaded', () => {
         timeLeft += TIME_BONUS_PER_LEVEL; // Add time for completing level
         updateLevelDisplay();
         messageDisplay.textContent = 'Great job! New pattern!';
-        clearPlayerGrid();
-        generateRandomPattern();
+        gameActive = true; // Re-enable game interaction
+        startLevel(); // Start the next level
     }
 
     function gameOver() {
         playSound(failureSound);
         clearInterval(timerInterval);
         gameActive = false;
-        messageDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}.`;
-        // Optionally, display a restart button or link back to main
+        messageDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}. Click Back to Main to try again.`;
+        timerDisplay.style.color = 'var(--text-color)'; // Reset timer color
     }
 
     function startTimer() {
@@ -619,9 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameActive = false; // Temporarily pause game logic
         messageDisplay.textContent = "Pattern complete! Get ready for the next level...";
         setTimeout(() => {
-            gameActive = true;
             nextLevel();
-            startTimer();
         }, 2000); // Wait 2 seconds before next level
     }
 
@@ -652,12 +692,9 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
         musicPlaylist = categorizedMusic["Creative"]; // Specific music for minigame
         initializeShuffledPlaylist();
-
-        // Start game automatically after textures load and initial setup
         startGame();
     }).catch(error => {
         console.error("Error loading timed game textures:", error);
-        // Fallback initialization
         initializeInventory();
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
         musicPlaylist = categorizedMusic["Creative"];
