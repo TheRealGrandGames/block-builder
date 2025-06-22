@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Block Builder</title>
+    <link rel="stylesheet" href="puzzle_game.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <h1>Puzzle Block Builder</h1>
+
+    <div class="game-container">
+        <div class="top-buttons-container">
+            <a href="index.html" class="action-button back-button">Back to Main</a>
+            <button id="musicToggleButton" class="action-button music-toggle-button">Music: ON</button>
+            <button id="soundToggleButton" class="action-button sound-toggle-button">Sounds: ON</button>
+        </div>
+
+        <div class="minigame-header">
+            <div id="puzzleTitleDisplay" class="puzzle-title">Puzzle: #1</div>
+            <div id="scoreDisplay" class="score-display">Score: 0</div>
+        </div>
+
+        <div class="puzzle-info">
+            <h2>Rules:</h2>
+            <div id="puzzleRules" class="rules-text"></div>
+        </div>
+        
+        <div class="main-game-layout">
+            <div class="left-panel">
+                <div class="inventory">
+                    <h2>Inventory (Blocks to Place)</h2>
+                    <div id="blockInventory" class="block-items">
+                        <!-- Inventory blocks will be dynamically loaded here -->
+                    </div>
+                </div>
+
+                <div class="selected-block-area">
+                    <h3>Currently Selected:</h3>
+                    <div id="selectedBlockDisplay" class="selected-block-visual"></div>
+                </div>
+            </div>
+            
+            <div id="gameGrid" class="game-grid">
+                <!-- Game grid will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <div class="utility-buttons-container">
+            <button id="checkSolutionButton" class="action-button check-button">Check Solution</button>
+            <button id="restartPuzzleButton" class="action-button restart-button">Restart Puzzle</button>
+            <button id="nextPuzzleButton" class="action-button next-puzzle-button" style="display: none;">Next Puzzle</button>
+        </div>
+        <div id="messageDisplay" class="message-display"></div>
+    </div>
+
+    <div id="blockTooltip" class="block-tooltip"></div>
+    <script src="puzzle_game.js"></script>
+</body>
+</html>
