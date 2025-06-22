@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicToggleButton = document.getElementById('musicToggleButton');
     const restartButton = document.getElementById('restartButton'); // New restart button
 
-    const GRID_WIDTH = 10; // Changed from 15 to 10
-    const GRID_HEIGHT = 10; // Changed from 15 to 10
-    const BLOCK_SIZE = 50; // Adjusted for 10x10 grid (was 40 for 15x15)
+    const GRID_WIDTH = 10;
+    const GRID_HEIGHT = 10;
+    const BLOCK_SIZE = 50; // Adjusted for 10x10 grid
     const INITIAL_TIME = 30; // seconds
     const TIME_BONUS_PER_LEVEL = 5; // seconds added per level
     const SCORE_PER_LEVEL = 100; // points per level completed
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Pre-made patterns for the Timed Game (10x10 = 100 blocks)
     const PREMADE_PATTERNS = [
-        // Pattern 1: A simple line (Red Wool) - copied from memory game
+        // Pattern 1: A simple line (Red Wool)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return 'Air';
         }),
-        // Pattern 2: A small filled square (Blue Wool) - copied from memory game
+        // Pattern 2: A small filled square (Blue Wool)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return 'Air';
         }),
-        // Pattern 3: A diagonal line (Yellow Wool) - copied from memory game
+        // Pattern 3: A diagonal line (Yellow Wool)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return 'Air';
         }),
-        // Pattern 4: Plus sign in the middle (Stone) - copied from memory game
+        // Pattern 4: Plus sign in the middle (Stone)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return 'Air';
         }),
-        // Pattern 5: Corner L-shapes (Bricks) - copied from memory game
+        // Pattern 5: Corner L-shapes (Bricks)
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
@@ -170,6 +170,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 (row >= GRID_HEIGHT - 2 && col >= GRID_WIDTH - 2 && (row === GRID_HEIGHT - 1 || col === GRID_WIDTH - 1))
             ) {
                 return 'Bricks';
+            }
+            return 'Air';
+        }),
+        // Pattern 6: Checkerboard (Grass and Dirt)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if ((row + col) % 2 === 0) {
+                return 'Grass Block';
+            }
+            return 'Dirt';
+        }),
+        // Pattern 7: Hollow Square (Cobblestone)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if ((row === 2 || row === GRID_HEIGHT - 3) && (col >= 2 && col <= GRID_WIDTH - 3)) {
+                return 'Cobblestone';
+            }
+            if ((col === 2 || col === GRID_WIDTH - 3) && (row >= 2 && row <= GRID_HEIGHT - 3)) {
+                return 'Cobblestone';
+            }
+            return 'Air';
+        }),
+        // Pattern 8: Waves (Water and Sand)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row % 3 === 0) {
+                return 'Water';
+            } else if (row % 3 === 1) {
+                return 'Sand';
+            }
+            return 'Air';
+        }),
+        // Pattern 9: Target (Lapis Block, Gold Block, Diamond Block)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const distFromCenter = Math.max(Math.abs(row - (GRID_HEIGHT - 1) / 2), Math.abs(col - (GRID_WIDTH - 1) / 2));
+            if (distFromCenter < 2) {
+                return 'Block of Diamond';
+            } else if (distFromCenter < 4) {
+                return 'Block of Gold';
+            } else if (distFromCenter < 6) {
+                return 'Blue Wool';
+            }
+            return 'Air';
+        }),
+        // Pattern 10: Random scattered blocks (Iron Block)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            if (Math.random() < 0.15) { // 15% chance to place a block
+                return 'Block of Iron';
             }
             return 'Air';
         })
