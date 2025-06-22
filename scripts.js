@@ -76,7 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/main_menu/floating_trees.mp3', 'audio/music/main_menu/moog_city_2.mp3', 'audio/music/main_menu/mutation.mp3',
             'audio/music/underwater/dragon_fish.mp3', 'audio/music/underwater/shuniji.mp3', 'audio/music/underwater/axolotl.mp3',
             'audio/music/nether/dead_voxel.mp3', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
-            'audio/music/nether/ballad_of_the_cats.mp3',
+            'audio/music/nether/ballad_of_the_cats.mp3', 'audio/music/music_discs/blocks.mp3', 'audio/music/music_discs/cat.mp3',
+            'audio/music/music_discs/chirp.mp3', 'audio/music/music_discs/dog.mp3', 'audio/music/music_discs/far.mp3',
+            'audio/music/music_discs/mall.mp3', 'audio/music/music_discs/mellohi.mp3', 'audio/music/music_discs/stal.mp3',
+            'audio/music/music_discs/strad.mp3', 'audio/music/music_discs/wait.mp3', 'audio/music/music_discs/ward.mp3'
         ],
         "Main Menu": [
             'audio/music/main_menu/beginning_2.mp3', 'audio/music/main_menu/floating_trees.mp3',
@@ -103,6 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         "Music Discs": [
             // Add music disc paths here, e.g., 'audio/music/disc_13.mp3'
+            'audio/music/music_discs/blocks.mp3', 'audio/music/music_discs/cat.mp3', 'audio/music/music_discs/chirp.mp3',
+            'audio/music/music_discs/dog.mp3', 'audio/music/music_discs/far.mp3', 'audio/music/music_discs/mall.mp3',
+            'audio/music/music_discs/mellohi.mp3', 'audio/music/music_discs/stal.mp3', 'audio/music/music_discs/strad.mp3',
+            'audio/music/music_discs/wait.mp3', 'audio/music/music_discs/ward.mp3'
         ]
     };
 
