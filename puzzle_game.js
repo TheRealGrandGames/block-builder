@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gameGrid = document.getElementById('gameGrid');
-    const blockInventory = document.getElementById('blockInventory');
+    // Renamed blockInventory to blockInventoryContainer for clarity, and added blockInventoryInner
+    const blockInventoryContainer = document.querySelector('.inventory'); // Get the main inventory div
+    const blockInventoryInner = document.getElementById('blockInventoryInner'); // This is the actual div for blocks
     const blockTooltip = document.getElementById('blockTooltip');
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const puzzleTitleDisplay = document.getElementById('puzzleTitleDisplay');
@@ -649,9 +651,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inventory functions
     function initializeInventory(requiredBlocks) {
-        blockInventory.innerHTML = '';
-        // Removed categoryContent div and directly append to blockInventory.
-        // The blockInventory element itself has class="block-items" for styling.
+        console.log("Initializing inventory with required blocks:", requiredBlocks);
+        blockInventoryInner.innerHTML = ''; // Clear the inner div (block-items)
 
         // Display only required blocks
         for (const type in requiredBlocks) {
@@ -659,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (count > 0) {
                 const blockData = blockTypes[type];
                 if (!blockData) {
-                    console.warn(`Block type "${type}" not found in blockTypes definitions.`);
+                    console.warn(`Block type "${type}" not found in blockTypes definitions. Skipping.`);
                     continue;
                 }
 
@@ -667,10 +668,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 inventoryBlockElement.classList.add('inventory-block');
                 inventoryBlockElement.dataset.type = blockData.name;
                 inventoryBlockElement.dataset.name = blockData.name;
+                console.log(`Creating inventory block for: ${blockData.name}`);
+
                 if (blockImages[blockData.name]) {
                     inventoryBlockElement.style.backgroundImage = `url(${blockImages[blockData.name].src})`;
+                    inventoryBlockElement.style.backgroundColor = '';
                 } else {
-                    inventoryBlockElement.style.backgroundColor = '#ccc';
+                    inventoryBlockElement.style.backgroundColor = '#ccc'; // Fallback color
+                    console.warn(`Texture not loaded for ${blockData.name}, using fallback color.`);
                 }
                 
                 // Add a visual counter for required blocks
@@ -698,11 +703,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     blockTooltip.style.opacity = 0;
                 });
 
-                blockInventory.appendChild(inventoryBlockElement); // Append directly to blockInventory
+                blockInventoryInner.appendChild(inventoryBlockElement); // Append to the inner div
+                console.log(`Appended inventory block for ${blockData.name}`);
             }
         }
         // Select the first available block by default
-        const firstBlockInInventory = document.querySelector('.inventory-block');
+        const firstBlockInInventory = blockInventoryInner.querySelector('.inventory-block');
         if (firstBlockInInventory) {
             selectBlock(firstBlockInInventory.dataset.type, firstBlockInInventory);
         } else {
@@ -710,6 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedBlockDisplay.style.backgroundImage = 'none';
             selectedBlockDisplay.style.backgroundColor = '#e0e0e0';
             selectedBlockDisplay.dataset.type = 'None';
+            console.log("No blocks available in inventory for selection.");
         }
     }
 
@@ -742,17 +749,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Game grid initialization
     function initializeGrid() {
+        console.log("Initializing game grid.");
         gameGrid.innerHTML = '';
         gameGrid.style.gridTemplateColumns = `repeat(${GRID_WIDTH}, ${BLOCK_SIZE}px)`;
         gameGrid.style.gridTemplateRows = `repeat(${GRID_HEIGHT}, ${BLOCK_SIZE}px)`;
         gameGrid.style.width = `${GRID_WIDTH * BLOCK_SIZE}px`;
         gameGrid.style.height = `${GRID_HEIGHT * BLOCK_SIZE}px`;
+        console.log(`Grid dimensions set: ${GRID_WIDTH * BLOCK_SIZE}x${GRID_HEIGHT * BLOCK_SIZE}`);
 
         for (let i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++) {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
             block.dataset.type = 'Air'; // Will be set by updateGridVisuals based on initial/player state
+            // Initial styling for empty blocks, will be updated by updateGridVisuals
+            block.style.backgroundColor = '#e0e0e0'; 
+            block.style.backgroundImage = 'none';
 
             block.addEventListener('mousedown', (event) => {
                 if (!gameActive) return;
@@ -780,9 +792,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const clickedBlockType = isEditable ? playerGridState[index] : initialGridState[index];
                     
                     if (clickedBlockType && clickedBlockType !== 'Air') {
-                        const inventoryElement = document.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
+                        const inventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
                         if (inventoryElement) {
                             selectBlock(clickedBlockType, inventoryElement);
+                        } else {
+                             console.warn(`Middle-clicked block type "${clickedBlockType}" not found in current inventory elements.`);
                         }
                     }
                 }
@@ -821,7 +835,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             gameGrid.appendChild(block);
+            // console.log(`Appended grid block at index ${i}`); // Too many logs, remove for performance
         }
+        console.log("Finished appending all grid blocks.");
     }
 
     /**
@@ -852,7 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     blockElement.style.backgroundColor = '';
                 } else {
                     blockElement.style.backgroundImage = 'none';
-                    blockElement.style.backgroundColor = '#e0e0e0';
+                    blockElement.style.backgroundColor = '#ccc'; // Fallback color for missing texture
                 }
             } else {
                 blockElement.style.backgroundImage = 'none';
@@ -860,6 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             blockElement.dataset.type = typeToShow; // Update dataset for consistency
         });
+        console.log("Grid visuals updated.");
     }
 
     function placeBlock(gridBlockElement, type) {
@@ -875,6 +892,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldType = playerGridState[index];
         if (oldType === type) {
             return;
+        }
+
+        // Update the count for the old block type in inventory (if applicable)
+        if (oldType !== 'Air') {
+            const oldBlockInventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${oldType}"]`);
+            if (oldBlockInventoryElement) {
+                let currentCount = parseInt(oldBlockInventoryElement.dataset.count);
+                currentCount++;
+                oldBlockInventoryElement.dataset.count = currentCount;
+                oldBlockInventoryElement.querySelector('.inventory-block-count').textContent = currentCount;
+            }
+        }
+
+        // Update the count for the new block type in inventory
+        if (type !== 'Air') {
+            const newBlockInventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${type}"]`);
+            if (newBlockInventoryElement) {
+                let currentCount = parseInt(newBlockInventoryElement.dataset.count);
+                if (currentCount > 0) {
+                    currentCount--;
+                    newBlockInventoryElement.dataset.count = currentCount;
+                    newBlockInventoryElement.querySelector('.inventory-block-count').textContent = currentCount;
+                } else {
+                    messageDisplay.textContent = `No more '${type}' blocks left in inventory!`;
+                    playSound(puzzleFailedSound);
+                    return; // Prevent placing if no blocks left
+                }
+            }
         }
 
         // Update player's internal grid state
@@ -899,6 +944,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Increment the count of the block being destroyed in inventory
+        if (oldType !== 'Air') {
+            const oldBlockInventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${oldType}"]`);
+            if (oldBlockInventoryElement) {
+                let currentCount = parseInt(oldBlockInventoryElement.dataset.count);
+                currentCount++;
+                oldBlockInventoryElement.dataset.count = currentCount;
+                oldBlockInventoryElement.querySelector('.inventory-block-count').textContent = currentCount;
+            }
+        }
+
         // Update player's internal grid state
         playerGridState[index] = 'Air';
         updateGridVisuals(); // Refresh visuals for all blocks
@@ -916,6 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         puzzleTitleDisplay.textContent = `Puzzle: #${puzzleIndex + 1}`;
         puzzleRulesDisplay.innerHTML = puzzle.rules.map(rule => `<li>${rule}</li>`).join('');
+        console.log(`Loaded Puzzle: ${puzzle.title}`);
         
         // Initialize playerGridState from initialGrid, but only editable parts
         initialGridState = [...puzzle.initialGrid];
@@ -1010,6 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
     restartPuzzleButton.addEventListener('click', restartPuzzle);
     nextPuzzleButton.addEventListener('click', nextPuzzle);
 
+
     // Initial setup
     preloadBlockTextures().then(() => {
         console.log("Puzzle game textures loaded.");
@@ -1019,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadPuzzle(currentPuzzleIndex); // Load the first puzzle
     }).catch(error => {
         console.error("Error loading puzzle game textures:", error);
-        // Fallback initialization
+        // Fallback initialization - attempt to run even if textures fail
         initializeGrid();
         musicPlaylist = categorizedMusic["Puzzle"];
         initializeShuffledPlaylist();
