@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const includeResourcesCheckbox = document.getElementById('includeResourcesCheckbox');
     const themeSelect = document.getElementById('theme-select');
-    const musicCategorySelect = document.getElementById('musicCategorySelect'); // NEW
+    const musicCategorySelect = document.getElementById('musicCategorySelect');
 
     let currentGridWidth = 10;
     let currentGridHeight = 10;
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    // NEW: Categorized music playlists
+    // Categorized music playlists
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
         ],
         "Survival": [
-            // Add survival music paths here, e.g., 'audio/music/survival_song1.mp3'
             'audio/music/survival/clark.mp3', 'audio/music/survival/dry_hands.mp3', 'audio/music/survival/haggstrom.mp3',
             'audio/music/survival/key.mp3', 'audio/music/survival/living_mice.mp3', 'audio/music/survival/mice_on_venus.mp3',
             'audio/music/survival/minecraft.mp3', 'audio/music/survival/oxygene.mp3', 'audio/music/survival/subwoofer_lullaby.mp3',
@@ -100,12 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/underwater/dragon_fish.mp3', 'audio/music/underwater/shuniji.mp3', 'audio/music/underwater/axolotl.mp3'
         ],
         "Nether": [
-            // Add nether music paths here, e.g., 'audio/music/nether_song1.mp3'
             'audio/music/nether/dead_voxel.mp3', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
             'audio/music/nether/ballad_of_the_cats.mp3'
         ],
         "Music Discs": [
-            // Add music disc paths here, e.g., 'audio/music/disc_13.mp3'
             'audio/music/music_discs/blocks.mp3', 'audio/music/music_discs/cat.mp3', 'audio/music/music_discs/chirp.mp3',
             'audio/music/music_discs/dog.mp3', 'audio/music/music_discs/far.mp3', 'audio/music/music_discs/mall.mp3',
             'audio/music/music_discs/mellohi.mp3', 'audio/music/music_discs/stal.mp3', 'audio/music/music_discs/strad.mp3',
@@ -239,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // NEW: Function to update the active music playlist based on selection
+    // Function to update the active music playlist based on selection
     function updateMusicPlaylist() {
         const selectedCategory = musicCategorySelect.value;
         musicPlaylist = categorizedMusic[selectedCategory] || [];
@@ -651,7 +648,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'textures/grass.png',
             'textures/button.png',
             'textures/cave_theme_bg.png',
-            'textures/reef_theme_bg.png'
+            'textures/reef_theme_bg.png',
+            'textures/button_highlighted.png',
+            'textures/button_disabled.png'
         ];
         backgroundTextures.forEach(src => {
             imagesToLoad.push(new Promise((resolve) => {
@@ -1342,7 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
-    // NEW: Music category dropdown event listener
+    // Music category dropdown event listener
     musicCategorySelect.addEventListener('change', () => {
         updateMusicPlaylist(); // Update playlist based on new selection
         playSound(buttonSound); // Play a sound for the dropdown change
@@ -1434,7 +1433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect]; // Added musicCategorySelect
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -1484,10 +1483,10 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
         updateUndoRedoButtonStates();
 
-        // NEW: Load saved music category and initialize playlist
+        // Load saved music category and initialize playlist
         const savedMusicCategory = localStorage.getItem('selectedMusicCategory') || 'All';
         musicCategorySelect.value = savedMusicCategory;
-        updateMusicPlaylist(); // Initialize the music playlist based on saved category
+        updateMusicPlaylist();
 
     }).catch(error => {
         console.error("Error preloading textures:", error);
@@ -1496,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
         updateUndoRedoButtonStates();
         
-        // NEW: Also attempt to initialize music on error
+        // Also attempt to initialize music on error
         const savedMusicCategory = localStorage.getItem('selectedMusicCategory') || 'All';
         musicCategorySelect.value = savedMusicCategory;
         updateMusicPlaylist();
