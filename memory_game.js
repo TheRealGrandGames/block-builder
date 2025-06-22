@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const levelDisplay = document.getElementById('levelDisplay');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
+    const submitButton = document.getElementById('submitButton'); // New
+    const restartButton = document.getElementById('restartButton'); // New
 
     const GRID_WIDTH = 10;
     const GRID_HEIGHT = 10;
@@ -35,10 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectSound = new Audio('audio/inventory_button_click.mp3');
     const placeBlockSound = new Audio('audio/inventory_button_click.mp3');
     const destroyBlockSound = new Audio('audio/destroy_block.mp3');
-    const memorizeStartSound = new Audio('audio/memorize_start.mp3'); // New sound
-    const recreateStartSound = new Audio('audio/recreate_start.mp3'); // New sound
+    const memorizeStartSound = new Audio('audio/memorize_start.mp3');
+    const recreateStartSound = new Audio('audio/recreate_start.mp3');
     const roundCompleteSound = new Audio('audio/level_complete.mp3');
     const gameOverSound = new Audio('audio/game_over.mp3');
+    const submitSound = new Audio('audio/button_click.mp3'); // Reuse button sound for submit
 
     // Pitch modification for consecutive actions
     let consecutivePlaceCount = 0;
@@ -48,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    // Music setup (copied from main scripts.js for independence)
+    // Music setup
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -59,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/survival/sweden.mp3', 'audio/music/survival/wet_hands.mp3', 'audio/music/main_menu/beginning_2.mp3',
             'audio/music/main_menu/floating_trees.mp3', 'audio/music/main_menu/moog_city_2.mp3', 'audio/music/main_menu/mutation.mp3',
             'audio/music/underwater/dragon_fish.mp3', 'audio/music/underwater/shuniji.mp3', 'audio/music/underwater/axolotl.mp3',
-            'audio/music/nether/dead_voxel.mp3', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
+            'audio/music/nether/dead_voxel.mp2', 'audio/music/nether/concrete_halls.mp3', 'audio/music/nether/warmth.mp3',
             'audio/music/nether/ballad_of_the_cats.mp3', 'audio/music/music_discs/blocks.mp3', 'audio/music/music_discs/cat.mp3',
             'audio/music/music_discs/chirp.mp3', 'audio/music/music_discs/dog.mp3', 'audio/music/music_discs/far.mp3',
             'audio/music/music_discs/mall.mp3', 'audio/music/music_discs/mellohi.mp3', 'audio/music/music_discs/stal.mp3',
@@ -68,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Main Menu": [
             'audio/music/main_menu/beginning_2.mp3', 'audio/music/main_menu/floating_trees.mp3',
             'audio/music/main_menu/moog_city_2.mp3', 'audio/music/main_menu/mutation.mp3'
-        ] // Limiting for simplicity in minigame
+        ]
     };
     let musicPlaylist = [];
     const backgroundMusic = new Audio();
@@ -112,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Diamond Ore', texture: 'textures/diamond_ore.png' },
             { name: 'Emerald Ore', texture: 'textures/emerald_ore.png' }
         ]
-        // Reduced categories for simplicity in minigame inventory
     };
     const blockTypes = {};
     for (const category in blockCategories) {
@@ -122,6 +124,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const blockImages = {};
     let texturesLoadedPromise = null;
+
+    // Pre-made patterns for the Memory Game (10x10 = 100 blocks)
+    const PREMADE_PATTERNS = [
+        // Pattern 1: A simple line (Red Wool)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row === 4 && col >= 2 && col <= 7) {
+                return 'Red Wool';
+            }
+            return 'Air';
+        }),
+        // Pattern 2: A small filled square (Blue Wool)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row >= 3 && row <= 6 && col >= 3 && col <= 6) {
+                return 'Blue Wool';
+            }
+            return 'Air';
+        }),
+        // Pattern 3: A diagonal line (Yellow Wool)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if (row === col) {
+                return 'Yellow Wool';
+            }
+            return 'Air';
+        }),
+        // Pattern 4: Plus sign in the middle (Stone)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const center = GRID_WIDTH / 2; // Will be 5 for 10x10
+            if (row === Math.floor(center) || col === Math.floor(center) - 1 || col === Math.floor(center)) { // Adjusted for center
+                return 'Stone';
+            }
+            return 'Air';
+        }),
+        // Pattern 5: Corner L-shapes (Bricks)
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            if ((row < 2 && col < 2 && (row === 0 || col === 0)) || // Top-left L
+                (row < 2 && col >= GRID_WIDTH - 2 && (row === 0 || col === GRID_WIDTH - 1)) || // Top-right L
+                (row >= GRID_HEIGHT - 2 && col < 2 && (row === GRID_HEIGHT - 1 || col === 0)) || // Bottom-left L
+                (row >= GRID_HEIGHT - 2 && col >= GRID_WIDTH - 2 && (row === GRID_HEIGHT - 1 || col === GRID_WIDTH - 1))
+            ) {
+                return 'Bricks';
+            }
+            return 'Air';
+        })
+    ];
+
 
     function preloadBlockTextures() {
         let imagesToLoad = [];
@@ -144,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }));
             }
         }
-        // Preload button textures needed for these game pages
         const buttonTextures = [
             'textures/button.png',
             'textures/button_highlighted.png',
@@ -364,18 +420,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gameGrid.style.width = `${width * BLOCK_SIZE}px`;
         gameGrid.style.height = `${height * BLOCK_SIZE}px`;
 
-        playerGridState = Array(width * height).fill('Air');
-
         for (let i = 0; i < width * height; i++) {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air';
-            block.style.backgroundColor = '#e0e0e0';
-            block.style.backgroundImage = 'none';
+            block.dataset.type = 'Air'; // Initially all air
 
             block.addEventListener('mousedown', (event) => {
-                if (!gameActive || gamePhase === 'memorize') return;
+                if (!gameActive || gamePhase === 'memorize') return; // Disable interaction during memorize phase
                 event.preventDefault();
                 isPainting = true;
                 if (event.button === 0) { // Left click
@@ -392,13 +444,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pitchResetTimeout) {
                     clearTimeout(pitchResetTimeout);
                 }
-                if (gameActive && gamePhase === 'recreate') {
-                    checkCompletion();
-                }
-
+                // No auto-checkCompletion here, only on submit
                 if (event.button === 1) { // Middle click
                     event.preventDefault();
-                    const clickedBlockType = block.dataset.type;
+                    const clickedBlockType = playerGridState[block.dataset.index];
                     if (clickedBlockType && clickedBlockType !== 'Air') {
                         const inventoryElement = document.querySelector(`.inventory-block[data-type="${clickedBlockType}"]`);
                         if (inventoryElement) {
@@ -424,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             block.addEventListener('mouseover', (event) => {
-                const blockType = block.dataset.type;
+                const blockType = playerGridState[block.dataset.index] || 'Air';
                 blockTooltip.textContent = blockType;
                 blockTooltip.style.opacity = 1;
 
@@ -451,16 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function placeBlock(gridBlockElement, type) {
-        const oldType = gridBlockElement.dataset.type;
         const index = parseInt(gridBlockElement.dataset.index);
+        const oldType = playerGridState[index];
 
         if (oldType === type) {
             return;
         }
 
-        gridBlockElement.dataset.type = type;
         playerGridState[index] = type;
-
         const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
         if (texturePath) {
             gridBlockElement.style.backgroundImage = `url(${texturePath})`;
@@ -469,40 +516,29 @@ document.addEventListener('DOMContentLoaded', () => {
             gridBlockElement.style.backgroundImage = 'none';
             gridBlockElement.style.backgroundColor = '#e0e0e0';
         }
+        gridBlockElement.classList.remove('hidden-block'); // Ensure it's visible after placing
         playSound(placeBlockSound, isPainting, 'place');
     }
 
     function destroyBlock(gridBlockElement) {
-        const oldType = gridBlockElement.dataset.type;
         const index = parseInt(gridBlockElement.dataset.index);
+        const oldType = playerGridState[index];
 
         if (oldType === 'Air') {
             return;
         }
 
-        gridBlockElement.dataset.type = 'Air';
         playerGridState[index] = 'Air';
         gridBlockElement.style.backgroundColor = '#e0e0e0';
         gridBlockElement.style.backgroundImage = 'none';
+        gridBlockElement.classList.add('hidden-block'); // Make it hidden like other empty blocks
         playSound(destroyBlockSound, isPainting, 'destroy');
     }
 
     // Game logic functions
-    function generateRandomPattern() {
-        targetPattern = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
-        const availableBlocks = Object.keys(blockTypes);
-        const numBlocksToPlace = Math.floor(Math.random() * (MAX_BLOCKS_PER_PATTERN - MIN_BLOCKS_PER_PATTERN + 1)) + MIN_BLOCKS_PER_PATTERN;
-
-        let placedCount = 0;
-        while (placedCount < numBlocksToPlace) {
-            const randomIndex = Math.floor(Math.random() * (GRID_WIDTH * GRID_HEIGHT));
-            const randomBlockType = availableBlocks[Math.floor(Math.random() * availableBlocks.length)];
-
-            if (targetPattern[randomIndex] === 'Air') {
-                targetPattern[randomIndex] = randomBlockType;
-                placedCount++;
-            }
-        }
+    function getPatternForLevel(level) {
+        const patternIndex = (level - 1) % PREMADE_PATTERNS.length;
+        return PREMADE_PATTERNS[patternIndex];
     }
 
     function displayPattern(pattern) {
@@ -531,15 +567,13 @@ document.addEventListener('DOMContentLoaded', () => {
             block.classList.add('hidden-block'); // Hide blocks with CSS
             block.style.backgroundImage = 'none'; // Clear image
             block.style.backgroundColor = '#e0e0e0'; // Set to air background
-            block.dataset.type = 'Air'; // Reset player's perception
-            // Note: playerGridState is explicitly cleared in recreatePhase to not touch it during memorization
         });
     }
 
     function clearPlayerGrid() {
         const gridBlocks = document.querySelectorAll('.grid-block');
         gridBlocks.forEach((block, index) => {
-            block.classList.remove('hidden-block');
+            block.classList.remove('hidden-block'); // Ensure player can interact with a clean slate
             block.dataset.type = 'Air';
             playerGridState[index] = 'Air';
             block.style.backgroundColor = '#e0e0e0';
@@ -548,28 +582,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkCompletion() {
-        let correctCount = 0;
-        let totalTargetBlocks = 0;
-
+        if (gamePhase !== 'recreate') {
+            statusDisplay.textContent = "Not in recreation phase!";
+            return;
+        }
+        playSound(submitSound);
+        let isMatch = true;
         for (let i = 0; i < playerGridState.length; i++) {
-            // Count total target blocks for score calculation
-            if (targetPattern[i] !== 'Air') {
-                totalTargetBlocks++;
-            }
-
-            if (playerGridState[i] === targetPattern[i]) {
-                correctCount++;
+            if (playerGridState[i] !== targetPattern[i]) {
+                isMatch = false;
+                break;
             }
         }
 
-        // Check if player has placed all target blocks correctly AND nothing extra
-        if (correctCount === totalTargetBlocks &&
-            playerGridState.every((block, i) => block === targetPattern[i] || (block === 'Air' && targetPattern[i] === 'Air'))
-        ) {
+        if (isMatch) {
             levelComplete();
         } else {
-            // Player hasn't completed or has placed incorrect blocks
-            statusDisplay.textContent = 'Keep trying!';
+            statusDisplay.textContent = 'Incorrect! Try again.';
         }
     }
 
@@ -579,12 +608,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateLevelDisplay();
         gameActive = true;
         nextRound();
+        submitButton.disabled = false; // Enable submit button at start
     }
 
     function nextRound() {
         clearInterval(countdownTimer);
-        clearPlayerGrid(); // Clear player's current work
-        generateRandomPattern(); // Generate new pattern
+        targetPattern = getPatternForLevel(currentLevel); // Get new pattern
+        clearPlayerGrid(); // Clear player's grid for the new round
         memorizationPhase();
     }
 
@@ -593,6 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDisplay.textContent = 'Memorize!';
         countdownDisplay.textContent = MEMORIZE_TIME;
         displayPattern(targetPattern); // Show the target pattern
+        submitButton.disabled = true; // Disable submit during memorize
 
         playSound(memorizeStartSound);
 
@@ -612,7 +643,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDisplay.textContent = 'Recreate!';
         countdownDisplay.textContent = ''; // Clear countdown
         hidePattern(); // Hide the target pattern
-        clearPlayerGrid(); // Ensure player's grid is truly empty before recreating
+        // playerGridState is already cleared in nextRound before memorizationPhase
+        submitButton.disabled = false; // Enable submit during recreate
         playSound(recreateStartSound);
     }
 
@@ -627,17 +659,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             gameActive = true;
-            nextRound();
-        }, 2000); // Wait 2 seconds before next level
+            nextRound(); // Start next round automatically
+        }, 2000);
     }
 
     function gameOver() {
         gameActive = false;
         clearInterval(countdownTimer);
         playSound(gameOverSound);
-        statusDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}.`;
+        statusDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}. Click Restart Game to play again.`;
         countdownDisplay.textContent = '';
-        // Optionally, display a restart button
+        submitButton.disabled = true; // Disable submit when game is over
     }
 
     function updateLevelDisplay() {
@@ -664,6 +696,10 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
+    submitButton.addEventListener('click', () => checkCompletion());
+    restartButton.addEventListener('click', startGame);
+
+
     // Initial setup
     preloadBlockTextures().then(() => {
         console.log("Memory game textures loaded.");
@@ -671,12 +707,9 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
         musicPlaylist = categorizedMusic["Main Menu"]; // Specific music for minigame
         initializeShuffledPlaylist();
-
-        // Start game automatically after textures load and initial setup
         startGame();
     }).catch(error => {
         console.error("Error loading memory game textures:", error);
-        // Fallback initialization
         initializeInventory();
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
         musicPlaylist = categorizedMusic["Main Menu"];
