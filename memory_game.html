@@ -21,26 +21,33 @@
             <div id="countdownDisplay" class="countdown-display">3</div>
             <div id="levelDisplay" class="level-display">Level: 1</div>
         </div>
+
+        <!-- Instructions removed as requested -->
         
-        <div class="inventory">
-            <h2>Inventory</h2>
-            <div id="blockInventory" class="block-items">
-                <!-- Inventory blocks will be dynamically loaded here -->
+        <div class="main-game-layout">
+            <div class="left-panel">
+                <div class="inventory">
+                    <h2>Inventory</h2>
+                    <div id="blockInventory" class="block-items">
+                        <!-- Inventory blocks will be dynamically loaded here -->
+                    </div>
+                </div>
+
+                <div class="selected-block-area">
+                    <h3>Currently Selected:</h3>
+                    <div id="selectedBlockDisplay" class="selected-block-visual"></div>
+                </div>
+            </div>
+
+            <div id="gameGrid" class="game-grid">
+                <!-- Game grid will be dynamically loaded here -->
             </div>
         </div>
 
-        <div class="selected-block-area">
-            <h3>Currently Selected:</h3>
-            <div id="selectedBlockDisplay" class="selected-block-visual"></div>
-        </div>
-
-        <h2>Grid</h2>
-        <div id="gameGrid" class="game-grid">
-            <!-- Game grid will be dynamically loaded here -->
-        </div>
 
         <div class="utility-buttons-container">
             <button id="submitButton" class="action-button submit-button">Submit</button>
+            <button id="revealPatternButton" class="action-button reveal-button">Reveal Pattern (-300 pts)</button>
             <button id="restartButton" class="action-button restart-button">Restart Game</button>
         </div>
     </div>
