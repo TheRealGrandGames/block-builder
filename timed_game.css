@@ -425,7 +425,7 @@ h1, h2, h3 {
 @media (max-width: 480px) {
     .game-grid {
         /* Further adjustments might be needed in JS for BLOCK_SIZE on very small screens */
-        transform: scale(0.8); /* Example: scale down the grid if it's too big */
+        transform: scale(0.8);
         transform-origin: center top;
     }
 }
