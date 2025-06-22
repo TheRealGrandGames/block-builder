@@ -8,10 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageDisplay = document.getElementById('messageDisplay');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
+    const restartButton = document.getElementById('restartButton'); // New restart button
 
-    const GRID_WIDTH = 15;
-    const GRID_HEIGHT = 15;
-    const BLOCK_SIZE = 40; // Smaller block size for larger grid
+    const GRID_WIDTH = 10; // Changed from 15 to 10
+    const GRID_HEIGHT = 10; // Changed from 15 to 10
+    const BLOCK_SIZE = 50; // Adjusted for 10x10 grid (was 40 for 15x15)
     const INITIAL_TIME = 30; // seconds
     const TIME_BONUS_PER_LEVEL = 5; // seconds added per level
     const SCORE_PER_LEVEL = 100; // points per level completed
@@ -120,54 +121,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockImages = {};
     let texturesLoadedPromise = null;
 
-    // Pre-made patterns for the Timed Game (15x15 = 225 blocks)
-    // Using a few distinct block types for clarity in patterns.
+    // Pre-made patterns for the Timed Game (10x10 = 100 blocks)
     const PREMADE_PATTERNS = [
-        // Pattern 1: A large cross (Red Wool on Grass)
-        Array(GRID_WIDTH * GRID_HEIGHT).fill('Grass Block').map((block, i) => {
+        // Pattern 1: A simple line (Red Wool) - copied from memory game
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            if (row === Math.floor(GRID_HEIGHT / 2) || col === Math.floor(GRID_WIDTH / 2)) {
+            if (row === 4 && col >= 2 && col <= 7) {
                 return 'Red Wool';
             }
-            return 'Grass Block';
+            return 'Air';
         }),
-        // Pattern 2: Concentric squares (Blue Wool and Yellow Wool)
-        Array(GRID_WIDTH * GRID_HEIGHT).fill('Dirt').map((block, i) => {
+        // Pattern 2: A small filled square (Blue Wool) - copied from memory game
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            const distance = Math.min(row, col, GRID_WIDTH - 1 - row, GRID_HEIGHT - 1 - col);
-            if (distance % 2 === 0) {
+            if (row >= 3 && row <= 6 && col >= 3 && col <= 6) {
                 return 'Blue Wool';
             }
-            return 'Yellow Wool';
+            return 'Air';
         }),
-        // Pattern 3: Diagonal stripes (Stone and Cobblestone)
+        // Pattern 3: A diagonal line (Yellow Wool) - copied from memory game
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            if ((row + col) % 2 === 0) {
+            if (row === col) {
+                return 'Yellow Wool';
+            }
+            return 'Air';
+        }),
+        // Pattern 4: Plus sign in the middle (Stone) - copied from memory game
+        Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
+            const row = Math.floor(i / GRID_WIDTH);
+            const col = i % GRID_WIDTH;
+            const center = GRID_WIDTH / 2; // Will be 5 for 10x10
+            if (row === Math.floor(center) || col === Math.floor(center) - 1 || col === Math.floor(center)) { // Adjusted for center
                 return 'Stone';
             }
-            return 'Cobblestone';
+            return 'Air';
         }),
-        // Pattern 4: Four corners with a center block
+        // Pattern 5: Corner L-shapes (Bricks) - copied from memory game
         Array(GRID_WIDTH * GRID_HEIGHT).fill('Air').map((block, i) => {
             const row = Math.floor(i / GRID_WIDTH);
             const col = i % GRID_WIDTH;
-            const midRow = Math.floor(GRID_HEIGHT / 2);
-            const midCol = Math.floor(GRID_WIDTH / 2);
-
-            // Corners (3x3 blocks)
-            if ((row < 3 && col < 3) || // Top-left
-                (row < 3 && col >= GRID_WIDTH - 3) || // Top-right
-                (row >= GRID_HEIGHT - 3 && col < 3) || // Bottom-left
-                (row >= GRID_HEIGHT - 3 && col >= GRID_WIDTH - 3)) { // Bottom-right
+            if ((row < 2 && col < 2 && (row === 0 || col === 0)) || // Top-left L
+                (row < 2 && col >= GRID_WIDTH - 2 && (row === 0 || col === GRID_WIDTH - 1)) || // Top-right L
+                (row >= GRID_HEIGHT - 2 && col < 2 && (row === GRID_HEIGHT - 1 || col === 0)) || // Bottom-left L
+                (row >= GRID_HEIGHT - 2 && col >= GRID_WIDTH - 2 && (row === GRID_HEIGHT - 1 || col === GRID_WIDTH - 1))
+            ) {
                 return 'Bricks';
-            }
-            // Center 1x1 block
-            if (row === midRow && col === midCol) {
-                return 'Block of Diamond';
             }
             return 'Air';
         })
@@ -596,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         currentLevel = 1;
         score = 0;
-        timeLeft = INITIAL_TIME;
+        timeLeft = INITIAL_TIME; // Reset time to initial for new game
         updateLevelDisplay();
         updateTimerDisplay();
         messageDisplay.textContent = 'Recreate the pattern!';
@@ -616,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(successSound);
         currentLevel++;
         score += SCORE_PER_LEVEL;
-        timeLeft += TIME_BONUS_PER_LEVEL; // Add time for completing level
+        timeLeft = INITIAL_TIME + (TIME_BONUS_PER_LEVEL * (currentLevel -1)); // Reset time and add bonus based on level
         updateLevelDisplay();
         messageDisplay.textContent = 'Great job! New pattern!';
         gameActive = true; // Re-enable game interaction
@@ -627,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(failureSound);
         clearInterval(timerInterval);
         gameActive = false;
-        messageDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}. Click Back to Main to try again.`;
+        messageDisplay.textContent = `Game Over! You reached Level ${currentLevel} with a score of ${score}. Click Restart Game to try again.`;
         timerDisplay.style.color = 'var(--text-color)'; // Reset timer color
     }
 
@@ -688,6 +690,12 @@ document.addEventListener('DOMContentLoaded', () => {
             pauseBackgroundMusic();
         }
         playSound(buttonSound);
+    });
+
+    // New restart button event listener
+    restartButton.addEventListener('click', () => {
+        playSound(buttonSound);
+        startGame(); // Call startGame to reset everything
     });
 
     // Initial setup
