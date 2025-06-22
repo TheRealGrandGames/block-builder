@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDisplay = document.getElementById('statusDisplay');
     const countdownDisplay = document.getElementById('countdownDisplay');
     const levelDisplay = document.getElementById('levelDisplay');
-    const scoreDisplay = document.getElementById('scoreDisplay'); // New score display element
+    const scoreDisplay = document.getElementById('scoreDisplay');
     const soundToggleButton = document.getElementById('soundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
     const submitButton = document.getElementById('submitButton');
@@ -496,7 +496,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create a single container for all inventory blocks since categories are removed.
         const categoryContent = document.createElement('div');
         categoryContent.classList.add('category-content'); // Re-using class for consistent styling
-        // No category header or toggle needed if instructions are removed and no categories are shown.
         blockInventory.appendChild(categoryContent); // Append to the actual blockInventory container
 
         allBlockTypes.forEach(blockData => {
@@ -579,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = playerGridState[i] || 'Air'; // Use existing player state or 'Air'
+            block.dataset.type = 'Air'; // Will be set by updateGridVisuals
 
             block.addEventListener('mousedown', (event) => {
                 if (!gameActive || gamePhase === 'memorize') return;
@@ -599,6 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pitchResetTimeout) {
                     clearTimeout(pitchResetTimeout);
                 }
+                // No auto-checkCompletion here, only on submit
                 if (event.button === 1) { // Middle click
                     event.preventDefault();
                     const clickedBlockType = playerGridState[block.dataset.index];
@@ -642,7 +642,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gameGrid.appendChild(block);
         }
-        updateGridVisuals(); // Initial render of grid based on player and target state
 
         document.addEventListener('mouseup', (event) => {
             isPainting = false;
@@ -650,6 +649,91 @@ document.addEventListener('DOMContentLoaded', () => {
             consecutiveDestroyCount = 0;
             if (pitchResetTimeout) {
                 clearTimeout(pitchResetTimeout);
+            }
+        });
+    }
+
+    /**
+     * Updates the visual state of all grid blocks based on game phase and reveal state.
+     * @param {boolean} showTargetTemporarily If true, during recreate phase, shows target pattern as ghost blocks.
+     */
+    function updateGridVisuals(showTargetTemporarily = false) {
+        const gridBlocks = document.querySelectorAll('.grid-block');
+        gridBlocks.forEach((blockElement, index) => {
+            const playerType = playerGridState[index]; // What player has placed
+            const targetType = targetPattern[index];   // What the target pattern has
+
+            if (gamePhase === 'memorize') {
+                // During memorize, always show the target pattern solid
+                const typeToShow = targetType;
+                const img = blockImages[typeToShow];
+                if (typeToShow && typeToShow !== 'Air') {
+                    blockElement.classList.remove('hidden-block', 'ghost-block');
+                    if (img) {
+                        blockElement.style.backgroundImage = `url(${img.src})`;
+                        blockElement.style.backgroundColor = '';
+                    } else {
+                        blockElement.style.backgroundImage = 'none';
+                        blockElement.style.backgroundColor = '#e0e0e0';
+                    }
+                } else {
+                    blockElement.classList.remove('hidden-block', 'ghost-block');
+                    blockElement.style.backgroundImage = 'none';
+                    blockElement.style.backgroundColor = '#e0e0e0';
+                }
+            } else if (gamePhase === 'recreate') {
+                if (showTargetTemporarily) {
+                    // During temporary reveal, show player's blocks solid, target as ghost where player hasn't placed
+                    if (playerType && playerType !== 'Air') {
+                        // Player has placed a block, show it opaque
+                        const img = blockImages[playerType];
+                        blockElement.classList.remove('hidden-block', 'ghost-block');
+                        if (img) {
+                            blockElement.style.backgroundImage = `url(${img.src})`;
+                            blockElement.style.backgroundColor = '';
+                        } else {
+                            blockElement.style.backgroundImage = 'none';
+                            blockElement.style.backgroundColor = '#e0e0e0';
+                        }
+                    } else if (targetType && targetType !== 'Air') {
+                        // Player hasn't placed, but target has, show target as ghost
+                        const img = blockImages[targetType];
+                        blockElement.classList.remove('hidden-block');
+                        blockElement.classList.add('ghost-block'); // Make it transparent
+                        if (img) {
+                            blockElement.style.backgroundImage = `url(${img.src})`;
+                            blockElement.style.backgroundColor = '';
+                        } else {
+                            blockElement.style.backgroundImage = 'none';
+                            blockElement.style.backgroundColor = '#e0e0e0';
+                        }
+                    } else {
+                        // Both are 'Air', show empty grid block
+                        blockElement.classList.remove('ghost-block');
+                        blockElement.classList.add('hidden-block'); // Ensure it's hidden (empty)
+                        blockElement.style.backgroundImage = 'none';
+                        blockElement.style.backgroundColor = '#e0e0e0';
+                    }
+                } else {
+                    // Normal recreate phase: only show player's blocks, hide target
+                    const typeToShow = playerType;
+                    const img = blockImages[typeToShow];
+                    if (typeToShow && typeToShow !== 'Air') {
+                        blockElement.classList.remove('hidden-block', 'ghost-block');
+                        if (img) {
+                            blockElement.style.backgroundImage = `url(${img.src})`;
+                            blockElement.style.backgroundColor = '';
+                        } else {
+                            blockElement.style.backgroundImage = 'none';
+                            blockElement.style.backgroundColor = '#e0e0e0';
+                        }
+                    } else {
+                        blockElement.classList.remove('ghost-block');
+                        blockElement.classList.add('hidden-block'); // Hide block
+                        blockElement.style.backgroundImage = 'none';
+                        blockElement.style.backgroundColor = '#e0e0e0';
+                    }
+                }
             }
         });
     }
@@ -663,15 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         playerGridState[index] = type;
-        const img = blockImages[type];
-        if (img) {
-            gridBlockElement.style.backgroundImage = `url(${img.src})`;
-            gridBlockElement.style.backgroundColor = '';
-        } else {
-            gridBlockElement.style.backgroundImage = 'none';
-            gridBlockElement.style.backgroundColor = '#e0e0e0';
-        }
-        gridBlockElement.classList.remove('hidden-block');
+        updateGridVisuals(false); // Update visual after placing, not showing ghost during normal play
         playSound(placeBlockSound, isPainting, 'place');
     }
 
@@ -684,9 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         playerGridState[index] = 'Air';
-        gridBlockElement.style.backgroundColor = '#e0e0e0';
-        gridBlockElement.style.backgroundImage = 'none';
-        gridBlockElement.classList.add('hidden-block');
+        updateGridVisuals(false); // Update visual after destroying, not showing ghost during normal play
         playSound(destroyBlockSound, isPainting, 'destroy');
     }
 
@@ -696,44 +770,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return PREMADE_PATTERNS[patternIndex];
     }
 
-    function displayPattern(pattern) {
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach((block, index) => {
-            const type = pattern[index];
-            const img = blockImages[type];
-
-            if (type !== 'Air') {
-                block.classList.remove('hidden-block');
-                if (img) {
-                    block.style.backgroundImage = `url(${img.src})`;
-                    block.style.backgroundColor = '';
-                }
-            } else {
-                block.classList.remove('hidden-block');
-                block.style.backgroundImage = 'none';
-                block.style.backgroundColor = '#e0e0e0';
-            }
-        });
-    }
-
-    function hidePattern() {
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach(block => {
-            block.classList.add('hidden-block');
-            block.style.backgroundImage = 'none';
-            block.style.backgroundColor = '#e0e0e0';
-        });
-    }
-
     function clearPlayerGrid() {
         playerGridState = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
-        const gridBlocks = document.querySelectorAll('.grid-block');
-        gridBlocks.forEach((block, index) => {
-            block.classList.remove('hidden-block');
-            block.dataset.type = 'Air';
-            block.style.backgroundColor = '#e0e0e0';
-            block.style.backgroundImage = 'none';
-        });
+        // Do not call updateGridVisuals here directly, phases will handle it.
     }
 
     function checkCompletion() {
@@ -775,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function nextRound() {
         clearInterval(countdownTimer);
         targetPattern = getPatternForLevel(currentLevel);
-        clearPlayerGrid();
+        clearPlayerGrid(); // Clears internal player state, not visuals yet
         memorizationPhase();
     }
 
@@ -783,7 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePhase = 'memorize';
         statusDisplay.textContent = 'Memorize!';
         countdownDisplay.textContent = MEMORIZE_TIME;
-        displayPattern(targetPattern);
+        updateGridVisuals(false); // Show target pattern solid for memorization
         submitButton.disabled = true;
         revealPatternButton.disabled = true;
 
@@ -804,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gamePhase = 'recreate';
         statusDisplay.textContent = 'Recreate!';
         countdownDisplay.textContent = '';
-        hidePattern();
+        updateGridVisuals(false); // Hide target pattern, show only player's blocks
         submitButton.disabled = false;
         revealPatternButton.disabled = false;
         playSound(recreateStartSound);
@@ -859,10 +898,10 @@ document.addEventListener('DOMContentLoaded', () => {
         revealPatternButton.disabled = true;
         submitButton.disabled = true;
 
-        displayPattern(targetPattern);
+        updateGridVisuals(true); // Show player blocks opaque, target as ghost
 
         setTimeout(() => {
-            hidePattern();
+            updateGridVisuals(false); // Revert to normal recreate display
             statusDisplay.textContent = 'Recreate!';
             revealPatternButton.disabled = false;
             submitButton.disabled = false;
@@ -905,7 +944,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startGame();
     }).catch(error => {
         console.error("Error loading memory game textures:", error);
-        // Even if textures fail, try to initialize to prevent complete blank page
         initializeInventory();
         initializeGrid(GRID_WIDTH, GRID_HEIGHT);
         musicPlaylist = categorizedMusic["Main Menu"];
