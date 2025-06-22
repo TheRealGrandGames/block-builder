@@ -380,7 +380,7 @@ h1, h2, h3 {
     border: 1px solid var(--border-color);
 }
 
-.status-display, .countdown-display, .level-display {
+.status-display, .countdown-display, .level-display, .score-display {
     font-size: 1.5em;
     font-weight: bold;
     color: var(--text-color);
@@ -419,7 +419,7 @@ h1, h2, h3 {
         gap: 10px;
     }
 
-    .status-display, .countdown-display, .level-display {
+    .status-display, .countdown-display, .level-display, .score-display {
         font-size: 1.2em;
         min-width: unset;
     }
