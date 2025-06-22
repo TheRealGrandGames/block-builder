@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gameGrid = document.getElementById('gameGrid');
-    // Renamed blockInventory to blockInventoryContainer for clarity, and added blockInventoryInner
-    const blockInventoryContainer = document.querySelector('.inventory'); // Get the main inventory div
-    const blockInventoryInner = document.getElementById('blockInventoryInner'); // This is the actual div for blocks
+    const blockInventoryContainer = document.querySelector('.inventory');
+    const blockInventoryInner = document.getElementById('blockInventoryInner');
     const blockTooltip = document.getElementById('blockTooltip');
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const puzzleTitleDisplay = document.getElementById('puzzleTitleDisplay');
@@ -21,24 +20,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentPuzzleIndex = 0;
     let score = 0;
-    let gameActive = false; // Controls overall game state and user interaction
+    let gameActive = false;
 
     let selectedBlockType = 'Grass Block';
     let currentInventoryBlockElement = null;
     let isPainting = false;
 
-    let playerGridState = []; // What the player has placed on the editable cells
-    let initialGridState = []; // The fixed, initial state of the puzzle grid
+    let playerGridState = [];
+    let initialGridState = [];
 
     // Audio elements
     const buttonSound = new Audio('audio/button_click.mp3');
     const selectSound = new Audio('audio/inventory_button_click.mp3');
     const placeBlockSound = new Audio('audio/inventory_button_click.mp3');
     const destroyBlockSound = new Audio('audio/destroy_block.mp3');
-    const puzzleSolvedSound = new Audio('audio/level_complete.mp3'); // Reuse success sound
-    const puzzleFailedSound = new Audio('audio/game_over.mp3'); // Reuse failure sound
+    const puzzleSolvedSound = new Audio('audio/level_complete.mp3');
+    const puzzleFailedSound = new Audio('audio/game_over.mp3');
 
-    // Pitch modification for consecutive actions (reused from other minigames)
+    // Pitch modification for consecutive actions
     let consecutivePlaceCount = 0;
     let consecutiveDestroyCount = 0;
     const maxPitchIncrease = 0.5;
@@ -46,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    // Music setup (reused from other minigames)
+    // Music setup
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
             'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
         ],
-        "Puzzle": [ // New category for puzzle game specific music
+        "Puzzle": [
             'audio/music/main_menu/beginning_2.mp3',
             'audio/music/main_menu/floating_trees.mp3',
             'audio/music/taswell.mp3'
@@ -125,14 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockImages = {};
     let texturesLoadedPromise = null;
 
-    // --- PUZZLE DEFINITIONS ---
-    // Each puzzle will have:
-    // - title: Displayed title
-    // - rules: Array of strings for rules
-    // - initialGrid: The starting state of the grid, including fixed blocks.
-    // - editableCells: Array of indices that the player CAN modify.
-    // - requiredBlocks: { 'BlockType': count } - blocks player must place
-    // - solution: The target grid state after player's moves, for validation.
+    // --- PUZZLE DEFINITIONS --- MOVED TO TOP FOR INITIALIZATION ORDER
     const PUZZLES = [
         {
             title: "Connect the Dots",
@@ -422,15 +414,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const col = i % GRID_WIDTH;
                 return !((row === 0 && col === 0) || (row === 9 && col === 9));
             }),
-            requiredBlocks: { 'Cobblestone': 17 }, // Example for a simple diagonal + straight path
-            solution: null, // Solution is dynamic, validated by connectivity and type
+            requiredBlocks: { 'Cobblestone': 17 },
+            solution: null,
             validate: (playerGrid, initialGrid, requiredBlocks) => {
-                // Check fixed blocks
                 if (playerGrid[0] !== 'Stone' || playerGrid[99] !== 'Obsidian') {
                     return { passed: false, message: "Starting or ending blocks were altered!" };
                 }
 
-                // Check all placed blocks are Cobblestone and within editable cells
                 let cobblestoneCount = 0;
                 for (let i = 0; i < playerGrid.length; i++) {
                     const isEditable = PUZZLES[4].editableCells.includes(i);
@@ -446,20 +436,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Check path connectivity using a BFS-like approach
                 const startNode = { row: 0, col: 0 };
                 const endNode = { row: 9, col: 9 };
                 const queue = [{ row: startNode.row, col: startNode.col, path: [`${startNode.row},${startNode.col}`] }];
                 const visited = new Set();
                 visited.add(`${startNode.row},${startNode.col}`);
 
-                const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]; // Right, Left, Down, Up
+                const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
 
                 while (queue.length > 0) {
                     const { row, col } = queue.shift();
 
                     if (row === endNode.row && col === endNode.col) {
-                        // Found a path!
                         if (cobblestoneCount !== requiredBlocks['Cobblestone']) {
                              return { passed: false, message: `Path is correct but placed ${cobblestoneCount} cobblestone blocks instead of ${requiredBlocks['Cobblestone']}.` };
                         }
@@ -484,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     ];
+
 
     function preloadBlockTextures() {
         let imagesToLoad = [];
@@ -737,11 +726,11 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedBlockDisplay.dataset.type = 'None';
         }
 
-        if (element) { // Element might be null if 'Air' is selected programmatically
+        if (element) {
             element.classList.add('selected');
             currentInventoryBlockElement = element;
         } else {
-            currentInventoryBlockElement = null; // Clear selected element
+            currentInventoryBlockElement = null;
         }
 
         playSound(selectSound);
@@ -761,8 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const block = document.createElement('div');
             block.classList.add('grid-block');
             block.dataset.index = i;
-            block.dataset.type = 'Air'; // Will be set by updateGridVisuals based on initial/player state
-            // Initial styling for empty blocks, will be updated by updateGridVisuals
+            block.dataset.type = 'Air';
             block.style.backgroundColor = '#e0e0e0'; 
             block.style.backgroundImage = 'none';
 
@@ -770,9 +758,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!gameActive) return;
                 event.preventDefault();
                 isPainting = true;
-                if (event.button === 0) { // Left click
+                if (event.button === 0) {
                     placeBlock(block, selectedBlockType);
-                } else if (event.button === 2) { // Right click
+                } else if (event.button === 2) {
                     destroyBlock(block);
                 }
             });
@@ -784,9 +772,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pitchResetTimeout) {
                     clearTimeout(pitchResetTimeout);
                 }
-                if (event.button === 1) { // Middle click
+                if (event.button === 1) {
                     event.preventDefault();
-                    // Get type from player's grid state if editable, otherwise fixed block
                     const index = parseInt(block.dataset.index);
                     const isEditable = PUZZLES[currentPuzzleIndex].editableCells.includes(index);
                     const clickedBlockType = isEditable ? playerGridState[index] : initialGridState[index];
@@ -822,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isEditable = PUZZLES[currentPuzzleIndex].editableCells.includes(index);
                 const blockType = isEditable ? playerGridState[index] : initialGridState[index];
                 
-                blockTooltip.textContent = blockType || 'Air'; // Show 'Air' if empty
+                blockTooltip.textContent = blockType || 'Air';
                 blockTooltip.style.opacity = 1;
 
                 const rect = block.getBoundingClientRect();
@@ -835,7 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             gameGrid.appendChild(block);
-            // console.log(`Appended grid block at index ${i}`); // Too many logs, remove for performance
         }
         console.log("Finished appending all grid blocks.");
     }
@@ -851,13 +837,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const isEditable = PUZZLES[currentPuzzleIndex].editableCells.includes(index);
 
             let typeToShow = initialType;
-            blockElement.classList.remove('fixed-block'); // Reset fixed class
+            blockElement.classList.remove('fixed-block');
 
             if (isEditable) {
-                // For editable cells, show what the player has placed
                 typeToShow = playerType;
             } else {
-                // For fixed cells, show initial state and add 'fixed-block' class
                 blockElement.classList.add('fixed-block');
             }
 
@@ -868,13 +852,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     blockElement.style.backgroundColor = '';
                 } else {
                     blockElement.style.backgroundImage = 'none';
-                    blockElement.style.backgroundColor = '#ccc'; // Fallback color for missing texture
+                    blockElement.style.backgroundColor = '#ccc';
                 }
             } else {
                 blockElement.style.backgroundImage = 'none';
                 blockElement.style.backgroundColor = '#e0e0e0';
             }
-            blockElement.dataset.type = typeToShow; // Update dataset for consistency
+            blockElement.dataset.type = typeToShow;
         });
         console.log("Grid visuals updated.");
     }
@@ -885,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isEditable) {
             messageDisplay.textContent = "You cannot place blocks on fixed parts of the puzzle!";
-            playSound(puzzleFailedSound); // Indicate an error
+            playSound(puzzleFailedSound);
             return;
         }
 
@@ -894,7 +878,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Update the count for the old block type in inventory (if applicable)
         if (oldType !== 'Air') {
             const oldBlockInventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${oldType}"]`);
             if (oldBlockInventoryElement) {
@@ -905,7 +888,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Update the count for the new block type in inventory
         if (type !== 'Air') {
             const newBlockInventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${type}"]`);
             if (newBlockInventoryElement) {
@@ -917,16 +899,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     messageDisplay.textContent = `No more '${type}' blocks left in inventory!`;
                     playSound(puzzleFailedSound);
-                    return; // Prevent placing if no blocks left
+                    return;
                 }
             }
         }
 
-        // Update player's internal grid state
         playerGridState[index] = type;
-        updateGridVisuals(); // Refresh visuals for all blocks
+        updateGridVisuals();
         playSound(placeBlockSound, isPainting, 'place');
-        messageDisplay.textContent = ''; // Clear previous messages
+        messageDisplay.textContent = '';
     }
 
     function destroyBlock(gridBlockElement) {
@@ -935,7 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isEditable) {
             messageDisplay.textContent = "You cannot destroy fixed blocks!";
-            playSound(puzzleFailedSound); // Indicate an error
+            playSound(puzzleFailedSound);
             return;
         }
 
@@ -944,7 +925,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Increment the count of the block being destroyed in inventory
         if (oldType !== 'Air') {
             const oldBlockInventoryElement = blockInventoryInner.querySelector(`.inventory-block[data-type="${oldType}"]`);
             if (oldBlockInventoryElement) {
@@ -955,11 +935,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Update player's internal grid state
         playerGridState[index] = 'Air';
-        updateGridVisuals(); // Refresh visuals for all blocks
+        updateGridVisuals();
         playSound(destroyBlockSound, isPainting, 'destroy');
-        messageDisplay.textContent = ''; // Clear previous messages
+        messageDisplay.textContent = '';
     }
 
     // Game logic functions
@@ -974,23 +953,21 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleRulesDisplay.innerHTML = puzzle.rules.map(rule => `<li>${rule}</li>`).join('');
         console.log(`Loaded Puzzle: ${puzzle.title}`);
         
-        // Initialize playerGridState from initialGrid, but only editable parts
         initialGridState = [...puzzle.initialGrid];
-        playerGridState = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air'); // Start with all Air for player
+        playerGridState = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
         
-        // Copy fixed blocks from initialGrid to playerGridState, and mark editable cells
         for (let i = 0; i < initialGridState.length; i++) {
             if (!puzzle.editableCells.includes(i)) {
-                playerGridState[i] = initialGridState[i]; // Fixed blocks are part of player's initial grid state too
+                playerGridState[i] = initialGridState[i];
             }
         }
 
-        initializeInventory(puzzle.requiredBlocks); // Update inventory based on required blocks for this puzzle
-        updateGridVisuals(); // Render initial grid (fixed blocks and empty editable areas)
+        initializeInventory(puzzle.requiredBlocks);
+        updateGridVisuals();
         messageDisplay.textContent = 'Solve the puzzle!';
         gameActive = true;
         checkSolutionButton.disabled = false;
-        nextPuzzleButton.style.display = 'none'; // Hide next button until solved
+        nextPuzzleButton.style.display = 'none';
     }
 
     function checkSolution() {
@@ -1001,24 +978,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const validationResult = currentPuzzle.validate(playerGridState, initialGridState, currentPuzzle.requiredBlocks);
 
         if (validationResult.passed) {
-            score += 100; // Example score for solving
+            score += 100;
             updateScoreDisplay();
             messageDisplay.textContent = validationResult.message + " Well done!";
             playSound(puzzleSolvedSound);
-            gameActive = false; // Pause interaction
+            gameActive = false;
             checkSolutionButton.disabled = true;
-            nextPuzzleButton.style.display = 'inline-block'; // Show next button
+            nextPuzzleButton.style.display = 'inline-block';
         } else {
             messageDisplay.textContent = "Incorrect: " + validationResult.message;
             playSound(puzzleFailedSound);
-            score = Math.max(0, score - 20); // Penalty for incorrect attempt
+            score = Math.max(0, score - 20);
             updateScoreDisplay();
         }
     }
 
     function restartPuzzle() {
         playSound(buttonSound);
-        loadPuzzle(currentPuzzleIndex); // Reload current puzzle
+        loadPuzzle(currentPuzzleIndex);
         messageDisplay.textContent = 'Puzzle restarted!';
     }
 
@@ -1071,13 +1048,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial setup
     preloadBlockTextures().then(() => {
         console.log("Puzzle game textures loaded.");
-        initializeGrid(); // Initialize grid structure once
-        musicPlaylist = categorizedMusic["Puzzle"]; // Specific music for puzzle game
+        initializeGrid();
+        musicPlaylist = categorizedMusic["Puzzle"];
         initializeShuffledPlaylist();
-        loadPuzzle(currentPuzzleIndex); // Load the first puzzle
+        loadPuzzle(currentPuzzleIndex);
     }).catch(error => {
         console.error("Error loading puzzle game textures:", error);
-        // Fallback initialization - attempt to run even if textures fail
         initializeGrid();
         musicPlaylist = categorizedMusic["Puzzle"];
         initializeShuffledPlaylist();
