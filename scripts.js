@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridSoundToggleButton = document.getElementById('gridSoundToggleButton');
     const musicToggleButton = document.getElementById('musicToggleButton');
     const resourceCountDisplay = document.getElementById('resourceCountDisplay');
+    
+    const moveGridUpButton = document.getElementById('moveGridUpButton');
+    const moveGridDownButton = document.getElementById('moveGridDownButton');
+    const moveGridLeftButton = document.getElementById('moveGridLeftButton');
+    const moveGridRightButton = document.getElementById('moveGridRightButton');
 
     const gridWidthInput = document.getElementById('gridWidth');
     const gridHeightInput = document.getElementById('gridHeight');
@@ -53,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryOpenSound = new Audio('audio/category_open.mp3');
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
+    
+    const moveSound = new Audio('audio/move_grid.mp3'); // New sound for grid movements
 
     const placeBlockSound = new Audio('audio/inventory_button_click.mp3');
     const destroyBlockSound = new Audio('audio/destroy_block.mp3');
@@ -1558,7 +1565,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect,
+                          
+        moveGridUpButton, 
+        moveGridDownButton, 
+        moveGridLeftButton, 
+        moveGridRightButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -1599,6 +1611,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('selectedTheme') || 'light';
     themeSelect.value = savedTheme;
     applyTheme(savedTheme);
+
+    // NEW: Function to move grid contents
+    function moveGrid(direction) {
+        playSound(moveSound);
+        const newGridState = Array(currentGridWidth * currentGridHeight).fill('Air');
+        
+        for (let i = 0; i < gridState.length; i++) {
+            const blockType = gridState[i];
+            if (blockType === 'Air') continue; // Only move non-empty blocks
+
+            const oldRow = Math.floor(i / currentGridWidth);
+            const oldCol = i % currentGridWidth;
+
+            let newRow = oldRow;
+            let newCol = oldCol;
+
+            switch (direction) {
+                case 'up':
+                    newRow = oldRow - 1;
+                    break;
+                case 'down':
+                    newRow = oldRow + 1;
+                    break;
+                case 'left':
+                    newCol = oldCol - 1;
+                    break;
+                case 'right':
+                    newCol = oldCol + 1;
+                    break;
+            }
+
+            // Check if new position is within bounds
+            if (newRow >= 0 && newRow < currentGridHeight &&
+                newCol >= 0 && newCol < currentGridWidth) {
+                const newIndex = newRow * currentGridWidth + newCol;
+                newGridState[newIndex] = blockType;
+            }
+        }
+        applyState(newGridState); // Apply the new state to the grid visuals
+        saveState(); // Save this new state to history for undo/redo
+    }
+
+    // NEW: Event listeners for move grid buttons
+    moveGridUpButton.addEventListener('click', () => moveGrid('up'));
+    moveGridDownButton.addEventListener('click', () => moveGrid('down'));
+    moveGridLeftButton.addEventListener('click', () => moveGrid('left'));
+    moveGridRightButton.addEventListener('click', () => moveGrid('right'));
+
+    
 
 
     preloadBlockTextures().then(() => {
