@@ -94,9 +94,7 @@ h1, h2, h3 {
     width: 100%; /* Take full width of left-panel */
 }
 
-/* Removed .inventory-category and .category-header as they are not used in JS anymore */
-
-/* IMPORTANT: Styles moved to #blockInventoryInner */
+/* IMPORTANT: Styles moved to #blockInventoryInner.block-items */
 #blockInventoryInner.block-items { /* Target the inner div with this ID and class */
     display: flex;
     flex-wrap: wrap;
@@ -129,7 +127,7 @@ h1, h2, h3 {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: transparent; /* Make text transparent initially, will be shown in tooltip */
+    color: transparent;
 
     image-rendering: pixelated;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -148,6 +146,7 @@ h1, h2, h3 {
     z-index: 1;
 }
 
+
 .inventory-block.selected {
     border-color: var(--selected-block-border);
     box-shadow: 0 0 0 3px var(--selected-block-border);
@@ -156,7 +155,7 @@ h1, h2, h3 {
 .inventory-block::after {
     content: attr(data-name);
     position: absolute;
-    bottom: -50px; /* Hide by default */
+    bottom: -50px;
     left: 0;
     right: 0;
     font-size: 10px;
@@ -168,7 +167,7 @@ h1, h2, h3 {
 }
 
 .inventory-block:hover::after {
-    bottom: 0; /* Show on hover */
+    bottom: 0;
 }
 
 .inventory-block[data-name="Air"] {
