@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             { name: 'Copper Grate', texture: 'textures/copper_grate.png' },
             { name: 'Exposed Copper Grate', texture: 'textures/exposed_copper_grate.png' },
-            { name: 'Weathered Copper Grate', texture: 'textures/weather_copper_grate.png' },
+            { name: 'Weathered Copper Grate', texture: 'textures/weathered_copper_grate.png' },
             { name: 'Oxidized Copper Grate', texture: 'textures/oxidized_copper_grate.png' },
             
             { name: 'Block of Raw Gold', texture: 'textures/raw_gold_block.png' },
