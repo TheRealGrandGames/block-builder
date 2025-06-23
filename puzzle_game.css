@@ -96,26 +96,27 @@ h1, h2, h3 {
 
 /* Removed .inventory-category and .category-header as they are not used in JS anymore */
 
-.block-items {
-    display: flex; /* Changed to flexbox */
-    flex-wrap: wrap; /* Allow items to wrap */
-    gap: 10px; /* Space between blocks */
+/* IMPORTANT: Styles moved to #blockInventoryInner */
+#blockInventoryInner.block-items { /* Target the inner div with this ID and class */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 10px;
-    justify-content: center; /* Center items in the inventory */
-    padding: 10px; /* Add padding consistent with former category-content */
-    background-color: var(--container-bg); /* Consistent background */
-    border-radius: 5px; /* Rounded corners */
-    border: 1px solid var(--border-color); /* Border for the inventory box */
+    justify-content: center;
+    padding: 10px;
+    background-color: var(--container-bg);
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
 }
 
 .inventory-block {
-    width: 70px; /* Increased size */
-    height: 70px; /* Increased size */
+    width: 70px;
+    height: 70px;
     border: 2px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
     display: flex;
-    flex-direction: column; /* To stack image and count if needed */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     font-size: 12px;
@@ -128,7 +129,7 @@ h1, h2, h3 {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: transparent;
+    color: transparent; /* Make text transparent initially, will be shown in tooltip */
 
     image-rendering: pixelated;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -144,9 +145,8 @@ h1, h2, h3 {
     padding: 2px 5px;
     border-top-left-radius: 4px;
     line-height: 1;
-    z-index: 1; /* Ensure it's above the texture */
+    z-index: 1;
 }
-
 
 .inventory-block.selected {
     border-color: var(--selected-block-border);
@@ -156,7 +156,7 @@ h1, h2, h3 {
 .inventory-block::after {
     content: attr(data-name);
     position: absolute;
-    bottom: -50px;
+    bottom: -50px; /* Hide by default */
     left: 0;
     right: 0;
     font-size: 10px;
@@ -168,7 +168,7 @@ h1, h2, h3 {
 }
 
 .inventory-block:hover::after {
-    bottom: 0;
+    bottom: 0; /* Show on hover */
 }
 
 .inventory-block[data-name="Air"] {
@@ -183,7 +183,7 @@ h1, h2, h3 {
     /* Grid size defined in JS for minigame */
     border: 2px solid var(--text-color);
     background-color: var(--grid-bg);
-    margin: 0; /* Remove auto margins to fit flex layout */
+    margin: 0;
     user-select: none;
     image-rendering: pixelated;
     transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -221,10 +221,10 @@ h1, h2, h3 {
 /* Specific styling for fixed blocks in puzzles */
 .grid-block.fixed-block {
     cursor: not-allowed;
-    opacity: 1; /* Not transparent */
-    border: 1px solid #777; /* A distinct border */
-    box-shadow: inset 0 0 0 2px #555; /* Inner shadow for depth */
-    filter: brightness(0.9); /* Slightly darker to distinguish */
+    opacity: 1;
+    border: 1px solid #777;
+    box-shadow: inset 0 0 0 2px #555;
+    filter: brightness(0.9);
 }
 
 
@@ -243,11 +243,11 @@ h1, h2, h3 {
 
 .selected-block-area {
     display: flex;
-    flex-direction: column; /* Stack header and visual vertically */
-    align-items: center; /* Center content */
+    flex-direction: column;
+    align-items: center;
     gap: 10px;
-    margin-bottom: 0; /* Adjust margin for new layout */
-    width: 100%; /* Take full width of left-panel */
+    margin-bottom: 0;
+    width: 100%;
 }
 
 .selected-block-area h3 {
@@ -257,8 +257,8 @@ h1, h2, h3 {
 }
 
 .selected-block-visual {
-    width: 70px; /* Increased size */
-    height: 70px; /* Increased size */
+    width: 70px;
+    height: 70px;
     border: 2px solid var(--selected-block-border);
     border-radius: 4px;
     background-color: var(--placeholder-block-bg);
@@ -294,7 +294,7 @@ h1, h2, h3 {
     margin-top: 10px;
     transition: background-color 0.2s ease, filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     align-self: center;
-    width: 400px; /* Changed to 400px */
+    width: 400px;
     height: 40px;
     image-rendering: pixelated;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -336,7 +336,7 @@ h1, h2, h3 {
 }
 
 .top-buttons-container,
-.utility-buttons-container { /* Applied to both button containers */
+.utility-buttons-container {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
@@ -362,30 +362,30 @@ h1, h2, h3 {
     font-weight: bold;
     color: var(--text-color);
     text-align: center;
-    min-width: 120px; /* Ensure consistent width */
+    min-width: 120px;
 }
 
 .message-display {
     font-size: 1.2em;
     font-style: italic;
-    flex-grow: 1; /* Allow it to take available space */
+    flex-grow: 1;
     text-align: center;
     margin-top: 15px;
     color: var(--text-color);
-    min-height: 1.5em; /* Reserve space for messages */
+    min-height: 1.5em;
 }
 
 
 /* Adjustments for responsiveness */
-@media (max-width: 900px) { /* Adjust breakpoint as needed */
+@media (max-width: 900px) {
     .main-game-layout {
-        flex-direction: column; /* Stack inventory and grid vertically */
-        align-items: center; /* Center items when stacked */
+        flex-direction: column;
+        align-items: center;
     }
 
     .game-container {
         padding: 15px;
-        width: 95%; /* Adjust width for smaller screens */
+        width: 95%;
     }
 
     .inventory-block {
@@ -399,7 +399,7 @@ h1, h2, h3 {
     }
 
     .action-button {
-        width: 100%; /* Full width buttons on smaller screens */
+        width: 100%;
     }
 
     .minigame-header {
@@ -415,7 +415,6 @@ h1, h2, h3 {
 
 @media (max-width: 480px) {
     .game-grid {
-        /* Further adjustments might be needed in JS for BLOCK_SIZE on very small screens */
         transform: scale(0.8);
         transform-origin: center top;
     }
