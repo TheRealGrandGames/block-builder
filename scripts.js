@@ -475,7 +475,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             { name: 'Chiseled Resin Bricks', texture: 'textures/chiseled_resin_bricks.png' },
 
+            { name: 'Barrel', texture: 'textures/barrel_top.png' },
+            
             { name: 'Redstone Lamp', texture: 'textures/redstone_lamp.png' },
+            
+            { name: 'Piston', texture: 'textures/piston_top.png' },
+            { name: 'Sticky Piston', texture: 'textures/piston_top_sticky.png' },
+            
+            { name: 'Note Block', texture: 'textures/note_block.png' },
+            { name: 'Jukebox', texture: 'textures/jukebox_top.png' },
             
             { name: 'Prismarine', texture: 'textures/prismarine.png' },
             { name: 'Prismarine Bricks', texture: 'textures/prismarine_bricks.png' },
