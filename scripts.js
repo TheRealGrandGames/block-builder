@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeSelect = document.getElementById('theme-select');
     const musicCategorySelect = document.getElementById('musicCategorySelect');
 
+    // NEW: Move Grid Buttons
+    const moveGridUpButton = document.getElementById('moveGridUpButton');
+    const moveGridDownButton = document.getElementById('moveGridDownButton');
+    const moveGridLeftButton = document.getElementById('moveGridLeftButton');
+    const moveGridRightButton = document.getElementById('moveGridRightButton');
+
     let currentGridWidth = 10;
     let currentGridHeight = 10;
     const blockSize = 50;
@@ -53,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryOpenSound = new Audio('audio/category_open.mp3');
     const categoryCollapseSound = new Audio('audio/category_collapse.mp3');
     const saveSound = new Audio('audio/save_sound.mp3');
+    const moveSound = new Audio('audio/move_grid.mp3'); // New sound for grid movements
 
     const placeBlockSound = new Audio('audio/inventory_button_click.mp3');
     const destroyBlockSound = new Audio('audio/destroy_block.mp3');
@@ -64,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    // Categorized music playlists
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -110,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    let musicPlaylist = []; // This will hold the currently active playlist
+    let musicPlaylist = [];
 
     const backgroundMusic = new Audio();
     backgroundMusic.loop = false;
@@ -236,15 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
         musicToggleButton.textContent = `Music: ${musicEnabled ? 'ON' : 'OFF'}`;
     }
 
-    // Function to update the active music playlist based on selection
     function updateMusicPlaylist() {
         const selectedCategory = musicCategorySelect.value;
         musicPlaylist = categorizedMusic[selectedCategory] || [];
-        initializeShuffledPlaylist(); // Re-shuffle the new playlist
-        playBackgroundMusic(); // Attempt to play music from the new playlist
-        localStorage.setItem('selectedMusicCategory', selectedCategory); // Save selection
+        initializeShuffledPlaylist();
+        playBackgroundMusic();
+        localStorage.setItem('selectedMusicCategory', selectedCategory);
     }
-
 
     updateSoundToggleButton();
     updateGridSoundToggleButton();
@@ -290,8 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Ice', texture: 'textures/ice.png' },
             { name: 'Packed Ice', texture: 'textures/packed_ice.png' },
             { name: 'Blue Ice', texture: 'textures/blue_ice.png' },
-
-            { name: 'Cactus', texture: 'textures/cactus_top.png' },
 
             { name: 'Pumpkin', texture: 'textures/pumpkin_top.png' },
             { name: 'Melon', texture: 'textures/melon_top.png' },
@@ -409,8 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Stripped Warped Wood', texture: 'textures/stripped_warped_stem.png' },
         ],
         Stone: [
-            { name: 'Terracotta', texture: 'textures/terracotta.png' },
-            
             { name: 'Stone', texture: 'textures/stone.png' },
             { name: 'Stone Bricks', texture: 'textures/stone_bricks.png' },
             { name: 'Cracked Stone Bricks', texture: 'textures/cracked_stone_bricks.png' },
@@ -472,9 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
         Construction: [
             { name: 'Bricks', texture: 'textures/bricks.png' },
 
-            { name: 'Glass', texture: 'textures/glass.png' },
-            { name: 'Tinted Glass', texture: 'textures/tinted_glass.png' },
-
             { name: 'Packed Mud', texture: 'textures/packed_mud.png' },
             { name: 'Mud Bricks', texture: 'textures/mud_bricks.png' },
             
@@ -482,21 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             { name: 'Chiseled Resin Bricks', texture: 'textures/chiseled_resin_bricks.png' },
 
-            { name: 'TNT', texture: 'textures/tnt_top.png' },
-
-            { name: 'Lodestone', texture: 'textures/lodestone_top.png' },
-            
-            { name: 'Barrel', texture: 'textures/barrel_top.png' },
-            
             { name: 'Redstone Lamp', texture: 'textures/redstone_lamp.png' },
-            
-            { name: 'Piston', texture: 'textures/piston_top.png' },
-            { name: 'Sticky Piston', texture: 'textures/piston_top_sticky.png' },
-            
-            { name: 'Note Block', texture: 'textures/note_block.png' },
-            { name: 'Jukebox', texture: 'textures/jukebox_top.png' },
-
-            { name: 'Target', texture: 'textures/target_top.png' },
             
             { name: 'Prismarine', texture: 'textures/prismarine.png' },
             { name: 'Prismarine Bricks', texture: 'textures/prismarine_bricks.png' },
@@ -511,8 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             { name: 'Purpur Block', texture: 'textures/purpur_block.png' },
             { name: 'Purpur Pillar', texture: 'textures/purpur_pillar_top.png' },
-
-            { name: 'Shulker Box', texture: 'textures/shulker_box.png' },
         ],
         Colorful: [
             { name: 'White Wool', texture: 'textures/white_wool.png' },
@@ -531,108 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Purple Wool', texture: 'textures/purple_wool.png' },
             { name: 'Magenta Wool', texture: 'textures/magenta_wool.png' },
             { name: 'Pink Wool', texture: 'textures/pink_wool.png' },
-
-            { name: 'White Terracotta', texture: 'textures/white_terracotta.png' },
-            { name: 'Light Gray Terracotta', texture: 'textures/light_gray_terracotta.png' },
-            { name: 'Gray Terracotta', texture: 'textures/gray_terracotta.png' },
-            { name: 'Black Terracotta', texture: 'textures/black_terracotta.png' },
-            { name: 'Brown Terracotta', texture: 'textures/brown_terracotta.png' },
-            { name: 'Red Terracotta', texture: 'textures/red_terracotta.png' },
-            { name: 'Orange Terracotta', texture: 'textures/orange_terracotta.png' },
-            { name: 'Yellow Terracotta', texture: 'textures/yellow_terracotta.png' },
-            { name: 'Lime Terracotta', texture: 'textures/lime_terracotta.png' },
-            { name: 'Green Terracotta', texture: 'textures/green_terracotta.png' },
-            { name: 'Cyan Terracotta', texture: 'textures/cyan_terracotta.png' },
-            { name: 'Light Blue Terracotta', texture: 'textures/light_blue_terracotta.png' },
-            { name: 'Blue Terracotta', texture: 'textures/blue_terracotta.png' },
-            { name: 'Purple Terracotta', texture: 'textures/purple_terracotta.png' },
-            { name: 'Magenta Terracotta', texture: 'textures/magenta_terracotta.png' },
-            { name: 'Pink Terracotta', texture: 'textures/pink_terracotta.png' },
-
-            { name: 'White Concrete', texture: 'textures/white_concrete.png' },
-            { name: 'Light Gray Concrete', texture: 'textures/light_gray_concrete.png' },
-            { name: 'Gray Concrete', texture: 'textures/gray_concrete.png' },
-            { name: 'Black Concrete', texture: 'textures/black_concrete.png' },
-            { name: 'Brown Concrete', texture: 'textures/brown_concrete.png' },
-            { name: 'Red Concrete', texture: 'textures/red_concrete.png' },
-            { name: 'Orange Concrete', texture: 'textures/orange_concrete.png' },
-            { name: 'Yellow Concrete', texture: 'textures/yellow_concrete.png' },
-            { name: 'Lime Concrete', texture: 'textures/lime_concrete.png' },
-            { name: 'Green Concrete', texture: 'textures/green_concrete.png' },
-            { name: 'Cyan Concrete', texture: 'textures/cyan_concrete.png' },
-            { name: 'Light Blue Concrete', texture: 'textures/light_blue_concrete.png' },
-            { name: 'Blue Concrete', texture: 'textures/blue_concrete.png' },
-            { name: 'Purple Concrete', texture: 'textures/purple_concrete.png' },
-            { name: 'Magenta Concrete', texture: 'textures/magenta_concrete.png' },
-            { name: 'Pink Concrete', texture: 'textures/pink_concrete.png' },
-
-            { name: 'White Concrete Powder', texture: 'textures/white_concrete_powder.png' },
-            { name: 'Light Gray Concrete Powder', texture: 'textures/light_gray_concrete_powder.png' },
-            { name: 'Gray Concrete Powder', texture: 'textures/gray_concrete_powder.png' },
-            { name: 'Black Concrete Powder', texture: 'textures/black_concrete_powder.png' },
-            { name: 'Brown Concrete Powder', texture: 'textures/brown_concrete_powder.png' },
-            { name: 'Red Concrete Powder', texture: 'textures/red_concrete_powder.png' },
-            { name: 'Orange Concrete Powder', texture: 'textures/orange_concrete_powder.png' },
-            { name: 'Yellow Concrete Powder', texture: 'textures/yellow_concrete_powder.png' },
-            { name: 'Lime Concrete Powder', texture: 'textures/lime_concrete_powder.png' },
-            { name: 'Green Concrete Powder', texture: 'textures/green_concrete_powder.png' },
-            { name: 'Cyan Concrete Powder', texture: 'textures/cyan_concrete_powder.png' },
-            { name: 'Light Blue Concrete Powder', texture: 'textures/light_blue_concrete_powder.png' },
-            { name: 'Blue Concrete Powder', texture: 'textures/blue_concrete_powder.png' },
-            { name: 'Purple Concrete Powder', texture: 'textures/purple_concrete_powder.png' },
-            { name: 'Magenta Concrete Powder', texture: 'textures/magenta_concrete_powder.png' },
-            { name: 'Pink Concrete Powder', texture: 'textures/pink_concrete_powder.png' },
-
-            { name: 'White Glazed Terracotta', texture: 'textures/white_glazed_terracotta.png' },
-            { name: 'Light Gray Glazed Terracotta', texture: 'textures/light_gray_glazed_terracotta.png' },
-            { name: 'Gray Glazed Terracotta', texture: 'textures/gray_glazed_terracotta.png' },
-            { name: 'Black Glazed Terracotta', texture: 'textures/black_glazed_terracotta.png' },
-            { name: 'Brown Glazed Terracotta', texture: 'textures/brown_glazed_terracotta.png' },
-            { name: 'Red Glazed Terracotta', texture: 'textures/red_glazed_terracotta.png' },
-            { name: 'Orange Glazed Terracotta', texture: 'textures/orange_glazed_terracotta.png' },
-            { name: 'Yellow Glazed Terracotta', texture: 'textures/yellow_glazed_terracotta.png' },
-            { name: 'Lime Glazed Terracotta', texture: 'textures/lime_glazed_terracotta.png' },
-            { name: 'Green Glazed Terracotta', texture: 'textures/green_glazed_terracotta.png' },
-            { name: 'Cyan Glazed Terracotta', texture: 'textures/cyan_glazed_terracotta.png' },
-            { name: 'Light Glazed Blue Terracotta', texture: 'textures/light_blue_glazed_terracotta.png' },
-            { name: 'Blue Glazed Terracotta', texture: 'textures/blue_glazed_terracotta.png' },
-            { name: 'Purple Glazed Terracotta', texture: 'textures/purple_glazed_terracotta.png' },
-            { name: 'Magenta Glazed Terracotta', texture: 'textures/magenta_glazed_terracotta.png' },
-            { name: 'Pink Glazed Terracotta', texture: 'textures/pink_glazed_terracotta.png' },
-
-            { name: 'White Stained Glass', texture: 'textures/white_stained_glass.png' },
-            { name: 'Light Gray Stained Glass', texture: 'textures/light_gray_stained_glass.png' },
-            { name: 'Gray Stained Glass', texture: 'textures/gray_stained_glass.png' },
-            { name: 'Black Stained Glass', texture: 'textures/black_stained_glass.png' },
-            { name: 'Brown Stained Glass', texture: 'textures/brown_stained_glass.png' },
-            { name: 'Red Stained Glass', texture: 'textures/red_stained_glass.png' },
-            { name: 'Orange Stained Glass', texture: 'textures/orange_stained_glass.png' },
-            { name: 'Yellow Stained Glass', texture: 'textures/yellow_stained_glass.png' },
-            { name: 'Lime Stained Glass', texture: 'textures/lime_stained_glass.png' },
-            { name: 'Green Stained Glass', texture: 'textures/green_stained_glass.png' },
-            { name: 'Cyan Stained Glass', texture: 'textures/cyan_stained_glass.png' },
-            { name: 'Light Blue Stained Glass', texture: 'textures/light_blue_stained_glass.png' },
-            { name: 'Blue Stained Glass', texture: 'textures/blue_stained_glass.png' },
-            { name: 'Purple Stained Glass', texture: 'textures/purple_stained_glass.png' },
-            { name: 'Magenta Stained Glass', texture: 'textures/magenta_stained_glass.png' },
-            { name: 'Pink Stained Glass', texture: 'textures/pink_stained_glass.png' },
-
-            { name: 'White Shulker Box', texture: 'textures/white_shulker_box.png' },
-            { name: 'Light Gray Shulker Box', texture: 'textures/light_gray_shulker_box.png' },
-            { name: 'Gray Shulker Box', texture: 'textures/gray_shulker_box.png' },
-            { name: 'Black Shulker Box', texture: 'textures/black_shulker_box.png' },
-            { name: 'Brown Shulker Box', texture: 'textures/brown_shulker_box.png' },
-            { name: 'Red Shulker Box', texture: 'textures/red_shulker_box.png' },
-            { name: 'Orange Shulker Box', texture: 'textures/orange_shulker_box.png' },
-            { name: 'Yellow Shulker Box', texture: 'textures/yellow_shulker_box.png' },
-            { name: 'Lime Shulker Box', texture: 'textures/lime_shulker_box.png' },
-            { name: 'Green Shulker Box', texture: 'textures/green_shulker_box.png' },
-            { name: 'Cyan Shulker Box', texture: 'textures/cyan_shulker_box.png' },
-            { name: 'Light Blue Shulker Box', texture: 'textures/light_blue_shulker_box.png' },
-            { name: 'Blue Shulker Box', texture: 'textures/blue_shulker_box.png' },
-            { name: 'Purple Shulker Box', texture: 'textures/purple_shulker_box.png' },
-            { name: 'Magenta Shulker Box', texture: 'textures/magenta_shulker_box.png' },
-            { name: 'Pink Shulker Box', texture: 'textures/pink_shulker_box.png' },
         ],
         Minerals: [
             { name: 'Block of Coal', texture: 'textures/coal_block.png' },
@@ -662,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             { name: 'Copper Grate', texture: 'textures/copper_grate.png' },
             { name: 'Exposed Copper Grate', texture: 'textures/exposed_copper_grate.png' },
-            { name: 'Weathered Copper Grate', texture: 'textures/weathered_copper_grate.png' },
+            { name: 'Weathered Copper Grate', texture: 'textures/weather_copper_grate.png' },
             { name: 'Oxidized Copper Grate', texture: 'textures/oxidized_copper_grate.png' },
             
             { name: 'Block of Raw Gold', texture: 'textures/raw_gold_block.png' },
@@ -772,10 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'textures/water.png',
             'textures/grass.png',
             'textures/button.png',
+            'textures/button_highlighted.png', // Ensure button textures are preloaded
+            'textures/button_disabled.png', // Ensure button textures are preloaded
             'textures/cave_theme_bg.png',
-            'textures/reef_theme_bg.png',
-            'textures/button_highlighted.png',
-            'textures/button_disabled.png'
+            'textures/reef_theme_bg.png'
         ];
         backgroundTextures.forEach(src => {
             imagesToLoad.push(new Promise((resolve) => {
@@ -842,7 +721,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 inventoryBlockElement.classList.add('inventory-block');
                 inventoryBlockElement.dataset.type = blockData.name;
                 inventoryBlockElement.dataset.name = blockData.name;
-                inventoryBlockElement.style.backgroundImage = `url(${blockData.texture})`;
+                
+                const img = blockImages[blockData.name];
+                if (img) {
+                    inventoryBlockElement.style.backgroundImage = `url(${img.src})`;
+                    inventoryBlockElement.style.backgroundColor = '';
+                } else {
+                    inventoryBlockElement.style.backgroundColor = '#ccc'; // Fallback color
+                }
+
 
                 inventoryBlockElement.addEventListener('click', () => {
                     selectBlock(blockData.name, inventoryBlockElement);
@@ -881,8 +768,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedBlockType = type;
 
         const selectedBlockData = blockTypes[type];
-        if (selectedBlockData) {
-            selectedBlockDisplay.style.backgroundImage = `url(${selectedBlockData.texture})`;
+        if (selectedBlockData && blockImages[type]) {
+            selectedBlockDisplay.style.backgroundImage = `url(${blockImages[type].src})`;
+            selectedBlockDisplay.style.backgroundColor = '';
             selectedBlockDisplay.dataset.type = type;
         } else {
             selectedBlockDisplay.style.backgroundImage = 'none';
@@ -890,8 +778,12 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedBlockDisplay.dataset.type = 'None';
         }
 
-        element.classList.add('selected');
-        currentInventoryBlockElement = element;
+        if (element) {
+            element.classList.add('selected');
+            currentInventoryBlockElement = element;
+        } else {
+            currentInventoryBlockElement = null;
+        }
 
         playSound(selectSound);
     }
@@ -905,8 +797,8 @@ document.addEventListener('DOMContentLoaded', () => {
             block.dataset.type = type; // Update dataset attribute
 
             const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
-            if (texturePath) {
-                block.style.backgroundImage = `url(${texturePath})`;
+            if (texturePath && blockImages[type]) { // Check if image object exists
+                block.style.backgroundImage = `url(${blockImages[type].src})`;
                 block.style.backgroundColor = ''; // Ensure background color is cleared
             } else {
                 // This means 'type' is 'Air' or an unknown block
@@ -948,9 +840,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const type = gridState[i] || 'Air'; // Use gridState[i] directly
             block.dataset.type = type;
 
-            const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
-            if (texturePath) {
-                block.style.backgroundImage = `url(${texturePath})`;
+            const img = blockImages[type];
+            if (type !== 'Air' && img) {
+                block.style.backgroundImage = `url(${img.src})`;
                 block.style.backgroundColor = '';
             } else {
                 block.style.backgroundColor = '#e0e0e0';
@@ -1070,9 +962,9 @@ document.addEventListener('DOMContentLoaded', () => {
         gridBlockElement.dataset.type = type;
         gridState[index] = type;
 
-        const texturePath = blockTypes[type] ? blockTypes[type].texture : null;
-        if (texturePath) {
-            gridBlockElement.style.backgroundImage = `url(${texturePath})`;
+        const img = blockImages[type];
+        if (type !== 'Air' && img) {
+            gridBlockElement.style.backgroundImage = `url(${img.src})`;
             gridBlockElement.style.backgroundColor = '';
         } else {
             gridBlockElement.style.backgroundImage = 'none';
@@ -1139,9 +1031,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 block.dataset.type = selectedBlockType;
                 gridState[index] = selectedBlockType;
 
-                const texturePath = blockTypes[selectedBlockType] ? blockTypes[selectedBlockType].texture : null;
-                if (texturePath) {
-                    block.style.backgroundImage = `url(${texturePath})`;
+                const img = blockImages[selectedBlockType];
+                if (selectedBlockType !== 'Air' && img) {
+                    block.style.backgroundImage = `url(${img.src})`;
                     block.style.backgroundColor = '';
                 } else {
                     block.style.backgroundImage = 'none';
@@ -1154,6 +1046,48 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
     }
 
+    // NEW: Function to move grid contents
+    function moveGrid(direction) {
+        playSound(moveSound);
+        const newGridState = Array(currentGridWidth * currentGridHeight).fill('Air');
+        
+        for (let i = 0; i < gridState.length; i++) {
+            const blockType = gridState[i];
+            if (blockType === 'Air') continue;
+
+            const oldRow = Math.floor(i / currentGridWidth);
+            const oldCol = i % currentGridWidth;
+
+            let newRow = oldRow;
+            let newCol = oldCol;
+
+            switch (direction) {
+                case 'up':
+                    newRow = oldRow - 1;
+                    break;
+                case 'down':
+                    newRow = oldRow + 1;
+                    break;
+                case 'left':
+                    newCol = oldCol - 1;
+                    break;
+                case 'right':
+                    newCol = oldCol + 1;
+                    break;
+            }
+
+            // Check if new position is within bounds
+            if (newRow >= 0 && newRow < currentGridHeight &&
+                newCol >= 0 && newCol < currentGridWidth) {
+                const newIndex = newRow * currentGridWidth + newCol;
+                newGridState[newIndex] = blockType;
+            }
+        }
+        applyState(newGridState);
+        saveState();
+    }
+
+
     clearGridButton.addEventListener('click', () => {
         clearGrid();
         playSound(buttonSound);
@@ -1164,6 +1098,13 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
         playSound(fillSound);
     });
+
+    // NEW: Event listeners for move grid buttons
+    moveGridUpButton.addEventListener('click', () => moveGrid('up'));
+    moveGridDownButton.addEventListener('click', () => moveGrid('down'));
+    moveGridLeftButton.addEventListener('click', () => moveGrid('left'));
+    moveGridRightButton.addEventListener('click', () => moveGrid('right'));
+
 
     function saveState() {
         if (historyPointer < gridHistory.length - 1) {
@@ -1458,7 +1399,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('musicEnabled', musicEnabled);
         updateMusicToggleButton();
         if (musicEnabled) {
-            // No need to re-initialize shuffled playlist here, as updateMusicPlaylist() handles it
             playBackgroundMusic();
         } else {
             pauseBackgroundMusic();
@@ -1466,10 +1406,9 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound(buttonSound);
     });
 
-    // Music category dropdown event listener
     musicCategorySelect.addEventListener('change', () => {
-        updateMusicPlaylist(); // Update playlist based on new selection
-        playSound(buttonSound); // Play a sound for the dropdown change
+        updateMusicPlaylist();
+        playSound(buttonSound);
     });
 
 
@@ -1558,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect];
+    const toggleButtons = [musicToggleButton, soundToggleButton, gridSoundToggleButton, fillGridButton, clearGridButton, undoButton, redoButton, setGridSizeButton, resetGridSizeButton, savePngButton, importButton, exportButton, musicCategorySelect, moveGridUpButton, moveGridDownButton, moveGridLeftButton, moveGridRightButton];
 
     toggleButtons.forEach(button => {
         button.addEventListener('mouseover', (event) => {
@@ -1608,7 +1547,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
         updateUndoRedoButtonStates();
 
-        // Load saved music category and initialize playlist
         const savedMusicCategory = localStorage.getItem('selectedMusicCategory') || 'All';
         musicCategorySelect.value = savedMusicCategory;
         updateMusicPlaylist();
@@ -1620,7 +1558,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
         updateUndoRedoButtonStates();
         
-        // Also attempt to initialize music on error
         const savedMusicCategory = localStorage.getItem('selectedMusicCategory') || 'All';
         musicCategorySelect.value = savedMusicCategory;
         updateMusicPlaylist();
