@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gameGrid = document.getElementById('gameGrid');
-    // Renamed blockInventory to blockInventoryContainer for clarity, and added blockInventoryInner
-    const blockInventoryContainer = document.querySelector('.inventory'); // Get the main inventory div
-    const blockInventoryInner = document.getElementById('blockInventoryInner'); // This is the actual div for blocks
+    const blockInventoryContainer = document.querySelector('.inventory');
+    const blockInventoryInner = document.getElementById('blockInventoryInner');
     const blockTooltip = document.getElementById('blockTooltip');
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const puzzleTitleDisplay = document.getElementById('puzzleTitleDisplay');
@@ -352,7 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'Air';
             }),
             editableCells: Array(GRID_WIDTH * GRID_HEIGHT).fill(0).map((_, i) => i).filter(i => {
-                // Ensure PUZZLES is accessible here
                 const initial = PUZZLES[3].initialGrid[i];
                 return initial === 'Air'; // All empty cells are editable
             }),
@@ -412,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'Air';
             }),
             editableCells: Array(GRID_WIDTH * GRID_HEIGHT).fill(0).map((_, i) => i).filter(i => {
-                // Ensure PUZZLES is accessible here
                 const row = Math.floor(i / GRID_WIDTH);
                 const col = i % GRID_WIDTH;
                 return !((row === 0 && col === 0) || (row === 9 && col === 9));
