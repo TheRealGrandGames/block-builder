@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gameGrid = document.getElementById('gameGrid');
-    const blockInventoryContainer = document.querySelector('.inventory');
-    const blockInventoryInner = document.getElementById('blockInventoryInner');
+    // Renamed blockInventory to blockInventoryContainer for clarity, and added blockInventoryInner
+    const blockInventoryContainer = document.querySelector('.inventory'); // Get the main inventory div
+    const blockInventoryInner = document.getElementById('blockInventoryInner'); // This is the actual div for blocks
     const blockTooltip = document.getElementById('blockTooltip');
     const selectedBlockDisplay = document.getElementById('selectedBlockDisplay');
     const puzzleTitleDisplay = document.getElementById('puzzleTitleDisplay');
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const puzzleSolvedSound = new Audio('audio/level_complete.mp3');
     const puzzleFailedSound = new Audio('audio/game_over.mp3');
 
-    // Pitch modification for consecutive actions
+    // Pitch modification for consecutive actions (reused from other minigames)
     let consecutivePlaceCount = 0;
     let consecutiveDestroyCount = 0;
     const maxPitchIncrease = 0.5;
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pitchDecayTime = 200;
     let pitchResetTimeout;
 
-    // Music setup
+    // Music setup (reused from other minigames)
     const categorizedMusic = {
         "All": [
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
@@ -66,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'audio/music/taswell.mp3', 'audio/music/dreiton.mp3', 'audio/music/aria_math.mp3',
             'audio/music/haunt_muskie.mp3', 'audio/music/biome_fest.mp3', 'audio/music/blind_spots.mp3'
         ],
-        "Puzzle": [
+        "Puzzle": [ // New category for puzzle game specific music
             'audio/music/main_menu/beginning_2.mp3',
             'audio/music/main_menu/floating_trees.mp3',
             'audio/music/taswell.mp3'
@@ -351,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'Air';
             }),
             editableCells: Array(GRID_WIDTH * GRID_HEIGHT).fill(0).map((_, i) => i).filter(i => {
+                // Ensure PUZZLES is accessible here
                 const initial = PUZZLES[3].initialGrid[i];
                 return initial === 'Air'; // All empty cells are editable
             }),
@@ -410,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'Air';
             }),
             editableCells: Array(GRID_WIDTH * GRID_HEIGHT).fill(0).map((_, i) => i).filter(i => {
+                // Ensure PUZZLES is accessible here
                 const row = Math.floor(i / GRID_WIDTH);
                 const col = i % GRID_WIDTH;
                 return !((row === 0 && col === 0) || (row === 9 && col === 9));
@@ -729,9 +732,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (element) {
             element.classList.add('selected');
             currentInventoryBlockElement = element;
-        } else {
+        } else if (type === 'Air') { // Handle explicit selection of 'Air'
+            selectedBlockDisplay.style.backgroundImage = 'none';
+            selectedBlockDisplay.style.backgroundColor = '#e0e0e0';
+            selectedBlockDisplay.dataset.type = 'Air';
             currentInventoryBlockElement = null;
         }
+
 
         playSound(selectSound);
     }
@@ -836,12 +843,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const playerType = playerGridState[index];
             const isEditable = PUZZLES[currentPuzzleIndex].editableCells.includes(index);
 
-            let typeToShow = initialType;
+            let typeToShow;
             blockElement.classList.remove('fixed-block');
 
             if (isEditable) {
                 typeToShow = playerType;
             } else {
+                typeToShow = initialType; // Fixed blocks always show initial type
                 blockElement.classList.add('fixed-block');
             }
 
@@ -953,17 +961,19 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleRulesDisplay.innerHTML = puzzle.rules.map(rule => `<li>${rule}</li>`).join('');
         console.log(`Loaded Puzzle: ${puzzle.title}`);
         
+        // Step 1: Fully populate initialGridState from the puzzle definition
         initialGridState = [...puzzle.initialGrid];
+
+        // Step 2: Initialize playerGridState based on initialGridState, respecting editable cells
         playerGridState = Array(GRID_WIDTH * GRID_HEIGHT).fill('Air');
-        
         for (let i = 0; i < initialGridState.length; i++) {
             if (!puzzle.editableCells.includes(i)) {
-                playerGridState[i] = initialGridState[i];
+                playerGridState[i] = initialGridState[i]; // Copy fixed blocks to player's state
             }
         }
 
         initializeInventory(puzzle.requiredBlocks);
-        updateGridVisuals();
+        updateGridVisuals(); // Now, this will correctly show fixed blocks and empty editable ones
         messageDisplay.textContent = 'Solve the puzzle!';
         gameActive = true;
         checkSolutionButton.disabled = false;
