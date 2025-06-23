@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">More actions
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block Builder</title>
     <link rel="stylesheet" href="styles.css">
-
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
@@ -17,7 +16,8 @@
             <a href="timed_game.html" class="action-button">Play Timed Game</a>
             <a href="memory_game.html" class="action-button">Play Memory Game</a>
         </div>
-        
+
+        <h2>Settings</h2>
         <!-- Theme Selector Dropdown -->
         <div class="theme-selector-container">
            <label for="theme-select">Music Category:</label>
@@ -31,9 +31,8 @@
                 <option value="Nether">Nether</option>
                 <option value="Music Discs">Music Discs</option>
             </select>
-            
+
             <label for="theme-select">Theme:</label>
-            <!-- Removed action-button class from select element -->
             <select id="theme-select">
                 <option value="light">Light Theme</option>
                 <option value="dark">Dark Theme</option>
@@ -54,7 +53,8 @@
             <button id="gridSoundToggleButton" class="action-button grid-sound-toggle-button"
                     data-tooltip="Toggle sounds for placing and destroying blocks on the grid on or off.">Grid Sounds: ON</button>
         </div>
-        
+
+        <h2>Instructions</h2>
         <div class="instructions">
             <p>**Instructions:**</p>
             <ul>
@@ -77,28 +77,10 @@
             <div id="selectedBlockDisplay" class="selected-block-visual"></div>
         </div>
 
-        <h2>Actions</h2>
-        
-        <div class="utility-buttons-container">
-            <button id="importButton" class="action-button" data-tooltip="Load a .blockbuilder file.">Import</button>
-            <button id="exportButton" class="action-button" data-tooltip="Save your current grid as a .blockbuilder file.">Export</button>
-            <div></div>
-            <button id="undoButton" class="action-button" data-tooltip="Undo the last action.">Undo</button>
-            <button id="redoButton" class="action-button" data-tooltip="Redo the last undone action.">Redo</button>
-            <button id="fillGridButton" class="action-button fill-button"
-                data-tooltip="Fill the grid with the selected block.">Fill</button>
-            <button id="clearGridButton" class="action-button clear-button"
-                data-tooltip="Clear the entire grid.">Clear</button>
-            
-            <!-- NEW: Move Grid Buttons -->
-            <button id="moveGridUpButton" class="action-button" data-tooltip="Move all grid contents up one row.">Move Grid Up</button>
-            <button id="moveGridDownButton" class="action-button" data-tooltip="Move all grid contents down one row.">Move Grid Down</button>
-            <button id="moveGridLeftButton" class="action-button" data-tooltip="Move all grid contents left one column.">Move Grid Left</button>
-            <button id="moveGridRightButton" class="action-button" data-tooltip="Move all grid contents right one column.">Move Grid Right</button>
-
-        </div>
-        
         <h2>Grid</h2>
+
+        <div id="gameGrid" class="game-grid">
+        </div>
 
         <div class="grid-size-controls">
             <h3>Grid Dimensions:</h3>
@@ -111,9 +93,22 @@
             <button id="resetGridSizeButton" class="action-button"
                 data-tooltip="Reset grid size to 10x10 (clears grid)">Reset to Default</button>
         </div>
-        
-        <div id="gameGrid" class="game-grid">
+
+        <h2>Actions</h2>
+
+        <div class="utility-buttons-container">
+            <button id="undoButton" class="action-button" data-tooltip="Undo the last action.">Undo</button>
+            <button id="redoButton" class="action-button" data-tooltip="Redo the last undone action.">Redo</button>
+            <button id="fillGridButton" class="action-button fill-button"
+                data-tooltip="Fill the grid with the selected block.">Fill</button>
+            <button id="clearGridButton" class="action-button clear-button"
+                data-tooltip="Clear the entire grid.">Clear</button>
         </div>
+        <div class="utility-buttons-container">
+            <button id="importButton" class="action-button" data-tooltip="Load a .blockbuilder file.">Import</button>
+            <button id="exportButton" class="action-button" data-tooltip="Save your current grid as a .blockbuilder file.">Export</button>
+        </div>
+
 
         <div class="resource-count-container">
             <h2>Resources Used</h2>
@@ -122,7 +117,7 @@
         </div>
 
         <h2>Save as .png</h2>
-        
+
         <div class="utility-buttons-container">
             <button id="savePngButton" class="action-button save-button">Save PNG</button>
         </div>
